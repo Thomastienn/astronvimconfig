@@ -50,4 +50,5 @@ vim.keymap.set("n", "gD", vim.lsp.buf.definition, { desc = "Go to definition (no
 -- codenium keymap
 vim.keymap.set("i", "<C-g>", function() return vim.fn["codeium#Accept"]() end, { expr = true, silent = true })
 
+-- neogit
 vim.keymap.set("n", "<leader>gg", "<cmd>Neogit<CR>", { desc = "Open Neogit" })
