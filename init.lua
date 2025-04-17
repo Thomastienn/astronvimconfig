@@ -46,3 +46,8 @@ vim.keymap.set("n", "<leader>rbf", ":Refactor extract_block_to_file")
 -- telescope keybind overwritten
 vim.keymap.set("n", "grr", "<cmd>Telescope lsp_references<CR>", { desc = "LSP References" })
 vim.keymap.set("n", "gD", vim.lsp.buf.definition, { desc = "Go to definition (no Telescope)" })
+
+-- codenium keymap
+vim.keymap.set("i", "<C-g>", function() return vim.fn["codeium#Accept"]() end, { expr = true, silent = true })
+
+vim.keymap.set("n", "<leader>gg", "<cmd>Neogit<CR>", { desc = "Open Neogit" })
