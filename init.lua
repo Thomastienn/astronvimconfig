@@ -89,6 +89,26 @@ vim.keymap.set("n", "<leader>rp", function()
     :toggle()
 end, { desc = "Run Python file" })
 
+-- Compile current C++ file with g++
+vim.keymap.set("n", "<leader>rcc", function()
+  vim.cmd "w" -- Save the current file
+  local filename = vim.fn.expand "%"
+  local output = vim.fn.expand "%:r"
+  local flags = "g++ -DLOCAL -std=c++17 -O2 -Wall -Wextra -Wshadow"
+  local cmd = string.format("%s %s -o %s", flags, filename, output)
+
+  require("toggleterm.terminal").Terminal:new({ cmd = cmd, direction = "float", close_on_exit = false }):toggle()
+end, { desc = "Compile current C++ file" })
+
+-- Run compiled C++ output
+vim.keymap.set("n", "<leader>rcr", function()
+  vim.cmd "w" -- Save the file just in case
+  local file_with_ext = vim.fn.expand "%:t"
+  local file_name = file_with_ext:gsub(".cpp", "")
+  local output = "./" .. file_name
+  require("toggleterm.terminal").Terminal:new({ cmd = output, direction = "float", close_on_exit = false }):toggle()
+end, { desc = "Run compiled C++ binary" })
+
 vim.keymap.set("n", "<leader>rjv", function()
   vim.cmd "w" -- save file
   local file = vim.fn.expand "%"
@@ -154,7 +174,13 @@ vim.keymap.set("n", "grr", "<cmd>Telescope lsp_references<CR>", { desc = "LSP Re
 vim.keymap.set("n", "gD", vim.lsp.buf.definition, { desc = "Go to definition (no Telescope)" })
 
 -- codenium keymap
-vim.keymap.set("i", "<C-g>", function() return vim.fn["codeium#Accept"]() end, { expr = true, silent = true })
+-- vim.keymap.set("i", "<C-g>", function() return vim.fn["codeium#Accept"]() end, { expr = true, silent = true })
+-- github copilot keymap
+vim.keymap.set("i", "<C-g>", 'copilot#Accept("\\<CR>")', {
+  expr = true,
+  replace_keycodes = false,
+})
+vim.g.copilot_no_tab_map = true
 
 -- neogit
 vim.keymap.set("n", "<leader>gg", "<cmd>Neogit<CR>", { desc = "Open Neogit" })
