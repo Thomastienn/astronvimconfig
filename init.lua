@@ -18,6 +18,32 @@ end
 require "lazy_setup"
 require "polish"
 
+-- vim.api.nvim_create_autocmd({ "User" }, {
+--   pattern = "MiniMapUpdated",
+--   callback = function()
+--     -- Enhanced contrast minimap base with more visible text
+--     vim.api.nvim_set_hl(0, "MyMinimapBase", { fg = "#C0C0C0", bg = "#1A1A1A" })
+--     vim.g.minimap_base_highlight = "MyMinimapBase"
+--
+--     -- Bright yellow cursor with dark background for high contrast
+--     vim.api.nvim_set_hl(0, "minimapCursor", { fg = "#000000", bg = "#FFFF00", bold = true })
+--
+--     -- More vibrant diff colors with higher contrast
+--     vim.api.nvim_set_hl(0, "minimapDiffAdded", { fg = "#00FF00", bold = true })
+--     vim.api.nvim_set_hl(0, "minimapDiffRemoved", { fg = "#FF0000", bold = true })
+--     vim.api.nvim_set_hl(0, "minimapDiffChanged", { fg = "#FFAA00", bold = true })
+--
+--     -- Cursor on diff lines with high contrast
+--     vim.api.nvim_set_hl(0, "minimapCursorDiffAdded", { fg = "#000000", bg = "#00FF00", bold = true })
+--     vim.api.nvim_set_hl(0, "minimapCursorDiffRemoved", { fg = "#FFFFFF", bg = "#FF0000", bold = true })
+--     vim.api.nvim_set_hl(0, "minimapCursorDiffChanged", { fg = "#000000", bg = "#FFAA00", bold = true })
+--
+--     -- Additional highlights for better visibility
+--     vim.api.nvim_set_hl(0, "minimapRange", { fg = "#FFFFFF", bg = "#404040", bold = true })
+--     vim.api.nvim_set_hl(0, "minimapCurrentLine", { fg = "#FFFFFF", bg = "#333333", bold = true })
+--   end,
+-- })
+
 vim.api.nvim_create_user_command("OpenInExplorer", function()
   local node = require("neo-tree.sources.manager").get_state("filesystem").tree:get_node()
   local path = node.path or vim.fn.expand "%:p"

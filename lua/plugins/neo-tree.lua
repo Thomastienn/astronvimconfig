@@ -14,6 +14,12 @@ return {
           ".ropeproject",
         },
       },
+      window = {
+        mappings = {
+          ["<BS>"] = "navigate_up", -- go up one directory
+          ["<CR>"] = "set_root", -- go into selected directory
+        },
+      },
     },
   },
 }
