@@ -25,7 +25,7 @@ return {
           -- "go",
         },
         ignore_filetypes = { -- disable format on save for specified filetypes
-          "python",
+          "python", -- removed since we handle this dynamically with molten
         },
       },
       disabled = { -- disable formatting capabilities for the listed language servers
@@ -45,6 +45,28 @@ return {
     ---@diagnostic disable: missing-fields
     config = {
       -- clangd = { capabilities = { offsetEncoding = "utf-8" } },
+      pylsp = {
+        settings = {
+          pylsp = {
+            plugins = {
+              -- pylint = {
+              --   enabled = true,
+              --   args = { "--max-line-length=100" },
+              -- },
+              pycodestyle = {
+                enabled = true,
+                maxLineLength = 100,
+              },
+              pyflakes = {
+                enabled = true,
+              },
+              flake8 = {
+                enabled = false, -- disable flake8 to avoid conflicts
+              },
+            },
+          },
+        },
+      },
     },
     -- customize how language servers are attached
     handlers = {

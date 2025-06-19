@@ -18,6 +18,15 @@ return {
         mappings = {
           ["<BS>"] = "navigate_up", -- go up one directory
           ["<CR>"] = "set_root", -- go into selected directory
+          ["<leader>so"] = {
+            function(state)
+              local node = state.tree:get_node()
+              local path = node:get_id()
+              -- Only open files externally, not directories
+              if not node.type or node.type == "file" then vim.fn.jobstart({ "wslview", path }, { detach = true }) end
+            end,
+            desc = "Open with Windows default app (via wslview)",
+          },
         },
       },
     },

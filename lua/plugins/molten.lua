@@ -1,7 +1,11 @@
 return {
   "benlubas/molten-nvim",
   build = ":UpdateRemotePlugins",
-  init = function() vim.g.molten_output_win_max_height = 20 end,
+  init = function() 
+    vim.g.molten_output_win_max_height = 20 
+    -- Create augroup for molten formatting control
+    vim.api.nvim_create_augroup("MoltenFormatting", { clear = true })
+  end,
   ft = { "python", "r", "julia" },
   config = function()
     vim.keymap.set("n", "<localleader>mi", ":MoltenInit<CR>", { silent = true, desc = "Initialize the plugin" })
@@ -28,5 +32,36 @@ return {
       { silent = true, desc = "show/enter output" }
     )
     vim.keymap.set("n", "<localleader>ri", ":MoltenInterrupt<CR>")
+    
+    -- Disable formatting when molten is active
+    vim.api.nvim_create_autocmd("User", {
+      pattern = "MoltenInitPost",
+      group = "MoltenFormatting",
+      callback = function()
+        -- Disable format on save for current buffer
+        vim.b.autoformat = false
+        print("Molten active: Disabled autoformat for this buffer")
+      end,
+    })
+    
+    -- Re-enable formatting when molten is deinitialized
+    vim.api.nvim_create_autocmd("User", {
+      pattern = "MoltenDeinitPost",
+      group = "MoltenFormatting", 
+      callback = function()
+        -- Re-enable format on save for current buffer
+        vim.b.autoformat = nil
+        print("Molten deactivated: Re-enabled autoformat for this buffer")
+      end,
+    })
+    
+    -- Also disable formatting for .ipynb files
+    vim.api.nvim_create_autocmd("BufEnter", {
+      pattern = "*.ipynb",
+      group = "MoltenFormatting",
+      callback = function()
+        vim.b.autoformat = false
+      end,
+    })
   end,
 }

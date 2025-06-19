@@ -15,6 +15,7 @@ return {
       "python",
       "tsx",
       "cpp",
+      "latex",
     },
   },
 }
