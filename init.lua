@@ -107,13 +107,136 @@ vim.keymap.set("n", "<leader>rr", function()
   cargo_term:toggle()
 end, { desc = "Run cargo" })
 
+vim.keymap.set("n", "s", "<Nop>", { noremap = true, silent = true })
 vim.keymap.set("n", "<leader>rp", function()
-  vim.cmd "w"
-  local filename = vim.fn.expand "%"
+  vim.cmd "w" -- save file
+  local filename = vim.fn.expand "%:p" -- full path
+  local cwd = vim.fn.getcwd()
+  local venv_paths = {
+    cwd .. "/venv/bin/activate",
+    cwd .. "/.venv/bin/activate",
+  }
+  local activate_cmd = nil
+  for _, path in ipairs(venv_paths) do
+    if vim.fn.filereadable(path) == 1 then
+      activate_cmd = path
+      break
+    end
+  end
+  local run_cmd = ""
+  if activate_cmd then
+    -- Use bash to source and run Python file
+    run_cmd = string.format('bash -c "source %s && python3 %s"', activate_cmd, filename)
+  else
+    -- No venv found, just run with system Python
+    run_cmd = "python3 " .. filename
+  end
   require("toggleterm.terminal").Terminal
-    :new({ cmd = "python3 " .. filename, direction = "float", close_on_exit = false })
+    :new({
+      cmd = run_cmd,
+      direction = "float",
+      close_on_exit = false,
+    })
     :toggle()
-end, { desc = "Run Python file" })
+end, { desc = "Run Python file (auto-venv)" })
+
+-- Typst
+vim.keymap.set("n", "<leader>pt", "<cmd>TypstPreviewToggle<CR>", { desc = "Toggle typst preview" })
+local export_types = { "pdf", "png", "svg", "html" }
+
+local function export(args)
+  local target
+  if vim.tbl_contains(export_types, args[1]) then
+    target = args[1]
+  elseif args[1] == nil then
+    target = "pdf"
+  else
+    print "Unsupported filetype. Use 'pdf' or 'png'."
+    return
+  end
+  local filetype = vim.bo.filetype
+  if filetype ~= "typst" then
+    print "Current buffer is not a typst file"
+    return
+  end
+  local current_file = vim.fn.expand "%:p"
+  local cmd = "typst compile --format " .. target .. " " .. current_file
+  print("Running: " .. cmd)
+  local result = vim.fn.system(cmd)
+  local exit_code = vim.v.shell_error
+  if exit_code ~= 0 then
+    print("Typst compilation failed: " .. result)
+  else
+    print("Successfully exported to " .. target)
+  end
+end
+
+vim.api.nvim_create_user_command("Export", export, {
+  nargs = "?",
+  complete = function() return export_types end,
+})
+
+local function export_with_picker()
+  local pickers = require "telescope.pickers"
+  local finders = require "telescope.finders"
+  local actions = require "telescope.actions"
+  local action_state = require "telescope.actions.state"
+  local conf = require("telescope.config").values
+
+  pickers
+    .new({}, {
+      prompt_title = "Typst Export Format",
+      finder = finders.new_table {
+        results = export_types,
+      },
+      sorter = conf.generic_sorter {},
+      attach_mappings = function(_, map)
+        actions.select_default:replace(function()
+          actions.close()
+          local selection = action_state.get_selected_entry()[1]
+          vim.cmd("Export " .. selection)
+        end)
+        return true
+      end,
+    })
+    :find()
+end
+
+vim.keymap.set("n", "<leader>pe", function() export_with_picker() end, { desc = "Export Typst" })
+
+local function export_picker()
+  local filetype = vim.bo.filetype
+  if filetype ~= "typst" then
+    print "Current buffer is not a typst file"
+    return
+  end
+
+  local pickers = require "telescope.pickers"
+  local finders = require "telescope.finders"
+  local conf = require("telescope.config").values
+  local actions = require "telescope.actions"
+  local action_state = require "telescope.actions.state"
+
+  pickers
+    .new({}, {
+      prompt_title = "Select Export Format",
+      finder = finders.new_table {
+        results = export_types,
+      },
+      sorter = conf.generic_sorter {},
+      attach_mappings = function(prompt_bufnr, map)
+        actions.select_default:replace(function()
+          actions.close(prompt_bufnr)
+          local selection = action_state.get_selected_entry()
+          export { selection.value }
+        end)
+        return true
+      end,
+    })
+    :find()
+end
+
+vim.api.nvim_create_user_command("ExportPicker", export_picker, {})
 
 -- Compile current C++ file with g++
 vim.keymap.set("n", "<leader>rcc", function()
@@ -184,7 +307,7 @@ vim.keymap.set("n", "<leader>rjv", function()
 end, { desc = "Run Java or JavaFX file" })
 
 --vim
-vim.keymap.set("v", "qq", "<Esc>", { desc = "Escape visual mode" })
+vim.keymap.set("v", "q", "<Esc>", { desc = "Escape visual mode" })
 
 -- refractoring keymap
 vim.keymap.set("x", "<leader>re", ":Refactor extract ")

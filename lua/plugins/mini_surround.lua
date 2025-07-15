@@ -13,5 +13,16 @@ return {
       highlight = "sh", -- Highlight surrounding
       update_n_lines = "sn", -- Update surrounding lines
     },
+    custom_surroundings = {
+      ["("] = { output = { left = "(", right = ")" } },
+      [")"] = { output = { left = "(", right = ")" } },
+      ["{"] = { output = { left = "{", right = "}" } },
+      ["}"] = { output = { left = "{", right = "}" } },
+      ["["] = { output = { left = "[", right = "]" } },
+      ["]"] = { output = { left = "[", right = "]" } },
+      ['"'] = { output = { left = '"', right = '"' } },
+      ["'"] = { output = { left = "'", right = "'" } },
+      ["`"] = { output = { left = "`", right = "`" } },
+    },
   },
 }

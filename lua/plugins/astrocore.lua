@@ -1,4 +1,4 @@
--- if true then return {} end -- WARN: REMOVE THIS LINE TO ACTIVATE THIS FILE
+-- AstroCore configuration activated for custom indentation settings
 
 -- AstroCore provides a central place to modify mappings, vim options, autocommands, and more!
 -- Configuration documentation can be found with `:h astrocore`
@@ -45,11 +45,33 @@ return {
         spell = false, -- sets vim.opt.spell
         signcolumn = "yes", -- sets vim.opt.signcolumn to yes
         wrap = true, -- sets vim.opt.wrap
+        -- Set default indentation to 4 spaces
+        tabstop = 4, -- number of spaces that a <Tab> in the file counts for
+        shiftwidth = 4, -- number of spaces to use for each step of (auto)indent
+        softtabstop = 4, -- number of spaces that a <Tab> counts for while performing editing operations
+        expandtab = true, -- use spaces instead of tabs
       },
       g = { -- vim.g.<key>
         -- configure global vim variables (vim.g)
         -- NOTE: `mapleader` and `maplocalleader` must be set in the AstroNvim opts or before `lazy.setup`
         -- This can be found in the `lua/lazy_setup.lua` file
+      },
+    },
+    -- Autocmds can be configured here
+    autocmds = {
+      -- Auto commands for setting indentation per filetype
+      indentation_settings = {
+        {
+          event = "FileType",
+          pattern = { "javascript", "typescript", "javascriptreact", "typescriptreact", "tsx", "jsx", "html", "css", "scss", "less", "json", "yaml", "vue" },
+          callback = function()
+            vim.opt_local.tabstop = 4
+            vim.opt_local.shiftwidth = 4
+            vim.opt_local.softtabstop = 4
+            vim.opt_local.expandtab = true
+          end,
+          desc = "Set 4-space indentation for web development files",
+        },
       },
     },
     -- Mappings can be configured through AstroCore as well.
