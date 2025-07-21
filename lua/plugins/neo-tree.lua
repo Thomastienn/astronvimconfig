@@ -23,9 +23,12 @@ return {
               local node = state.tree:get_node()
               local path = node:get_id()
               -- Only open files externally, not directories
-              if not node.type or node.type == "file" then vim.fn.jobstart({ "wslview", path }, { detach = true }) end
+              if not node.type or node.type == "file" then
+                local win_path = vim.fn.system({ "wslpath", "-w", path }):gsub("\n", "")
+                vim.fn.jobstart({ "explorer.exe", win_path }, { detach = true })
+              end
             end,
-            desc = "Open with Windows default app (via wslview)",
+            desc = "Open with Windows default app (via explorer.exe)",
           },
         },
       },

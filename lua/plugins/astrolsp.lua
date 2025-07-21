@@ -25,7 +25,7 @@ return {
           -- "go",
         },
         ignore_filetypes = { -- disable format on save for specified filetypes
-          "python", -- removed since we handle this dynamically with molten
+          -- "python", -- removed since we handle this dynamically with molten
         },
       },
       disabled = { -- disable formatting capabilities for the listed language servers
@@ -39,30 +39,56 @@ return {
     },
     -- enable servers that you already have installed without mason
     servers = {
-      -- "pyright"
+      "pyright",
     },
     -- customize language server configuration options passed to `lspconfig`
     ---@diagnostic disable: missing-fields
     config = {
       -- clangd = { capabilities = { offsetEncoding = "utf-8" } },
-      pylsp = {
+      -- pylsp = {
+      --   settings = {
+      --     pylsp = {
+      --       plugins = {
+      --         -- pylint = {
+      --         --   enabled = true,
+      --         --   args = { "--max-line-length=100" },
+      --         -- },
+      --         pycodestyle = {
+      --           enabled = true,
+      --           maxLineLength = 100,
+      --         },
+      --         pyflakes = {
+      --           enabled = true,
+      --         },
+      --         flake8 = {
+      --           enabled = false, -- disable flake8 to avoid conflicts
+      --         },
+      --       },
+      --     },
+      --   },
+      -- },
+
+      pyright = {
+        -- Must be the real language‑server binary
+        -- cmd = { "pyright-langserver", "--stdio" },
+
         settings = {
-          pylsp = {
-            plugins = {
-              -- pylint = {
-              --   enabled = true,
-              --   args = { "--max-line-length=100" },
-              -- },
-              pycodestyle = {
-                enabled = true,
-                maxLineLength = 100,
-              },
-              pyflakes = {
-                enabled = true,
-              },
-              flake8 = {
-                enabled = false, -- disable flake8 to avoid conflicts
-              },
+          python = {
+            -- Where your venv folder lives, relative to project root
+            venvPath = "./",
+            venv = "venv",
+
+            -- Which interpreter inside that venv to analyze with
+            pythonPath = vim.fn.getcwd() .. "/venv/bin/python3.12",
+
+            analysis = {
+              -- scan *all* imports in your workspace, not just open files
+              diagnosticMode = "workspace",
+              autoSearchPaths = true,
+              useLibraryCodeForTypes = true,
+
+              -- index your own `.py` at the project root
+              extraPaths = { "./" },
             },
           },
         },
@@ -76,6 +102,7 @@ return {
       -- the key is the server that is being setup with `lspconfig`
       -- rust_analyzer = false, -- setting a handler to false will disable the set up of that language server
       -- pyright = function(_, opts) require("lspconfig").pyright.setup(opts) end -- or a custom handler function can be passed
+      pylsp = false,
     },
     -- Configure buffer local auto commands to add when attaching a language server
     autocmds = {

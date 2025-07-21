@@ -59,10 +59,13 @@ vim.api.nvim_set_keymap("n", "<leader>se", ":OpenInExplorer<CR>", { noremap = tr
 -- Overwrite default
 vim.keymap.set("n", "<C-d>", "<C-d>zz", { noremap = true })
 vim.keymap.set("n", "<C-u>", "<C-u>zz", { noremap = true })
-vim.o.scrolloff = 8
+vim.o.scrolloff = 4
 
 -- Delete
 vim.keymap.del("n", "<leader>h")
+
+-- Restart LSP
+vim.keymap.set("n", "<leader>lt", function() vim.cmd "LspRestart" end, { desc = "Restart LSP" })
 
 -- Fixing telescope
 vim.keymap.set(
