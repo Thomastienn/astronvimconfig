@@ -366,3 +366,50 @@ vim.keymap.set("n", "<leader>hn", function() harpoon:list():next() end, { desc =
 
 -- Previous file
 vim.keymap.set("n", "<leader>hp", function() harpoon:list():prev() end, { desc = "Harpoon previous file" })
+
+-- Function to preview image with viu in floating terminal
+local Terminal = require("toggleterm.terminal").Terminal
+local image_term = nil
+
+local function preview_image_with_viu(path)
+  if not path or path == "" then
+    print "No image path provided"
+    return
+  end
+
+  -- If terminal already exists, just toggle it
+  if image_term then
+    image_term:toggle()
+    return
+  end
+
+  local cmd = "viu " .. vim.fn.shellescape(path)
+
+  image_term = Terminal:new {
+    cmd = cmd,
+    direction = "float",
+    close_on_exit = false,
+    hidden = true,
+  }
+
+  image_term:toggle()
+end
+
+vim.keymap.set("n", "<leader>rm", function()
+  local path = vim.fn.expand "%:p"
+  local ext = path:match "^.+(%..+)$"
+  local image_extensions = { ".png", ".jpg", ".jpeg", ".bmp", ".gif", ".webp" }
+  local is_image = false
+  for _, e in ipairs(image_extensions) do
+    if e == ext then
+      is_image = true
+      break
+    end
+  end
+  if is_image then
+    preview_image_with_viu(path)
+  else
+    print "Current file is not an image"
+  end
+end, { noremap = true, silent = true, desc = "Preview image with viu" })
+-- End of image preview function
