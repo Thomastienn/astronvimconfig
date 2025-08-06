@@ -13,6 +13,8 @@ return {
         extra_args = {
           "--tab-width",
           "4",
+          "--indent-size",
+          "4",
           "--use-tabs",
           "false",
           "--single-quote",
