@@ -118,8 +118,8 @@ return {
     vim.schedule(setup_minimap_colors)
 
     -- Keymaps
-    vim.keymap.set("n", "<leader>mm", ":MinimapToggle<CR>", { desc = "Toggle Minimap" })
-    vim.keymap.set("n", "<leader>mr", ":MinimapRefresh<CR>", { desc = "Refresh Minimap" })
-    vim.keymap.set("n", "<leader>mc", ":MinimapClose<CR>", { desc = "Close Minimap" })
+    vim.keymap.set("n", "<leader>mm", "<cmd>silent! MinimapToggle<CR>", { desc = "Toggle Minimap" })
+    vim.keymap.set("n", "<leader>mr", "<cmd>silent! MinimapRefresh<CR>", { desc = "Refresh Minimap" })
+    vim.keymap.set("n", "<leader>mc", "<cmd>silent! MinimapClose<CR>", { desc = "Close Minimap" })
   end,
 }

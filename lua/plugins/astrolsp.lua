@@ -20,7 +20,7 @@ return {
     formatting = {
       -- control auto formatting on save
       format_on_save = {
-        enabled = true, -- enable or disable format on save globally
+        enabled = false, -- enable or disable format on save globally
         allow_filetypes = { -- enable format on save for specified filetypes only
           -- "go",
         },
@@ -32,7 +32,7 @@ return {
         -- disable lua_ls formatting capability if you want to use StyLua to format your lua code
         -- "lua_ls",
       },
-      timeout_ms = 1000, -- default format timeout
+      timeout_ms = 3000, -- default format timeout
       -- filter = function(client) -- fully override the default formatting function
       --   return true
       -- end
@@ -83,12 +83,19 @@ return {
 
             analysis = {
               -- scan *all* imports in your workspace, not just open files
-              diagnosticMode = "workspace",
+              -- diagnosticMode = "workspace",
+              diagnosticMode = "openFilesOnly",
               autoSearchPaths = true,
               useLibraryCodeForTypes = true,
 
               -- index your own `.py` at the project root
               extraPaths = { "./" },
+            },
+            exclude = {
+              "**/_pycache__",
+              "**/.git",
+              "**/build",
+              "**/dist",
             },
           },
         },
