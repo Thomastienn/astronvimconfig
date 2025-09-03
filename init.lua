@@ -134,11 +134,13 @@ local function export_with_picker()
                 results = export_types,
             },
             sorter = conf.generic_sorter {},
-            attach_mappings = function(_, map)
+            attach_mappings = function(prompt_bufnr, map)
                 actions.select_default:replace(function()
-                    actions.close()
-                    local selection = action_state.get_selected_entry()[1]
-                    vim.cmd("Export " .. selection)
+                    actions.close(prompt_bufnr)
+                    local selection = action_state.get_selected_entry()
+                    if selection and selection.value then
+                        vim.cmd("Export " .. selection.value)
+                    end
                 end)
                 return true
             end,
