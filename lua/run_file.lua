@@ -1,12 +1,42 @@
 local run = {}
 
+function run.compile_file()
+    local filetype = vim.bo.filetype
+    if filetype == "cpp" then
+        vim.cmd "w" -- Save the current file
+        local filename = vim.fn.expand "%"
+        local output = vim.fn.expand "%:r"
+        local flags = "g++ -DLOCAL -std=c++17 -O2 -Wall -Wextra -Wshadow"
+        local cmd = string.format("%s %s -o %s", flags, filename, output)
+
+        require("toggleterm.terminal").Terminal:new({ cmd = cmd, direction = "float", close_on_exit = false }):toggle()
+    end
+    if filetype == "c" then
+        vim.cmd "w" -- Save the current file
+        local filename = vim.fn.expand "%"
+        local output = vim.fn.expand "%:r"
+        local flags = "gcc"
+        local cmd = string.format("%s %s -o %s", flags, filename, output)
+
+        require("toggleterm.terminal").Terminal:new({ cmd = cmd, direction = "float", close_on_exit = false }):toggle()
+    else
+        print("Not compilable filetype: " .. filetype)
+    end
+end
+
 local function run_java()
     vim.cmd "w" -- save file
-    local file = vim.fn.expand "%"
-    local file_escaped = vim.fn.shellescape(file)
-    local classname = vim.fn.expand "%:t:r"
-    vim.cmd("!javac " .. file_escaped)
-    vim.cmd("!java " .. classname)
+    local file = vim.fn.expand "%:t"
+    -- local file_escaped = vim.fn.shellescape(file)
+    -- local classname = vim.fn.expand "%:t:r"
+    -- vim.cmd("!javac " .. file_escaped)
+    require("toggleterm.terminal").Terminal
+        :new({
+            cmd = "java " .. file,
+            direction = "float",
+            close_on_exit = false,
+        })
+        :toggle()
 end
 
 local function run_python()
@@ -79,6 +109,14 @@ local function run_cpp()
     require("toggleterm.terminal").Terminal:new({ cmd = output, direction = "float", close_on_exit = false }):toggle()
 end
 
+local function run_c()
+    vim.cmd "w" -- Save the file just in case
+    local file_with_ext = vim.fn.expand "%:t"
+    local file_name = file_with_ext:gsub("%.c$", "")
+    local output = "./" .. file_name
+    require("toggleterm.terminal").Terminal:new({ cmd = output, direction = "float", close_on_exit = false }):toggle()
+end
+
 local function run_cuda()
     vim.cmd "w" -- save file
     local file = vim.fn.expand "%"
@@ -140,6 +178,8 @@ function run.run_file()
         run_cuda()
     elseif filetype == "cpp" then
         run_cpp()
+    elseif filetype == "c" then
+        run_c()
     elseif filetype == "sh" or filetype == "bash" then
         run_bash_sh()
     else

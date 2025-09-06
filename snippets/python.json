@@ -1,0 +1,283 @@
+{
+
+        "trie": {
+            "prefix": ["trie"],
+            "body": [
+                "class TrieNode:",
+				"    def __init__(self):",
+				"        self.children = {}",
+				"        self.is_end = False",
+				"class Trie:",
+				"    def __init__(self):",
+				"        self.root = TrieNode()",
+				"    def insert(self, word):",
+				"        node = self.root",
+				"        for char in word:",
+				"            if char not in node.children:",
+				"                node.children[char] = TrieNode()",
+				"            node = node.children[char]",
+				"        node.is_end = True",
+				"    def search(self, word):",
+				"        node = self.root",
+				"        for char in word:",
+				"            if char not in node.children:",
+				"                return False",
+				"            node = node.children[char]",
+				"        return node.is_end",
+				"    def starts_with(self, prefix):",
+				"        node = self.root",
+				"        for char in prefix:",
+				"            if char not in node.children:",
+				"                return False",
+				"            node = node.children[char]",
+				"        return True"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "ncr": {
+            "prefix": ["ncr"],
+            "body": [
+                "fact = [1] * (MAXN + 1)",
+				"inv = [1] * (MAXN + 1)",
+				"for i in range(2, MAXN + 1):",
+				"    fact[i] = fact[i - 1] * i % MOD",
+				"inv[MAXN] = pow(fact[MAXN], MOD - 2, MOD)  ",
+				"for i in range(MAXN - 1, 0, -1):",
+				"    inv[i] = inv[i + 1] * (i + 1) % MOD",
+				"def nCr(n, r):",
+				"    if r > n or r < 0:",
+				"        return 0",
+				"    return fact[n] * inv[r] % MOD * inv[n - r] % MOD"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "bit": {
+            "prefix": ["bit"],
+            "body": [
+                "class FenwickTree:",
+				"    def __init__(self, size):",
+				"        self.n = size",
+				"        self.tree = [0] * (self.n + 1)",
+				"",
+				"    def update(self, idx, delta):",
+				"        while idx <= self.n:",
+				"            self.tree[idx] += delta",
+				"            idx += idx & -idx",
+				"",
+				"    def query(self, idx):",
+				"        res = 0",
+				"        while idx > 0:",
+				"            res += self.tree[idx]",
+				"            idx -= idx & -idx",
+				"        return res",
+				"",
+				"    def range_query(self, l, r):",
+				"        return self.query(r) - self.query(l)"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "roll": {
+            "prefix": ["roll"],
+            "body": [
+                "class RollingHash:",
+				"    def __init__(self, s, base=911382629, mod=10**18 + 3):",
+				"        self.s = s",
+				"        self.n = len(s)",
+				"        self.base = base",
+				"        self.mod = mod",
+				"        self.powers = [1] * (self.n + 1)",
+				"        self.prefix_hashes = [0] * (self.n + 1)",
+				"        for i in range(1, self.n + 1):",
+				"            self.powers[i] = (self.powers[i - 1] * self.base) % self.mod",
+				"        for i in range(1, self.n + 1):",
+				"            self.prefix_hashes[i] = (self.prefix_hashes[i - 1] * self.base + ord(s[i - 1])) % self.mod",
+				"    def get_hash(self, l, r):",
+				"        return (self.prefix_hashes[r] - self.prefix_hashes[l] * self.powers[r - l]) % self.mod"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "ter": {
+            "prefix": ["ter"],
+            "body": [
+                "def f(x):",
+				"    return (x+2)**2-5",
+				"",
+				"def ternary_search(l, r):",
+				"    eps = 10**(-6)",
+				"    while r-l > eps:",
+				"        m1 = l+(r-l)/3",
+				"        m2 = r-(r-l)/3",
+				"        ",
+				"        f1 = f(m1)",
+				"        f2 = f(m2)",
+				"        if f1 < f2:",
+				"            r = m2",
+				"        else:",
+				"            l = m1",
+				"    ",
+				"    return round(f(l)), round(l)",
+				"",
+				"print(ternary_search(-10, 10))"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "spt": {
+            "prefix": ["spt"],
+            "body": [
+                "class SparseTable:",
+				"    def __init__(self, array, func=min):",
+				"        self.n = len(array)",
+				"        self.func = func",
+				"        self.k = self.n.bit_length()",
+				"        self.st = [[0] * self.n for _ in range(self.k)]",
+				"        self.st[0] = array.copy()",
+				"        for i in range(1, self.k):",
+				"            j = 0",
+				"            while j + (1 << i) <= self.n:",
+				"                self.st[i][j] = self.func(self.st[i - 1][j], self.st[i - 1][j + (1 << (i - 1))])",
+				"                j += 1",
+				"",
+				"    def query(self, l, r):",
+				"        i = (r - l + 1).bit_length() - 1",
+				"        return self.func(self.st[i][l], self.st[i][r - (1 << i) + 1])"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "dsu": {
+            "prefix": ["dsu"],
+            "body": [
+                "class DSU:",
+				"    def __init__(self, n):",
+				"        self.parent = list(range(n))",
+				"        self.size = [1] * n",
+				"",
+				"    def find(self, x):",
+				"        while self.parent[x] != x:",
+				"            self.parent[x] = self.parent[self.parent[x]]  # Path compression",
+				"            x = self.parent[x]",
+				"        return x",
+				"",
+				"    def union(self, x, y):",
+				"        xroot = self.find(x)",
+				"        yroot = self.find(y)",
+				"        if xroot == yroot:",
+				"            return False",
+				"        if self.size[xroot] < self.size[yroot]:",
+				"            xroot, yroot = yroot, xroot",
+				"        self.parent[yroot] = xroot",
+				"        self.size[xroot] += self.size[yroot]",
+				"        return True"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "siv": {
+            "prefix": ["siv"],
+            "body": [
+                "def sieve(n):",
+				"    is_prime = [True] * (n + 1)",
+				"    is_prime[0] = is_prime[1] = False",
+				"    for p in range(2, int(n**0.5) + 1):",
+				"        if is_prime[p]:",
+				"            for multiple in range(p * p, n + 1, p):",
+				"                is_prime[multiple] = False",
+				"    primes = [p for p, prime in enumerate(is_prime) if prime]",
+				"    return primes"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "tem": {
+            "prefix": ["tem"],
+            "body": [
+                "import sys",
+				"import math",
+				"import heapq",
+				"import bisect",
+				"import re",
+				"from sys import stdin,stdout",
+				"from math import gcd,floor,sqrt,log",
+				"from collections import defaultdict, Counter, deque, OrderedDict",
+				"from bisect import bisect_left, bisect_right",
+				"from itertools import permutations, combinations",
+				"",
+				"sys.setrecursionlimit(10**6)",
+				"mod=1000000007",
+				"",
+				"infile = sys.argv[1] if len(sys.argv) >= 2 else \"1.in\"",
+				"f = open(infile).read().strip()",
+				"    ",
+				"for line in f.split(\"\\n\"):",
+				"    pass"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "segt": {
+            "prefix": ["segt"],
+            "body": [
+                "from math import ceil, log2",
+				"class segment_tree:",
+				"    # merge(left, right): function used to merge the two halves",
+				"    # basef(value): function applied on individual values",
+				"    # basev: identity for merge function, merger(value, basev) = value",
+				"    # update(node_value, old, new): function to update the nodes",
+				"    def __init__(self, array, merge=lambda x,y:x+y, basef=lambda x:x, basev = 0):",
+				"        self.merge = merge",
+				"        self.basef = basef",
+				"        self.basev = basev",
+				"        self.n = len(array)",
+				"        self.array = array",
+				"        self.tree = [0] * ( 2**ceil(log2(len(array))+1) - 1 )",
+				"        self.build(array)",
+				"    def __str__(self):",
+				"        return ' '.join([str(x) for x in self.tree])",
+				"    def _build_util(self, l, r, i, a):",
+				"        if(l==r):",
+				"            self.tree[i] = self.basef(a[l])",
+				"            return self.tree[i]",
+				"        mid = (l+r)//2",
+				"        self.tree[i] = self.merge(self._build_util(l,mid, 2*i+1, a), self._build_util(mid+1, r, 2*i+2, a))",
+				"        return self.tree[i]",
+				"    def build(self, a):",
+				"        self._build_util(0, len(a)-1, 0, a)",
+				"    def _query_util(self, i, ln, rn, l, r):",
+				"        if ln>=l and rn<=r:",
+				"            return self.tree[i]",
+				"        if ln>r or rn<l:",
+				"            return self.basev",
+				"        return self.merge( self._query_util( 2*i+1, ln, (ln+rn)//2, l, r ), self._query_util( 2*i+2, (ln+rn)//2+1, rn, l, r ) )",
+				"    def query(self, l, r):",
+				"        return self._query_util( 0, 0, self.n-1, l, r )",
+				"    def _update_util(self, i, ln, rn, x, v):",
+				"        if x>=ln and x<=rn:",
+				"            if ln != rn:",
+				"                self._update_util( 2*i+1, ln, (ln+rn)//2, x, v )",
+				"                self._update_util( 2*i+2, (ln+rn)//2 + 1, rn, x, v )",
+				"                self.tree[i] = self.merge(self.tree[2*i+1], self.tree[2*i+2])",
+				"            else:",
+				"                self.tree[i] = self.basef(v)",
+				"    def update(self, x, v):",
+				"        self._update_util( 0, 0, self.n-1, x, v )   ",
+				"        self.array[x] =v"
+
+            ],
+            "description": "Desciption"
+        }
+    
+}

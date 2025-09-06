@@ -184,16 +184,10 @@ end
 
 vim.api.nvim_create_user_command("ExportPicker", export_picker, {})
 
--- Compile current C++ file with g++
+-- Compile current C/C++ file with g++
 vim.keymap.set("n", "<leader>rcc", function()
-    vim.cmd "w" -- Save the current file
-    local filename = vim.fn.expand "%"
-    local output = vim.fn.expand "%:r"
-    local flags = "g++ -DLOCAL -std=c++17 -O2 -Wall -Wextra -Wshadow"
-    local cmd = string.format("%s %s -o %s", flags, filename, output)
-
-    require("toggleterm.terminal").Terminal:new({ cmd = cmd, direction = "float", close_on_exit = false }):toggle()
-end, { desc = "Compile current C++ file" })
+    require("run_file").compile_file()
+end, { desc = "Compile current file" })
 
 --vim
 vim.keymap.set("v", "q", "<Esc>", { desc = "Escape visual mode" })

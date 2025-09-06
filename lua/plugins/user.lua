@@ -60,7 +60,7 @@ return {
       local cond = require "nvim-autopairs.conds"
       npairs.add_rules(
         {
-          Rule("$", "$", { "tex", "latex" })
+          Rule("$", "$", { "tex", "latex", "typst"})
             -- don't add a pair if the next character is %
             :with_pair(cond.not_after_regex "%%")
             -- don't add a pair if  the previous character is xxx
