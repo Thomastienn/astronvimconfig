@@ -250,6 +250,7 @@ vim.keymap.set("n", "<leader>hp", function() harpoon:list():prev() end, { desc =
 -- Function to preview image with viu in floating terminal
 local Terminal = require("toggleterm.terminal").Terminal
 local image_term = nil
+vim.api.nvim_set_keymap('t', 'jj', [[<C-\><C-n>]], {noremap = true, silent = true})
 
 local function preview_image_with_viu(path)
     if not path or path == "" then
