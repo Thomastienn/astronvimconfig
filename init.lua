@@ -81,9 +81,6 @@ vim.keymap.set(
 
 vim.keymap.set("n", "s", "<Nop>", { noremap = true, silent = true })
 
-local run_file = require("run_file").run_file
-vim.keymap.set("n", "<leader>rp", run_file, { desc = "Run file" })
-
 -- Typst
 vim.keymap.set("n", "<leader>pt", "<cmd>TypstPreviewToggle<CR>", { desc = "Toggle typst preview" })
 local export_types = { "pdf", "png", "svg", "html" }
@@ -188,6 +185,15 @@ vim.api.nvim_create_user_command("ExportPicker", export_picker, {})
 vim.keymap.set("n", "<leader>rcc", function()
     require("run_file").compile_file()
 end, { desc = "Compile current file" })
+
+-- Compile and run current C/C++ file with g++
+vim.keymap.set("n", "<leader>rcp", function()
+    require("run_file").compile_file()
+    require("run_file").run_file()
+end, { desc = "Compile and Run current file" })
+
+-- Run current file
+vim.keymap.set("n", "<leader>rp", require("run_file").run_file, { desc = "Run file" })
 
 --vim
 vim.keymap.set("v", "q", "<Esc>", { desc = "Escape visual mode" })
