@@ -1,7 +1,9 @@
 local run = {}
 
-function run.compile_file()
+-- Returns the cmd
+function run.compile_only()
     local filetype = vim.bo.filetype
+    -- Everytime update new language, handle extra cmd in the run_file function
     if filetype == "cpp" then
         vim.cmd "w" -- Save the current file
         local filename = vim.fn.expand "%"
@@ -9,7 +11,7 @@ function run.compile_file()
         local flags = "g++ -DLOCAL -std=c++17 -O2 -Wall -Wextra -Wshadow"
         local cmd = string.format("%s %s -o %s", flags, filename, output)
 
-        require("toggleterm.terminal").Terminal:new({ cmd = cmd, direction = "float", close_on_exit = false }):toggle()
+        return cmd
     end
     if filetype == "c" then
         vim.cmd "w" -- Save the current file
@@ -18,13 +20,22 @@ function run.compile_file()
         local flags = "gcc"
         local cmd = string.format("%s %s -o %s", flags, filename, output)
 
-        require("toggleterm.terminal").Terminal:new({ cmd = cmd, direction = "float", close_on_exit = false }):toggle()
+        return cmd
     else
-        print("Not compilable filetype: " .. filetype)
+        return nil
     end
 end
 
-local function run_java()
+function run.compile_file()
+    local cmd = run.compile_only()
+    if cmd == nil then
+        print("No compile command configured for filetype: " .. vim.bo.filetype)
+        return
+    end
+    require("toggleterm.terminal").Terminal:new({ cmd = cmd, direction = "float", close_on_exit = false }):toggle()
+end
+
+local function run_java(...)
     vim.cmd "w" -- save file
     local file = vim.fn.expand "%:t"
     -- local file_escaped = vim.fn.shellescape(file)
@@ -39,7 +50,7 @@ local function run_java()
         :toggle()
 end
 
-local function run_python()
+local function run_python(...)
     vim.cmd "w" -- save file
     local filename = vim.fn.expand "%:p" -- full path
     local cwd = vim.fn.getcwd()
@@ -71,7 +82,7 @@ local function run_python()
         :toggle()
 end
 
-local function run_rust()
+local function run_rust(...)
     local Terminal = require("toggleterm.terminal").Terminal
 
     -- Get full path of the current file
@@ -101,23 +112,29 @@ local function run_rust()
     cargo_term:toggle()
 end
 
-local function run_cpp()
+local function run_cpp(additional_cmds)
     vim.cmd "w" -- Save the file just in case
     local file_with_ext = vim.fn.expand "%:t"
     local file_name = file_with_ext:gsub(".cpp", "")
     local output = "./" .. file_name
+    if additional_cmds ~= nil then
+        output = additional_cmds .. " && " .. output
+    end
     require("toggleterm.terminal").Terminal:new({ cmd = output, direction = "float", close_on_exit = false }):toggle()
 end
 
-local function run_c()
+local function run_c(additional_cmds)
     vim.cmd "w" -- Save the file just in case
     local file_with_ext = vim.fn.expand "%:t"
     local file_name = file_with_ext:gsub("%.c$", "")
     local output = "./" .. file_name
+    if additional_cmds ~= nil then
+        output = additional_cmds .. " && " .. output
+    end
     require("toggleterm.terminal").Terminal:new({ cmd = output, direction = "float", close_on_exit = false }):toggle()
 end
 
-local function run_cuda()
+local function run_cuda(...)
     vim.cmd "w" -- save file
     local file = vim.fn.expand "%"
     local file_escaped = vim.fn.shellescape(file)
@@ -134,7 +151,7 @@ local function run_cuda()
     terminal:toggle()
 end
 
-local function run_bash_sh()
+local function run_bash_sh(...)
     vim.cmd "w" -- save file
     local cwd = vim.fn.getcwd()
     local venv_paths = {
@@ -166,22 +183,22 @@ local function run_bash_sh()
         :toggle()
 end
 
-function run.run_file()
+function run.run_file(additional_cmds)
     local filetype = vim.bo.filetype
     if filetype == "java" then
-        run_java()
+        run_java(additional_cmds)
     elseif filetype == "python" then
-        run_python()
+        run_python(additional_cmds)
     elseif filetype == "rust" then
-        run_rust()
+        run_rust(additional_cmds)
     elseif filetype == "cuda" then
-        run_cuda()
+        run_cuda(additional_cmds)
     elseif filetype == "cpp" then
-        run_cpp()
+        run_cpp(additional_cmds)
     elseif filetype == "c" then
-        run_c()
+        run_c(additional_cmds)
     elseif filetype == "sh" or filetype == "bash" then
-        run_bash_sh()
+        run_bash_sh(additional_cmds)
     else
         print("No run command configured for filetype: " .. filetype)
     end

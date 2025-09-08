@@ -181,19 +181,20 @@ end
 
 vim.api.nvim_create_user_command("ExportPicker", export_picker, {})
 
+
+-- run_file keymaps
 -- Compile current C/C++ file with g++
 vim.keymap.set("n", "<leader>rcc", function()
     require("run_file").compile_file()
 end, { desc = "Compile current file" })
-
 -- Compile and run current C/C++ file with g++
 vim.keymap.set("n", "<leader>rcp", function()
-    require("run_file").compile_file()
-    require("run_file").run_file()
+    local cmd = require("run_file").compile_only()
+    require("run_file").run_file(cmd)
 end, { desc = "Compile and Run current file" })
-
 -- Run current file
 vim.keymap.set("n", "<leader>rp", require("run_file").run_file, { desc = "Run file" })
+
 
 --vim
 vim.keymap.set("v", "q", "<Esc>", { desc = "Escape visual mode" })
