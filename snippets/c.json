@@ -1,5 +1,16 @@
 {
 
+        "mod": {
+            "prefix": ["mod"],
+            "body": [
+                "int mod(int a, int m) {",
+				"    return ((a % m) + m) % m;",
+				"}"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
         "tem": {
             "prefix": ["tem"],
             "body": [
@@ -8,6 +19,24 @@
 				"int main() {",
 				"    printf(\"Hello, World!\\n\");",
 				"    return 0;",
+				"}"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "pow": {
+            "prefix": ["pow"],
+            "body": [
+                "int bipow(int a, int b, int m) {",
+				"    int res = 1;",
+				"    while (b) {",
+				"        if (b & 1)",
+				"            res = res * a % m;",
+				"        a = a * a % m;",
+				"        b >>= 1;",
+				"    }",
+				"    return res;",
 				"}"
 
             ],
