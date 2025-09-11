@@ -64,7 +64,7 @@ def update_json_snippet(
         file.write("\n}\n")
 
 def update_all():
-    filetypes = ["python", "cpp", "c"]
+    filetypes = ["python", "cpp", "c", "java"]
     for filetype in filetypes:
         update_json_snippet(filetype=filetype)
 

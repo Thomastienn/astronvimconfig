@@ -114,9 +114,7 @@ end
 
 local function run_cpp(additional_cmds)
     vim.cmd "w" -- Save the file just in case
-    local file_with_ext = vim.fn.expand "%:t"
-    local file_name = file_with_ext:gsub(".cpp", "")
-    local output = "./" .. file_name
+    local output = vim.fn.expand("%:r")
     if additional_cmds ~= nil then
         output = additional_cmds .. " && " .. output
     end
@@ -125,9 +123,10 @@ end
 
 local function run_c(additional_cmds)
     vim.cmd "w" -- Save the file just in case
-    local file_with_ext = vim.fn.expand "%:t"
-    local file_name = file_with_ext:gsub("%.c$", "")
-    local output = "./" .. file_name
+    -- local file_with_ext = vim.fn.expand "%:t"
+    -- local file_name = file_with_ext:gsub("%.c$", "")
+    -- local output = "./" .. file_name
+    local output = vim.fn.expand("%:r")
     if additional_cmds ~= nil then
         output = additional_cmds .. " && " .. output
     end

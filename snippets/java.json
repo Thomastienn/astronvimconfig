@@ -1,0 +1,16 @@
+{
+
+        "tem": {
+            "prefix": ["tem"],
+            "body": [
+                "public class Tem {",
+				"    public static void main(String[] args) {",
+				"        System.out.println(\"Hello, World!\");",
+				"    }",
+				"}"
+
+            ],
+            "description": "Desciption"
+        }
+    
+}
