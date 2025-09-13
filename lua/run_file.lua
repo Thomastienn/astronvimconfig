@@ -112,12 +112,59 @@ local function run_rust(...)
     cargo_term:toggle()
 end
 
-local function run_cpp(additional_cmds)
-    vim.cmd "w" -- Save the file just in case
-    local output = vim.fn.expand("%:r")
-    if additional_cmds ~= nil then
-        output = additional_cmds .. " && " .. output
+local function run_cpp_cmake(additional_cmds)
+    local current_file = vim.fn.expand "%:p"
+    local cmake_file = vim.fn.findfile("CMakeLists.txt", vim.fn.fnamemodify(current_file, ":h") .. ";")
+    -- project root (directory containing CMakeLists.txt)
+    local project_root = vim.fn.fnamemodify(cmake_file, ":h")
+
+    -- ensure build dir exists inside project root
+    if vim.fn.isdirectory(project_root .. "/build") == 0 then vim.fn.mkdir(project_root .. "/build") end
+
+    -- save all buffers
+    vim.cmd "wa"
+
+    -- read file and search for a project(...) line (case-insensitive, handles quotes)
+    local lines = vim.fn.readfile(cmake_file)
+    local project_name = nil
+    for _, line in ipairs(lines) do
+        -- match project(Name ...), project("Name"), project('Name')
+        local name = line:match "[Pp][Rr][Oo][Jj][Ee][Cc][Tt]%s*%(%s*[\"']?([^%s%)\"']+)"
+        if name and #name > 0 then
+            project_name = name
+            break
+        end
     end
+
+    -- fallback to current file basename (no extension) if project(...) not found
+    if not project_name or project_name == "" then project_name = vim.fn.fnamemodify(current_file, ":t:r") end
+
+    -- build + run command using project root/build
+    local cmd = string.format("cd %s/build && cmake .. && make && ./%s", project_root, project_name)
+
+    require("toggleterm.terminal").Terminal
+        :new({
+            cmd = cmd,
+            direction = "float",
+            close_on_exit = false,
+            hidden = true,
+        })
+        :toggle()
+end
+
+local function run_cpp(additional_cmds)
+    -- Build + run CMake project (searches upward for CMakeLists.txt)
+    local current_file = vim.fn.expand "%:p"
+    local cmake_file = vim.fn.findfile("CMakeLists.txt", vim.fn.fnamemodify(current_file, ":h") .. ";")
+
+    if cmake_file ~= "" then
+        run_cpp_cmake(additional_cmds)
+        return
+    end
+
+    vim.cmd "w" -- Save the file just in case
+    local output = vim.fn.expand "%:r"
+    if additional_cmds ~= nil then output = additional_cmds .. " && " .. output end
     require("toggleterm.terminal").Terminal:new({ cmd = output, direction = "float", close_on_exit = false }):toggle()
 end
 
@@ -126,10 +173,8 @@ local function run_c(additional_cmds)
     -- local file_with_ext = vim.fn.expand "%:t"
     -- local file_name = file_with_ext:gsub("%.c$", "")
     -- local output = "./" .. file_name
-    local output = vim.fn.expand("%:r")
-    if additional_cmds ~= nil then
-        output = additional_cmds .. " && " .. output
-    end
+    local output = vim.fn.expand "%:r"
+    if additional_cmds ~= nil then output = additional_cmds .. " && " .. output end
     require("toggleterm.terminal").Terminal:new({ cmd = output, direction = "float", close_on_exit = false }):toggle()
 end
 
