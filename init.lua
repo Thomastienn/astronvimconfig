@@ -88,28 +88,36 @@ local export_types = { "pdf", "png", "svg", "html" }
 
 local function export(args)
     local target
-    if vim.tbl_contains(export_types, args[1]) then
-        target = args[1]
-    elseif args[1] == nil then
+    args = args.args
+    if vim.tbl_contains(export_types, args) then
+        target = args
+    elseif args == nil then
         target = "pdf"
     else
-        print "Unsupported filetype. Use 'pdf' or 'png'."
+        vim.notify("Unsupported filetype. Use 'pdf' or 'png'.", vim.log.levels.ERROR)
         return
     end
     local filetype = vim.bo.filetype
     if filetype ~= "typst" then
-        print "Current buffer is not a typst file"
+        vim.notify("Current buffer is not a typst file", vim.log.levels.ERROR)
         return
     end
+    local flags = ""
+    if target == "html" then
+        flags = " --features "
+    else
+        flags = " --format "
+    end
+
     local current_file = vim.fn.expand "%:p"
-    local cmd = "typst compile --format " .. target .. " " .. current_file
-    print("Running: " .. cmd)
+    local cmd = "typst compile" .. flags .. target .. " " .. current_file
+    vim.notify("Running: " .. cmd)
     local result = vim.fn.system(cmd)
     local exit_code = vim.v.shell_error
     if exit_code ~= 0 then
-        print("Typst compilation failed: " .. result)
+        vim.notify("Typst compilation failed: " .. result, vim.log.levels.ERROR)
     else
-        print("Successfully exported to " .. target)
+        vim.notify("Successfully exported to " .. target)
     end
 end
 
