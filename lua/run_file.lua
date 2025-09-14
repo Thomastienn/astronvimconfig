@@ -41,13 +41,8 @@ local function run_java(...)
     -- local file_escaped = vim.fn.shellescape(file)
     -- local classname = vim.fn.expand "%:t:r"
     -- vim.cmd("!javac " .. file_escaped)
-    require("toggleterm.terminal").Terminal
-        :new({
-            cmd = "java " .. file,
-            direction = "float",
-            close_on_exit = false,
-        })
-        :toggle()
+    local cmd = "java " .. file
+    return cmd
 end
 
 local function run_python(_, extra_args)
@@ -73,13 +68,7 @@ local function run_python(_, extra_args)
         -- No venv found, just run with system Python
         run_cmd = "python3 " .. filename .. " " .. extra_args
     end
-    require("toggleterm.terminal").Terminal
-        :new({
-            cmd = run_cmd,
-            direction = "float",
-            close_on_exit = false,
-        })
-        :toggle()
+    return run_cmd
 end
 
 local function run_rust(...)
@@ -91,25 +80,19 @@ local function run_rust(...)
     -- Search upwards for Cargo.toml
     local cargo_toml = vim.fn.findfile("Cargo.toml", vim.fn.fnamemodify(current_file, ":h") .. ";")
     if cargo_toml == "" then
-        print "Cargo.toml not found."
-        return
+        vim.notify("Cargo.toml not found.", vim.log.levels.ERROR)
+        return ""
     end
 
     -- Get the directory of Cargo.toml
     local project_root = vim.fn.fnamemodify(cargo_toml, ":h")
 
     -- Save current file before running
-    vim.cmd "write"
+    vim.cmd "w"
 
     -- Create and toggle the terminal with cargo run
-    local cargo_term = Terminal:new {
-        cmd = "cd " .. project_root .. " && cargo run",
-        direction = "float",
-        close_on_exit = false,
-        hidden = true,
-    }
-
-    cargo_term:toggle()
+    local cmd = "cd " .. project_root .. " && cargo run"
+    return cmd
 end
 
 local function run_cpp_cmake(additional_cmds, extra_args)
@@ -147,14 +130,7 @@ local function run_cpp_cmake(additional_cmds, extra_args)
     }
     local cmd = table.concat(commands, " && ")
 
-    require("toggleterm.terminal").Terminal
-        :new({
-            cmd = cmd,
-            direction = "float",
-            close_on_exit = false,
-            hidden = true,
-        })
-        :toggle()
+    return cmd
 end
 
 local function run_cpp(additional_cmds, extra_args)
@@ -163,16 +139,20 @@ local function run_cpp(additional_cmds, extra_args)
     local cmake_file = vim.fn.findfile("CMakeLists.txt", vim.fn.fnamemodify(current_file, ":h") .. ";")
 
     if cmake_file ~= "" then
-        run_cpp_cmake(additional_cmds, extra_args)
-        return
+        return run_cpp_cmake(additional_cmds, extra_args)
     end
 
     vim.cmd "w" -- Save the file just in case
     local output = vim.fn.expand "%:r"
-    if additional_cmds ~= nil then
-        output = additional_cmds .. " && " .. output .. " " .. extra_args
+   if not string.match(output, "^[./]") and not string.match(output, "^/") then
+        output = "./" .. output
     end
-    require("toggleterm.terminal").Terminal:new({ cmd = output, direction = "float", close_on_exit = false }):toggle()
+
+    if additional_cmds ~= nil then
+        output = additional_cmds .. " && " .. output
+    end
+    output = output .. " " .. extra_args
+    return output
 end
 
 local function run_c(additional_cmds, extra_args)
@@ -181,10 +161,15 @@ local function run_c(additional_cmds, extra_args)
     -- local file_name = file_with_ext:gsub("%.c$", "")
     -- local output = "./" .. file_name
     local output = vim.fn.expand "%:r"
-    if additional_cmds ~= nil then
-        output = additional_cmds .. " && " .. output .. " " .. extra_args
+    if not string.match(output, "^[./]") and not string.match(output, "^/") then
+        output = "./" .. output
     end
-    require("toggleterm.terminal").Terminal:new({ cmd = output, direction = "float", close_on_exit = false }):toggle()
+
+    if additional_cmds ~= nil then
+        output = additional_cmds .. " && " .. output
+    end
+    output = output .. " " .. extra_args
+    return output
 end
 
 local function run_cuda(...)
@@ -195,13 +180,9 @@ local function run_cuda(...)
     local compile_cmd = "nvcc -o " .. filename .. " " .. file_escaped
     local run_cmd = "./" .. filename
 
-    local terminal = require("toggleterm.terminal").Terminal:new {
-        cmd = compile_cmd .. " && " .. run_cmd,
-        direction = "float",
-        close_on_exit = false,
-        hidden = true,
-    }
-    terminal:toggle()
+
+    local final_cmd = compile_cmd .. " && " .. run_cmd
+    return final_cmd
 end
 
 local function run_bash_sh(_, extra_args)
@@ -227,13 +208,7 @@ local function run_bash_sh(_, extra_args)
     else
         run_cmd = "sh " .. file_escaped .. " " .. extra_args
     end
-    require("toggleterm.terminal").Terminal
-        :new({
-            cmd = run_cmd,
-            direction = "float",
-            close_on_exit = false,
-        })
-        :toggle()
+    return run_cmd
 end
 
 local function run_asm(...)
@@ -245,36 +220,42 @@ local function run_asm(...)
     local link_cmd = "ld -o " .. filename .. " " .. filename .. ".o"
     local run_cmd = "./" .. filename
 
-    local terminal = require("toggleterm.terminal").Terminal:new {
-        cmd = compile_cmd .. " && " .. link_cmd .. " && " .. run_cmd,
-        direction = "float",
-        close_on_exit = false,
-        hidden = true,
-    }
-    terminal:toggle()
+    local final_cmd = compile_cmd .. " && " .. link_cmd .. " && " .. run_cmd
+
+    return final_cmd
 end
 
 local function actual_run(additional_cmds, extra_args)
     local filetype = vim.bo.filetype
+    local cmd = ""
     if filetype == "java" then
-        run_java(additional_cmds, extra_args)
+        cmd = run_java(additional_cmds, extra_args)
     elseif filetype == "python" then
-        run_python(additional_cmds, extra_args)
+        cmd = run_python(additional_cmds, extra_args)
     elseif filetype == "rust" then
-        run_rust(additional_cmds, extra_args)
+        cmd = run_rust(additional_cmds, extra_args)
     elseif filetype == "cuda" then
-        run_cuda(additional_cmds, extra_args)
+        cmd = run_cuda(additional_cmds, extra_args)
     elseif filetype == "cpp" then
-        run_cpp(additional_cmds, extra_args)
+        cmd = run_cpp(additional_cmds, extra_args)
     elseif filetype == "c" then
-        run_c(additional_cmds, extra_args)
+        cmd = run_c(additional_cmds, extra_args)
     elseif filetype == "sh" or filetype == "bash" then
-        run_bash_sh(additional_cmds, extra_args)
+        cmd = run_bash_sh(additional_cmds, extra_args)
     elseif filetype == "asm" then
-        run_asm(additional_cmds, extra_args)
+        cmd = run_asm(additional_cmds, extra_args)
     else
         print("No run command configured for filetype: " .. filetype)
     end
+
+    vim.notify("Running: " .. cmd, vim.log.levels.INFO)
+    require("toggleterm.terminal").Terminal
+    :new({
+        cmd = cmd,
+        direction = "float",
+        close_on_exit = false,
+    })
+    :toggle()
 end
 
 function run.run_file(additional_cmds)
