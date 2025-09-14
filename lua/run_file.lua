@@ -50,7 +50,7 @@ local function run_java(...)
         :toggle()
 end
 
-local function run_python(...)
+local function run_python(_, extra_args)
     vim.cmd "w" -- save file
     local filename = vim.fn.expand "%:p" -- full path
     local cwd = vim.fn.getcwd()
@@ -71,7 +71,7 @@ local function run_python(...)
         run_cmd = string.format('bash -c "source %s && python3 %s"', activate_cmd, filename)
     else
         -- No venv found, just run with system Python
-        run_cmd = "python3 " .. filename
+        run_cmd = "python3 " .. filename .. " " .. extra_args
     end
     require("toggleterm.terminal").Terminal
         :new({
@@ -112,7 +112,7 @@ local function run_rust(...)
     cargo_term:toggle()
 end
 
-local function run_cpp_cmake(additional_cmds)
+local function run_cpp_cmake(additional_cmds, extra_args)
     local current_file = vim.fn.expand "%:p"
     local cmake_file = vim.fn.findfile("CMakeLists.txt", vim.fn.fnamemodify(current_file, ":h") .. ";")
     -- project root (directory containing CMakeLists.txt)
@@ -142,7 +142,7 @@ local function run_cpp_cmake(additional_cmds)
         "cmake -B build -DCMAKE_BUILD_TYPE=Debug",
         "cmake --build build",
         "export ASAN_OPTIONS=symbolize=1:print_stacktrace=1:halt_on_error=1:abort_on_error=1",
-        "./build/" .. vim.fn.shellescape(project_name)
+        "./build/" .. vim.fn.shellescape(project_name) .. " " .. extra_args,
     }
     local cmd = table.concat(commands, " && ")
 
@@ -156,7 +156,7 @@ local function run_cpp_cmake(additional_cmds)
         :toggle()
 end
 
-local function run_cpp(additional_cmds)
+local function run_cpp(additional_cmds, extra_args)
     -- Build + run CMake project (searches upward for CMakeLists.txt)
     local current_file = vim.fn.expand "%:p"
     local cmake_file = vim.fn.findfile("CMakeLists.txt", vim.fn.fnamemodify(current_file, ":h") .. ";")
@@ -168,17 +168,21 @@ local function run_cpp(additional_cmds)
 
     vim.cmd "w" -- Save the file just in case
     local output = vim.fn.expand "%:r"
-    if additional_cmds ~= nil then output = additional_cmds .. " && " .. output end
+    if additional_cmds ~= nil then
+        output = additional_cmds .. " && " .. output .. " " .. extra_args
+    end
     require("toggleterm.terminal").Terminal:new({ cmd = output, direction = "float", close_on_exit = false }):toggle()
 end
 
-local function run_c(additional_cmds)
+local function run_c(additional_cmds, extra_args)
     vim.cmd "w" -- Save the file just in case
     -- local file_with_ext = vim.fn.expand "%:t"
     -- local file_name = file_with_ext:gsub("%.c$", "")
     -- local output = "./" .. file_name
     local output = vim.fn.expand "%:r"
-    if additional_cmds ~= nil then output = additional_cmds .. " && " .. output end
+    if additional_cmds ~= nil then
+        output = additional_cmds .. " && " .. output .. " " .. extra_args
+    end
     require("toggleterm.terminal").Terminal:new({ cmd = output, direction = "float", close_on_exit = false }):toggle()
 end
 
@@ -199,7 +203,7 @@ local function run_cuda(...)
     terminal:toggle()
 end
 
-local function run_bash_sh(...)
+local function run_bash_sh(_, extra_args)
     vim.cmd "w" -- save file
     local cwd = vim.fn.getcwd()
     local venv_paths = {
@@ -218,9 +222,9 @@ local function run_bash_sh(...)
     local run_cmd = ""
     if activate_cmd then
         -- Use bash to source and run bash
-        run_cmd = string.format('bash -c "source %s && sh %s"', activate_cmd, file_escaped)
+        run_cmd = string.format('bash -c "source %s && sh %s %s"', activate_cmd, file_escaped, extra_args)
     else
-        run_cmd = "sh " .. file_escaped
+        run_cmd = "sh " .. file_escaped .. " " .. extra_args
     end
     require("toggleterm.terminal").Terminal
         :new({
@@ -231,24 +235,50 @@ local function run_bash_sh(...)
         :toggle()
 end
 
-function run.run_file(additional_cmds)
+local function actual_run(additional_cmds, extra_args)
     local filetype = vim.bo.filetype
     if filetype == "java" then
-        run_java(additional_cmds)
+        run_java(additional_cmds, extra_args)
     elseif filetype == "python" then
-        run_python(additional_cmds)
+        run_python(additional_cmds, extra_args)
     elseif filetype == "rust" then
-        run_rust(additional_cmds)
+        run_rust(additional_cmds, extra_args)
     elseif filetype == "cuda" then
-        run_cuda(additional_cmds)
+        run_cuda(additional_cmds, extra_args)
     elseif filetype == "cpp" then
-        run_cpp(additional_cmds)
+        run_cpp(additional_cmds, extra_args)
     elseif filetype == "c" then
-        run_c(additional_cmds)
+        run_c(additional_cmds, extra_args)
     elseif filetype == "sh" or filetype == "bash" then
-        run_bash_sh(additional_cmds)
+        run_bash_sh(additional_cmds, extra_args)
     else
         print("No run command configured for filetype: " .. filetype)
+    end
+end
+
+function run.run_file(additional_cmds)
+    local args_files = vim.fn.glob("*.args", false, true)
+    local extra_args = ""
+    if #args_files > 0 then
+        -- Find all .args file and use telescope to select one
+        local opts = {}
+        for _, file in ipairs(args_files) do
+            table.insert(opts, file)
+        end
+        vim.ui.select(opts, { prompt = "Select args file:" }, function(choice)
+            if choice then
+                extra_args = vim.fn.trim(vim.fn.join(vim.fn.readfile(choice), " "))
+            end
+            actual_run(additional_cmds, extra_args)
+        end)
+    else
+        -- Ask for additional args
+        vim.ui.input({ prompt = "Additional args: " }, function(input)
+            if input then
+                extra_args = input
+            end
+            actual_run(additional_cmds, extra_args)
+        end)
     end
 end
 
