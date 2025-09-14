@@ -142,7 +142,8 @@ local function run_cpp_cmake(additional_cmds, extra_args)
         "cmake -B build -DCMAKE_BUILD_TYPE=Debug",
         "cmake --build build",
         "export ASAN_OPTIONS=symbolize=1:print_stacktrace=1:halt_on_error=1:abort_on_error=1",
-        "./build/" .. vim.fn.shellescape(project_name) .. " " .. extra_args,
+        "cd build",
+        "./" .. vim.fn.shellescape(project_name) .. " " .. extra_args,
     }
     local cmd = table.concat(commands, " && ")
 
@@ -162,7 +163,7 @@ local function run_cpp(additional_cmds, extra_args)
     local cmake_file = vim.fn.findfile("CMakeLists.txt", vim.fn.fnamemodify(current_file, ":h") .. ";")
 
     if cmake_file ~= "" then
-        run_cpp_cmake(additional_cmds)
+        run_cpp_cmake(additional_cmds, extra_args)
         return
     end
 
