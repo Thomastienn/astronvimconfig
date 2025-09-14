@@ -17,7 +17,6 @@ return {
       window = {
         mappings = {
           ["<BS>"] = "navigate_up", -- go up one directory
-          ["<CR>"] = "set_root", -- go into selected directory
           ["<leader>so"] = {
             function(state)
               local node = state.tree:get_node()

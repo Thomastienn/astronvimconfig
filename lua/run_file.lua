@@ -118,9 +118,6 @@ local function run_cpp_cmake(additional_cmds)
     -- project root (directory containing CMakeLists.txt)
     local project_root = vim.fn.fnamemodify(cmake_file, ":h")
 
-    -- ensure build dir exists inside project root
-    if vim.fn.isdirectory(project_root .. "/build") == 0 then vim.fn.mkdir(project_root .. "/build") end
-
     -- save all buffers
     vim.cmd "wa"
 
@@ -140,7 +137,14 @@ local function run_cpp_cmake(additional_cmds)
     if not project_name or project_name == "" then project_name = vim.fn.fnamemodify(current_file, ":t:r") end
 
     -- build + run command using project root/build
-    local cmd = string.format("cd %s/build && cmake .. && make && ./%s", project_root, project_name)
+    local commands = {
+        "cd " .. vim.fn.shellescape(project_root),
+        "cmake -B build -DCMAKE_BUILD_TYPE=Debug",
+        "cmake --build build",
+        "export ASAN_OPTIONS=symbolize=1:print_stacktrace=1:halt_on_error=1:abort_on_error=1",
+        "./build/" .. vim.fn.shellescape(project_name)
+    }
+    local cmd = table.concat(commands, " && ")
 
     require("toggleterm.terminal").Terminal
         :new({

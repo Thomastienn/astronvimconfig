@@ -79,7 +79,7 @@ return {
             venv = "venv",
 
             -- Which interpreter inside that venv to analyze with
-            pythonPath = vim.fn.getcwd() .. "/venv/bin/python3.12",
+            pythonPath = vim.fn.getcwd() .. "/venv/bin/python",
 
             analysis = {
               -- scan *all* imports in your workspace, not just open files
