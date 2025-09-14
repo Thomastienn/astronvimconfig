@@ -235,6 +235,24 @@ local function run_bash_sh(_, extra_args)
         :toggle()
 end
 
+local function run_asm(...)
+    vim.cmd "w" -- save file
+    local file = vim.fn.expand "%"
+    local file_escaped = vim.fn.shellescape(file)
+    local filename = vim.fn.expand "%:t:r"
+    local compile_cmd = "as -o " .. filename .. ".o " .. file_escaped
+    local link_cmd = "ld -o " .. filename .. " " .. filename .. ".o"
+    local run_cmd = "./" .. filename
+
+    local terminal = require("toggleterm.terminal").Terminal:new {
+        cmd = compile_cmd .. " && " .. link_cmd .. " && " .. run_cmd,
+        direction = "float",
+        close_on_exit = false,
+        hidden = true,
+    }
+    terminal:toggle()
+end
+
 local function actual_run(additional_cmds, extra_args)
     local filetype = vim.bo.filetype
     if filetype == "java" then
@@ -251,6 +269,8 @@ local function actual_run(additional_cmds, extra_args)
         run_c(additional_cmds, extra_args)
     elseif filetype == "sh" or filetype == "bash" then
         run_bash_sh(additional_cmds, extra_args)
+    elseif filetype == "asm" then
+        run_asm(additional_cmds, extra_args)
     else
         print("No run command configured for filetype: " .. filetype)
     end
