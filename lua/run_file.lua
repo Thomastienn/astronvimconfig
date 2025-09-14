@@ -292,8 +292,9 @@ function run.run_file(additional_cmds)
                 if choice == "Enter args manually" then
                     vim.ui.input({ prompt = "Additional args: " }, function(input)
                         if input then
-                            actual_run(additional_cmds, input)
+                            extra_args = input
                         end
+                        actual_run(additional_cmds, input)
                     end)
                     return
                 end
@@ -305,8 +306,9 @@ function run.run_file(additional_cmds)
         -- Ask for additional args
         vim.ui.input({ prompt = "Additional args: " }, function(input)
             if input then
-                actual_run(additional_cmds, input)
+                extra_args = input
             end
+            actual_run(additional_cmds, extra_args)
         end)
     end
 end
