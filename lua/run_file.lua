@@ -285,19 +285,28 @@ function run.run_file(additional_cmds)
         for _, file in ipairs(args_files) do
             table.insert(opts, file)
         end
+        table.insert(opts, "Enter args manually")
+        -- Add an option to enter args manually
         vim.ui.select(opts, { prompt = "Select args file:" }, function(choice)
             if choice then
+                if choice == "Enter args manually" then
+                    vim.ui.input({ prompt = "Additional args: " }, function(input)
+                        if input then
+                            actual_run(additional_cmds, input)
+                        end
+                    end)
+                    return
+                end
                 extra_args = vim.fn.trim(vim.fn.join(vim.fn.readfile(choice), " "))
+                actual_run(additional_cmds, extra_args)
             end
-            actual_run(additional_cmds, extra_args)
         end)
     else
         -- Ask for additional args
         vim.ui.input({ prompt = "Additional args: " }, function(input)
             if input then
-                extra_args = input
+                actual_run(additional_cmds, input)
             end
-            actual_run(additional_cmds, extra_args)
         end)
     end
 end
