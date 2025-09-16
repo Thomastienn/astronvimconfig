@@ -343,14 +343,29 @@ dap.configurations.cpp = {
 }
 
 -- Keymaps 
--- inside $...$
-vim.keymap.set("x", "i$", [[T$vt$]], { noremap = true, silent = true })
-vim.keymap.set("o", "i$", function()
-  vim.cmd.normal({ args = { "T$vt$" }, bang = true })
-end, { noremap = true, silent = true })
+-- utils
+local function feedkeys(seq)
+  local keys = vim.api.nvim_replace_termcodes(seq, true, false, true)
+  -- 'n' = non-recursive, false = don't remap; true for "typed" behaviour is OK here
+  vim.api.nvim_feedkeys(keys, 'n', true)
+end
 
--- around $...$
-vim.keymap.set("x", "a$", [[F$vf$]], { noremap = true, silent = true })
-vim.keymap.set("o", "a$", function()
-  vim.cmd.normal({ args = { "F$vf$" }, bang = true })
-end, { noremap = true, silent = true })
+-- selection helper: create buffer-local mappings for the filetypes we care about
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "tex", "latex", "markdown", "md", "typst" },
+  callback = function(ev)
+    local opts = { noremap = true, silent = true, buffer = ev.buf }
+
+    -- operator-pending: run normal! sequence (works after c/d/y)
+    -- T$vt$   => go to previous '$' (T$), start visual (v), go to before next '$' (t$)
+    vim.keymap.set("o", "i$", ":<C-u>normal! T$vt$<CR>", opts)
+    vim.keymap.set("o", "a$", ":<C-u>normal! F$vf$<CR>", opts)
+
+    -- visual: we are already in visual mode so DO NOT replay 'v'
+    -- inner:  T$t$  (go to previous $, then go to before next $)
+    -- around: F$f$  (go to previous $, then go to next $ (on the $ itself))
+    vim.keymap.set("x", "i$", function() feedkeys("T$t$") end, opts)
+    vim.keymap.set("x", "a$", function() feedkeys("F$f$") end, opts)
+  end,
+})
+
