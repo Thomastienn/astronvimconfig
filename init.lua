@@ -341,3 +341,16 @@ dap.configurations.cpp = {
     args = {}, -- program arguments
   },
 }
+
+-- Keymaps 
+-- inside $...$
+vim.keymap.set("x", "i$", [[T$vt$]], { noremap = true, silent = true })
+vim.keymap.set("o", "i$", function()
+  vim.cmd.normal({ args = { "T$vt$" }, bang = true })
+end, { noremap = true, silent = true })
+
+-- around $...$
+vim.keymap.set("x", "a$", [[F$vf$]], { noremap = true, silent = true })
+vim.keymap.set("o", "a$", function()
+  vim.cmd.normal({ args = { "F$vf$" }, bang = true })
+end, { noremap = true, silent = true })
