@@ -122,7 +122,7 @@ local function run_cpp_cmake(additional_cmds, extra_args)
     -- build + run command using project root/build
     local commands = {
         "cd " .. vim.fn.shellescape(project_root),
-        "cmake -B build -DCMAKE_BUILD_TYPE=Debug",
+        "cmake -B build",
         "cmake --build build",
         "export ASAN_OPTIONS=symbolize=1:print_stacktrace=1:halt_on_error=1:abort_on_error=1",
         "cd build",
@@ -225,27 +225,80 @@ local function run_asm(...)
     return final_cmd
 end
 
+-- Find project root (example using .git as marker)
+local function find_project_root()
+    local dir = vim.fn.getcwd()
+    while dir ~= "/" do
+        if vim.fn.isdirectory(dir .. "/.git") == 1 then
+            return dir
+        end
+        dir = vim.fn.fnamemodify(dir, ":h") -- go up one level
+    end
+    return vim.fn.getcwd() -- fallback to cwd
+end
+
+-- Search from project root down to cwd for the given script name
+-- Returns the directory containing the file, or nil if not found
+local function find_script_dir(script_name)
+    local project_root = find_project_root()
+    local cwd = vim.fn.getcwd()
+
+    local path = project_root
+    local found_dir = nil
+
+    -- Get relative path from project_root to cwd
+    local rel_path = vim.fn.fnamemodify(cwd, ":." .. project_root)
+    local parts = vim.split(rel_path, "/", { plain = true })
+
+    -- Walk down from project_root toward cwd
+    for i = 0, #parts do
+        local candidate = path .. "/" .. script_name
+        if vim.fn.filereadable(candidate) == 1 then
+            found_dir = path
+            break
+        end
+        if i < #parts then
+            path = path .. "/" .. parts[i+1]
+        end
+    end
+
+    return found_dir
+end
+
 local function actual_run(additional_cmds, extra_args)
-    local filetype = vim.bo.filetype
+    -- Check if run.sh exists in the current directory
+    -- If it exists, use it to run the file
+
     local cmd = ""
-    if filetype == "java" then
-        cmd = run_java(additional_cmds, extra_args)
-    elseif filetype == "python" then
-        cmd = run_python(additional_cmds, extra_args)
-    elseif filetype == "rust" then
-        cmd = run_rust(additional_cmds, extra_args)
-    elseif filetype == "cuda" then
-        cmd = run_cuda(additional_cmds, extra_args)
-    elseif filetype == "cpp" then
-        cmd = run_cpp(additional_cmds, extra_args)
-    elseif filetype == "c" then
-        cmd = run_c(additional_cmds, extra_args)
-    elseif filetype == "sh" or filetype == "bash" then
-        cmd = run_bash_sh(additional_cmds, extra_args)
-    elseif filetype == "asm" then
-        cmd = run_asm(additional_cmds, extra_args)
+    local script_name = "run.sh"
+    local run_path = find_script_dir(script_name)
+    if run_path then
+        vim.cmd "w" -- save file
+        cmd = "cd " .. run_path .. " && bash " .. script_name .. " " .. extra_args
+        if additional_cmds ~= nil then
+            cmd = additional_cmds .. " && " .. cmd
+        end
     else
-        print("No run command configured for filetype: " .. filetype)
+        local filetype = vim.bo.filetype
+        if filetype == "java" then
+            cmd = run_java(additional_cmds, extra_args)
+        elseif filetype == "python" then
+            cmd = run_python(additional_cmds, extra_args)
+        elseif filetype == "rust" then
+            cmd = run_rust(additional_cmds, extra_args)
+        elseif filetype == "cuda" then
+            cmd = run_cuda(additional_cmds, extra_args)
+        elseif filetype == "cpp" then
+            cmd = run_cpp(additional_cmds, extra_args)
+        elseif filetype == "c" then
+            cmd = run_c(additional_cmds, extra_args)
+        elseif filetype == "sh" or filetype == "bash" then
+            cmd = run_bash_sh(additional_cmds, extra_args)
+        elseif filetype == "asm" then
+            cmd = run_asm(additional_cmds, extra_args)
+        else
+            print("No run command configured for filetype: " .. filetype)
+        end
     end
 
     vim.notify("Running: " .. cmd, vim.log.levels.INFO)

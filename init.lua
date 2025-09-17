@@ -112,13 +112,20 @@ local function export(args)
     local current_file = vim.fn.expand "%:p"
     local cmd = "typst compile" .. flags .. target .. " " .. current_file
     vim.notify("Running: " .. cmd)
-    local result = vim.fn.system(cmd)
-    local exit_code = vim.v.shell_error
-    if exit_code ~= 0 then
-        vim.notify("Typst compilation failed: " .. result, vim.log.levels.ERROR)
-    else
-        vim.notify("Successfully exported to " .. target)
-    end
+
+    vim.fn.jobstart(cmd, {
+        on_exit = function(_, exit_code)
+            if exit_code ~= 0 then
+                vim.schedule(function()
+                    vim.notify("Typst compilation failed", vim.log.levels.ERROR)
+                end)
+            else
+                vim.schedule(function()
+                    vim.notify("Successfully exported to " .. target)
+                end)
+            end
+        end,
+    })
 end
 
 vim.api.nvim_create_user_command("Export", export, {
