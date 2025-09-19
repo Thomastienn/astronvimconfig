@@ -301,10 +301,12 @@ local function actual_run(additional_cmds, extra_args)
         end
     end
 
-    vim.notify("Running: " .. cmd, vim.log.levels.INFO)
+    local post_process_cmd = "sh -c '" .. cmd .. "'"
+    -- local post_process_cmd = cmd
+    vim.notify("Running: " .. post_process_cmd, vim.log.levels.INFO)
     require("toggleterm.terminal").Terminal
     :new({
-        cmd = cmd,
+        cmd = post_process_cmd,
         direction = "float",
         close_on_exit = false,
     })

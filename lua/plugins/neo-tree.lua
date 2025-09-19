@@ -17,6 +17,10 @@ return {
       window = {
         mappings = {
           ["<BS>"] = "navigate_up", -- go up one directory
+          ["z"] = "close_all_nodes",
+          ["Z"] = "expand_all_nodes",
+          ["c"] = "expand_all_subnodes",
+          ['C'] = 'close_all_subnodes',
           ["<leader>so"] = {
             function(state)
               local node = state.tree:get_node()

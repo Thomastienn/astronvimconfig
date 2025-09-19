@@ -73,6 +73,10 @@ return {
             :with_del(cond.not_after_regex "xx")
             -- disable adding a newline when you press <cr>
             :with_cr(cond.none()),
+          Rule("(", ")", { "tex", "latex", "typst" }),
+          Rule("[", "]", { "tex", "latex", "typst" }),
+          Rule("{", "}", { "tex", "latex", "typst" }),
+          Rule("<", ">", {}),
         },
         -- disable for .vim files, but it work for another filetypes
         Rule("a", "a", "-vim")
