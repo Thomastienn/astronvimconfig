@@ -379,3 +379,8 @@ vim.api.nvim_create_autocmd("FileType", {
 
 -- Markdown preview
 vim.keymap.set("n", "<leader>md", "<cmd>Markview toggle<CR>", { desc = "Toggle markdown preview" })
+
+if vim.env.SSH_CONNECTION then
+    vim.notify("OSC52 enabled (SSH detected)", vim.log.levels.INFO)
+    require('osc52').setup()
+end
