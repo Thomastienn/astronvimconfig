@@ -21,9 +21,17 @@ function run.compile_only()
         local cmd = string.format("%s %s -o %s", flags, filename, output)
 
         return cmd
-    else
-        return nil
     end
+    if filetype == "java" then
+        -- Create a build folder and put everything there
+        if vim.fn.isdirectory("build") == 0 then
+            vim.fn.mkdir("build")
+        end
+        vim.cmd "w" -- save file
+        local cmd = "javac -d build $(find . -name '*.java')"
+        return cmd
+    end
+    return nil
 end
 
 function run.compile_file()
@@ -35,13 +43,34 @@ function run.compile_file()
     require("toggleterm.terminal").Terminal:new({ cmd = cmd, direction = "float", close_on_exit = false }):toggle()
 end
 
-local function run_java(...)
+local function run_gradle(additional_cmds, extra_args)
+    vim.cmd "wa"
+    local cmd = "gradle run --args='" .. extra_args .. "'"
+    if additional_cmds ~= nil then
+        cmd = additional_cmds .. " && " .. cmd
+    end
+    return cmd
+end
+
+local function run_java(additional_cmds, extra_args)
+    -- Check if it's a gradle project (build.gradle file exists) (bubble up)
+    -- Then run using gradle
+    local current_file = vim.fn.expand "%:p"
+    local gradle_file = vim.fn.findfile("build.gradle", vim.fn.fnamemodify(current_file, ":h") .. ";")
+    if gradle_file ~= "" then
+        return run_gradle(additional_cmds, extra_args)
+    end
+
     vim.cmd "w" -- save file
-    local file = vim.fn.expand "%:t"
+    local file = vim.fn.expand "%:p"
     -- local file_escaped = vim.fn.shellescape(file)
     -- local classname = vim.fn.expand "%:t:r"
     -- vim.cmd("!javac " .. file_escaped)
-    local cmd = "java " .. file
+    local cmd = "java -cp build " .. file
+    if additional_cmds ~= nil then
+        cmd = additional_cmds .. " && " .. cmd
+    end
+    cmd = cmd .. " " .. extra_args
     return cmd
 end
 
@@ -122,7 +151,7 @@ local function run_cpp_cmake(additional_cmds, extra_args)
     -- build + run command using project root/build
     local commands = {
         "cd " .. vim.fn.shellescape(project_root),
-        "cmake -B build",
+        "cmake -B build -D CMAKE_BUILD_TYPE=Debug",
         "cmake --build build",
         "export ASAN_OPTIONS=symbolize=1:print_stacktrace=1:halt_on_error=1:abort_on_error=1",
         "cd build",
