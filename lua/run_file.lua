@@ -294,6 +294,20 @@ local function find_script_dir(script_name)
     return found_dir
 end
 
+local function run_executable(additional_cmds, extra_args)
+    vim.cmd "w" -- save file
+    local output = vim.fn.expand "%:r"
+    if not string.match(output, "^[./]") and not string.match(output, "^/") then
+        output = "./" .. output
+    end
+
+    if additional_cmds ~= nil then
+        output = additional_cmds .. " && " .. output
+    end
+    output = output .. " " .. extra_args
+    return output
+end
+
 local function actual_run(additional_cmds, extra_args)
     -- Check if run.sh exists in the current directory
     -- If it exists, use it to run the file
@@ -326,7 +340,8 @@ local function actual_run(additional_cmds, extra_args)
         elseif filetype == "asm" then
             cmd = run_asm(additional_cmds, extra_args)
         else
-            print("No run command configured for filetype: " .. filetype)
+            cmd = run_executable(additional_cmds, extra_args)
+            vim.notify(cmd, vim.log.levels.INFO)
         end
     end
 
