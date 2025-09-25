@@ -1,5 +1,18 @@
 local run = {}
 
+local function run_cmd(cmd)
+    local post_process_cmd = "sh -c '" .. cmd .. "'"
+    -- local post_process_cmd = cmd
+    vim.notify("Running: " .. post_process_cmd, vim.log.levels.INFO)
+    require("toggleterm.terminal").Terminal
+    :new({
+        cmd = post_process_cmd,
+        direction = "float",
+        close_on_exit = false,
+    })
+    :toggle()
+end
+
 -- Returns the cmd
 function run.compile_only()
     local filetype = vim.bo.filetype
@@ -52,7 +65,7 @@ local function run_gradle(additional_cmds, extra_args)
     return cmd
 end
 
-local function run_java(additional_cmds, extra_args)
+local function run_java(additional_cmds, extra_args, callback)
     -- Check if it's a gradle project (build.gradle file exists) (bubble up)
     -- Then run using gradle
     local current_file = vim.fn.expand "%:p"
@@ -71,7 +84,7 @@ local function run_java(additional_cmds, extra_args)
         cmd = additional_cmds .. " && " .. cmd
     end
     cmd = cmd .. " " .. extra_args
-    return cmd
+    run_cmd(cmd)
 end
 
 local function run_python(_, extra_args)
@@ -89,15 +102,15 @@ local function run_python(_, extra_args)
             break
         end
     end
-    local run_cmd = ""
+    local cmd = ""
     if activate_cmd then
         -- Use bash to source and run Python file
-        run_cmd = string.format('bash -c "source %s && python3 %s"', activate_cmd, filename)
+        cmd = string.format('bash -c "source %s && python3 %s"', activate_cmd, filename)
     else
         -- No venv found, just run with system Python
-        run_cmd = "python3 " .. filename .. " " .. extra_args
+        cmd = "python3 " .. filename .. " " .. extra_args
     end
-    return run_cmd
+    run_cmd(cmd)
 end
 
 local function run_rust(...)
@@ -121,7 +134,7 @@ local function run_rust(...)
 
     -- Create and toggle the terminal with cargo run
     local cmd = "cd " .. project_root .. " && cargo run"
-    return cmd
+    run_cmd(cmd)
 end
 
 local function run_cpp_cmake(additional_cmds, extra_args)
@@ -133,33 +146,38 @@ local function run_cpp_cmake(additional_cmds, extra_args)
     -- save all buffers
     vim.cmd "wa"
 
-    -- read file and search for a project(...) line (case-insensitive, handles quotes)
-    local lines = vim.fn.readfile(cmake_file)
-    local project_name = nil
-    for _, line in ipairs(lines) do
-        -- match project(Name ...), project("Name"), project('Name')
-        local name = line:match "[Pp][Rr][Oo][Jj][Ee][Cc][Tt]%s*%(%s*[\"']?([^%s%)\"']+)"
-        if name and #name > 0 then
-            project_name = name
-            break
+    -- Make vim.select for multiple project names
+    -- Get project name from CMakeLists.txt
+    -- Pattern add_executable(<name> ...
+    local project_names = {}
+    for line in io.lines(cmake_file) do
+        local name = line:match("add_executable%s*%(%s*([%w_]+)")
+        if name then
+            table.insert(project_names, name)
         end
     end
 
-    -- fallback to current file basename (no extension) if project(...) not found
-    if not project_name or project_name == "" then project_name = vim.fn.fnamemodify(current_file, ":t:r") end
+    if #project_names == 0 then
+        vim.notify("No executable target found in CMakeLists.txt", vim.log.levels.ERROR)
+        return
+    end
 
-    -- build + run command using project root/build
-    local commands = {
-        "cd " .. vim.fn.shellescape(project_root),
-        "cmake -B build -D CMAKE_BUILD_TYPE=Debug",
-        "cmake --build build",
-        "export ASAN_OPTIONS=symbolize=1:print_stacktrace=1:halt_on_error=1:abort_on_error=1",
-        "cd build",
-        "./" .. vim.fn.shellescape(project_name) .. " " .. extra_args,
-    }
-    local cmd = table.concat(commands, " && ")
-
-    return cmd
+    vim.ui.select(project_names, { prompt = "Select executable target:" }, function(choice)
+        if choice then
+            local project_name = choice
+            -- build + run command using project root/build
+            local commands = {
+                "cd " .. vim.fn.shellescape(project_root),
+                "cmake -B build -D CMAKE_BUILD_TYPE=Debug",
+                "cmake --build build",
+                "export ASAN_OPTIONS=symbolize=1:print_stacktrace=1:halt_on_error=1:abort_on_error=1",
+                "cd build",
+                "./" .. vim.fn.shellescape(project_name) .. " " .. extra_args,
+            }
+            local cmd = table.concat(commands, " && ")
+            run_cmd(cmd)
+        end
+    end)
 end
 
 local function run_cpp(additional_cmds, extra_args)
@@ -168,7 +186,8 @@ local function run_cpp(additional_cmds, extra_args)
     local cmake_file = vim.fn.findfile("CMakeLists.txt", vim.fn.fnamemodify(current_file, ":h") .. ";")
 
     if cmake_file ~= "" then
-        return run_cpp_cmake(additional_cmds, extra_args)
+        run_cpp_cmake(additional_cmds, extra_args)
+        return
     end
 
     vim.cmd "w" -- Save the file just in case
@@ -181,7 +200,7 @@ local function run_cpp(additional_cmds, extra_args)
         output = additional_cmds .. " && " .. output
     end
     output = output .. " " .. extra_args
-    return output
+    run_cmd(output)
 end
 
 local function run_c(additional_cmds, extra_args)
@@ -198,7 +217,7 @@ local function run_c(additional_cmds, extra_args)
         output = additional_cmds .. " && " .. output
     end
     output = output .. " " .. extra_args
-    return output
+    run_cmd(output)
 end
 
 local function run_cuda(...)
@@ -211,7 +230,7 @@ local function run_cuda(...)
 
 
     local final_cmd = compile_cmd .. " && " .. run_cmd
-    return final_cmd
+    run_cmd(final_cmd)
 end
 
 local function run_bash_sh(_, extra_args)
@@ -237,7 +256,7 @@ local function run_bash_sh(_, extra_args)
     else
         run_cmd = "sh " .. file_escaped .. " " .. extra_args
     end
-    return run_cmd
+    run_cmd(run_cmd)
 end
 
 local function run_asm(...)
@@ -251,7 +270,7 @@ local function run_asm(...)
 
     local final_cmd = compile_cmd .. " && " .. link_cmd .. " && " .. run_cmd
 
-    return final_cmd
+    run_cmd(final_cmd)
 end
 
 -- Find project root (example using .git as marker)
@@ -305,8 +324,9 @@ local function run_executable(additional_cmds, extra_args)
         output = additional_cmds .. " && " .. output
     end
     output = output .. " " .. extra_args
-    return output
+    run_cmd(output)
 end
+
 
 local function actual_run(additional_cmds, extra_args)
     -- Check if run.sh exists in the current directory
@@ -324,37 +344,26 @@ local function actual_run(additional_cmds, extra_args)
     else
         local filetype = vim.bo.filetype
         if filetype == "java" then
-            cmd = run_java(additional_cmds, extra_args)
+            run_java(additional_cmds, extra_args)
         elseif filetype == "python" then
-            cmd = run_python(additional_cmds, extra_args)
+            run_python(additional_cmds, extra_args)
         elseif filetype == "rust" then
-            cmd = run_rust(additional_cmds, extra_args)
+            run_rust(additional_cmds, extra_args)
         elseif filetype == "cuda" then
-            cmd = run_cuda(additional_cmds, extra_args)
+            run_cuda(additional_cmds, extra_args)
         elseif filetype == "cpp" then
-            cmd = run_cpp(additional_cmds, extra_args)
+            run_cpp(additional_cmds, extra_args)
         elseif filetype == "c" then
-            cmd = run_c(additional_cmds, extra_args)
+            run_c(additional_cmds, extra_args)
         elseif filetype == "sh" or filetype == "bash" then
-            cmd = run_bash_sh(additional_cmds, extra_args)
+            run_bash_sh(additional_cmds, extra_args)
         elseif filetype == "asm" then
-            cmd = run_asm(additional_cmds, extra_args)
+            run_asm(additional_cmds, extra_args)
         else
-            cmd = run_executable(additional_cmds, extra_args)
-            vim.notify(cmd, vim.log.levels.INFO)
+            run_executable(additional_cmds, extra_args)
         end
     end
 
-    local post_process_cmd = "sh -c '" .. cmd .. "'"
-    -- local post_process_cmd = cmd
-    vim.notify("Running: " .. post_process_cmd, vim.log.levels.INFO)
-    require("toggleterm.terminal").Terminal
-    :new({
-        cmd = post_process_cmd,
-        direction = "float",
-        close_on_exit = false,
-    })
-    :toggle()
 end
 
 function run.run_file(additional_cmds)
