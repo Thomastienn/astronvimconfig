@@ -14,7 +14,7 @@ local function run_cmd(cmd)
 end
 
 -- Returns the cmd
-function run.compile_only()
+function run.compile_only(callback)
     local filetype = vim.bo.filetype
     -- Everytime update new language, handle extra cmd in the run_file function
     if filetype == "cpp" then
@@ -23,8 +23,8 @@ function run.compile_only()
         local output = vim.fn.expand "%:r"
         local flags = "g++ -DLOCAL -std=c++17 -O2 -Wall -Wextra -Wshadow"
         local cmd = string.format("%s %s -o %s", flags, filename, output)
-
-        return cmd
+        callback(cmd)
+        return
     end
     if filetype == "c" then
         vim.cmd "w" -- Save the current file
@@ -33,7 +33,8 @@ function run.compile_only()
         local flags = "gcc"
         local cmd = string.format("%s %s -o %s", flags, filename, output)
 
-        return cmd
+        callback(cmd)
+        return
     end
     if filetype == "java" then
         -- Create a build folder and put everything there
@@ -42,18 +43,39 @@ function run.compile_only()
         end
         vim.cmd "w" -- save file
         local cmd = "javac -d build $(find . -name '*.java')"
-        return cmd
-    end
-    return nil
-end
-
-function run.compile_file()
-    local cmd = run.compile_only()
-    if cmd == nil then
-        print("No compile command configured for filetype: " .. vim.bo.filetype)
+        callback(cmd)
         return
     end
-    require("toggleterm.terminal").Terminal:new({ cmd = cmd, direction = "float", close_on_exit = false }):toggle()
+    if filetype == "dockerfile" then
+        vim.cmd "w" -- save file
+        vim.ui.input({ prompt = "Enter Docker image name: " }, function(image_name)
+            if image_name == nil or image_name == "" then
+                vim.notify("Image name cannot be empty", vim.log.levels.ERROR)
+                callback(nil)
+                return
+            end
+            vim.ui.input({ prompt = "Enter extra docker build flags (or leave empty): " }, function(extra_flags)
+                if extra_flags ~= nil and extra_flags ~= "" then
+                    image_name = image_name .. " " .. extra_flags
+                end
+                local cmd = "docker build -t " .. image_name .. " ."
+                callback(cmd)
+            end)
+        end)
+        return
+    end
+    callback(nil)
+end
+
+function run.compile_file(callback)
+    local function callback(cmd)
+        if cmd == nil then
+            print("No compile command configured for filetype: " .. vim.bo.filetype)
+            return
+        end
+        require("toggleterm.terminal").Terminal:new({ cmd = cmd, direction = "float", close_on_exit = false }):toggle()
+    end
+    run.compile_only(callback)
 end
 
 local function run_gradle(additional_cmds, extra_args)
