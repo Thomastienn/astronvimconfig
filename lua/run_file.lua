@@ -17,32 +17,35 @@ end
 function run.compile_only(callback)
     local filetype = vim.bo.filetype
     -- Everytime update new language, handle extra cmd in the run_file function
-    if filetype == "cpp" then
-        vim.cmd "w" -- Save the current file
-        local filename = vim.fn.expand "%"
-        local output = vim.fn.expand "%:r"
-        local flags = "g++ -DLOCAL -std=c++17 -O2 -Wall -Wextra -Wshadow"
-        local cmd = string.format("%s %s -o %s", flags, filename, output)
-        callback(cmd)
-        return
-    end
-    if filetype == "c" then
-        vim.cmd "w" -- Save the current file
-        local filename = vim.fn.expand "%"
-        local output = vim.fn.expand "%:r"
-        local flags = "gcc"
-        local cmd = string.format("%s %s -o %s", flags, filename, output)
 
+    -- Create a build folder and put everything there
+    local build_folder = "build"
+    if vim.fn.isdirectory(build_folder) == 0 then
+        vim.fn.mkdir(build_folder)
+    end
+    if filetype == "cpp" or filetype == "c" then
+        vim.cmd "w" -- save current file
+
+        local src = vim.fn.expand "%:p"                  -- absolute path of current file
+        local root = vim.fn.getcwd()                     -- project root
+        local rel_dir = vim.fn.fnamemodify(src, ":.:h") -- relative folder of source
+        local basename = vim.fn.fnamemodify(src, ":t:r") -- filename without extension
+
+        local out_dir = root .. "/build/" .. rel_dir
+        vim.fn.mkdir(out_dir, "p")                      -- make dirs if needed
+
+        local output = out_dir .. "/" .. basename
+        local flags = filetype == "cpp" and
+                    "g++ -DLOCAL -std=c++17 -O2 -Wall -Wextra -Wshadow" or
+                    "gcc"
+
+        local cmd = string.format("%s %s -o %s", flags, src, output)
         callback(cmd)
         return
     end
     if filetype == "java" then
-        -- Create a build folder and put everything there
-        if vim.fn.isdirectory("build") == 0 then
-            vim.fn.mkdir("build")
-        end
         vim.cmd "w" -- save file
-        local cmd = "javac -d build $(find . -name '*.java')"
+        local cmd = "javac -d " .. build_folder .. " $(find . -name '*.java')"
         callback(cmd)
         return
     end
@@ -215,7 +218,7 @@ local function run_cpp(additional_cmds, extra_args)
     vim.cmd "w" -- Save the file just in case
     local output = vim.fn.expand "%:r"
    if not string.match(output, "^[./]") and not string.match(output, "^/") then
-        output = "./" .. output
+        output = "./build" .. output
     end
 
     if additional_cmds ~= nil then
@@ -232,7 +235,7 @@ local function run_c(additional_cmds, extra_args)
     -- local output = "./" .. file_name
     local output = vim.fn.expand "%:r"
     if not string.match(output, "^[./]") and not string.match(output, "^/") then
-        output = "./" .. output
+        output = "./build/" .. output
     end
 
     if additional_cmds ~= nil then
