@@ -291,9 +291,9 @@ local function run_asm(...)
     local filename = vim.fn.expand "%:t:r"
     local compile_cmd = "as -o " .. filename .. ".o " .. file_escaped
     local link_cmd = "ld -o " .. filename .. " " .. filename .. ".o"
-    local run_cmd = "./" .. filename
+    local cmd = "./" .. filename
 
-    local final_cmd = compile_cmd .. " && " .. link_cmd .. " && " .. run_cmd
+    local final_cmd = compile_cmd .. " && " .. link_cmd .. " && " .. cmd
 
     run_cmd(final_cmd)
 end
