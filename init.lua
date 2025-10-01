@@ -318,38 +318,8 @@ vim.o.fileformat = "dos" -- Set file format to DOS (CRLF) for compatibility with
 
 vim.keymap.set("n", "<leader>hx", "<cmd>silent! HexToggle<CR>", { desc = "Toggle Hex view" })
 
-
 -- Debugger
-local dap = require("dap")
-dap.adapters.codelldb = {
-  type = "server",
-  port = "${port}",
-  executable = {
-    command = "/home/thomastien/my_bin/codelldb/extension/adapter/codelldb", -- change to your adapter path
-    args = {"--port", "${port}"},
-  }
-}
-dap.configurations.cpp = {
-  {
-    name = "Launch file",
-    type = "codelldb",
-    request = "launch",
-    program = function()
-        local handle = io.popen("find build -maxdepth 1 -type f -executable | head -n 1")
-        if not handle then
-            print("Error: Unable to find executable in build directory")
-            return
-        end
-        local result = handle:read("*a")
-        handle:close()
-        print("Debugging: " .. vim.trim(result))
-        return vim.trim(result)
-    end,
-    cwd = '${workspaceFolder}',
-    stopOnEntry = false,
-    args = {}, -- program arguments
-  },
-}
+require("debugger")
 
 -- Keymaps 
 -- utils
