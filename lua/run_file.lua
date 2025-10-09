@@ -274,14 +274,14 @@ local function run_bash_sh(_, extra_args)
     end
     local file = vim.fn.expand "%"
     local file_escaped = vim.fn.shellescape(file)
-    local run_cmd = ""
+    local cmd = ""
     if activate_cmd then
         -- Use bash to source and run bash
-        run_cmd = string.format('bash -c "source %s && sh %s %s"', activate_cmd, file_escaped, extra_args)
+        cmd = string.format('bash -c "source %s && sh %s %s"', activate_cmd, file_escaped, extra_args)
     else
-        run_cmd = "sh " .. file_escaped .. " " .. extra_args
+        cmd = "sh " .. file_escaped .. " " .. extra_args
     end
-    run_cmd(run_cmd)
+    run_cmd(cmd)
 end
 
 local function run_asm(...)
@@ -295,7 +295,17 @@ local function run_asm(...)
 
     local final_cmd = compile_cmd .. " && " .. link_cmd .. " && " .. cmd
 
-    run_cmd(final_cmd)
+    local opts = {
+        "qemu-aarch64 ".. cmd,
+        cmd,
+    }
+
+    vim.ui.select(opts, { prompt = "Select architecture:" }, function(choice)
+        if choice then
+            final_cmd = compile_cmd .. " && " .. link_cmd .. " && " .. choice
+            run_cmd(final_cmd)
+        end
+    end)
 end
 
 -- Find project root (example using .git as marker)
