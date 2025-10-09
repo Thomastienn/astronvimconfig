@@ -36,7 +36,7 @@ function run.compile_only(callback)
 
         local output = out_dir .. "/" .. basename
         local flags = filetype == "cpp" and
-                    "g++ -DLOCAL -std=c++17 -O2 -Wall -Wextra -Wshadow" or
+                    "g++ -DLOCAL -std=c++23 -O2 -Wall -Wextra -Wshadow" or
                     "gcc"
 
         local cmd = string.format("%s %s -o %s", flags, src, output)
@@ -130,7 +130,7 @@ local function run_python(_, extra_args)
     local cmd = ""
     if activate_cmd then
         -- Use bash to source and run Python file
-        cmd = string.format('bash -c "source %s && python3 %s"', activate_cmd, filename)
+        cmd = string.format('bash -c "source %s && python3 %s %s"', activate_cmd, filename, extra_args)
     else
         -- No venv found, just run with system Python
         cmd = "python3 " .. filename .. " " .. extra_args
@@ -217,9 +217,10 @@ local function run_cpp(additional_cmds, extra_args)
 
     vim.cmd "w" -- Save the file just in case
     local output = vim.fn.expand "%:r"
-   if not string.match(output, "^[./]") and not string.match(output, "^/") then
-        output = "./build" .. output
+    if not string.match(output, "^[./]") and not string.match(output, "^/") then
+        output = "./build/" .. output
     end
+
 
     if additional_cmds ~= nil then
         output = additional_cmds .. " && " .. output
@@ -376,6 +377,7 @@ local function actual_run(additional_cmds, extra_args)
         if additional_cmds ~= nil then
             cmd = additional_cmds .. " && " .. cmd
         end
+        run_cmd(cmd)
     else
         local filetype = vim.bo.filetype
         if filetype == "java" then
