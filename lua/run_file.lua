@@ -13,6 +13,50 @@ local function run_cmd(cmd)
     :toggle()
 end
 
+local function compile_c_cpp(callback, filetype)
+    vim.cmd "w" -- save current file
+
+    local src = vim.fn.expand "%:p"                  -- absolute path of current file
+    local root = vim.fn.getcwd()                     -- project root
+    local rel_dir = vim.fn.fnamemodify(src, ":.:h") -- relative folder of source
+    local basename = vim.fn.fnamemodify(src, ":t:r") -- filename without extension
+
+    local out_dir = root .. "/build/" .. rel_dir
+    vim.fn.mkdir(out_dir, "p")                      -- make dirs if needed
+
+    local output = out_dir .. "/" .. basename
+    local flags = filetype == "cpp" and
+                "g++ -DLOCAL -std=c++23 -O2 -Wall -Wextra -Wshadow" or
+                "gcc -std=c99"
+
+    local cmd = string.format("%s %s -o %s", flags, src, output)
+    callback(cmd)
+end
+
+local function compile_java(callback)
+    vim.cmd "w" -- save file
+    local cmd = "javac -d build $(find . -name '*.java')"
+    callback(cmd)
+end
+
+local function compile_dockerfile(callback)
+    vim.cmd "w" -- save file
+    vim.ui.input({ prompt = "Enter Docker image name: " }, function(image_name)
+        if image_name == nil or image_name == "" then
+            vim.notify("Image name cannot be empty", vim.log.levels.ERROR)
+            callback(nil)
+            return
+        end
+        vim.ui.input({ prompt = "Enter extra docker build flags (or leave empty): " }, function(extra_flags)
+            if extra_flags ~= nil and extra_flags ~= "" then
+                image_name = image_name .. " " .. extra_flags
+            end
+            local cmd = "docker build -t " .. image_name .. " ."
+            callback(cmd)
+        end)
+    end)
+end
+
 -- Returns the cmd
 function run.compile_only(callback)
     local filetype = vim.bo.filetype
@@ -24,47 +68,15 @@ function run.compile_only(callback)
         vim.fn.mkdir(build_folder)
     end
     if filetype == "cpp" or filetype == "c" then
-        vim.cmd "w" -- save current file
-
-        local src = vim.fn.expand "%:p"                  -- absolute path of current file
-        local root = vim.fn.getcwd()                     -- project root
-        local rel_dir = vim.fn.fnamemodify(src, ":.:h") -- relative folder of source
-        local basename = vim.fn.fnamemodify(src, ":t:r") -- filename without extension
-
-        local out_dir = root .. "/build/" .. rel_dir
-        vim.fn.mkdir(out_dir, "p")                      -- make dirs if needed
-
-        local output = out_dir .. "/" .. basename
-        local flags = filetype == "cpp" and
-                    "g++ -DLOCAL -std=c++23 -O2 -Wall -Wextra -Wshadow" or
-                    "gcc"
-
-        local cmd = string.format("%s %s -o %s", flags, src, output)
-        callback(cmd)
+        compile_c_cpp(callback, filetype)
         return
     end
     if filetype == "java" then
-        vim.cmd "w" -- save file
-        local cmd = "javac -d " .. build_folder .. " $(find . -name '*.java')"
-        callback(cmd)
+        compile_java(callback)
         return
     end
     if filetype == "dockerfile" then
-        vim.cmd "w" -- save file
-        vim.ui.input({ prompt = "Enter Docker image name: " }, function(image_name)
-            if image_name == nil or image_name == "" then
-                vim.notify("Image name cannot be empty", vim.log.levels.ERROR)
-                callback(nil)
-                return
-            end
-            vim.ui.input({ prompt = "Enter extra docker build flags (or leave empty): " }, function(extra_flags)
-                if extra_flags ~= nil and extra_flags ~= "" then
-                    image_name = image_name .. " " .. extra_flags
-                end
-                local cmd = "docker build -t " .. image_name .. " ."
-                callback(cmd)
-            end)
-        end)
+        compile_dockerfile(callback)
         return
     end
     callback(nil)
