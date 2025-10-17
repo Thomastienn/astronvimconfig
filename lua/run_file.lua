@@ -57,6 +57,15 @@ local function compile_dockerfile(callback)
     end)
 end
 
+local function compile_asm_arm(callback)
+    vim.cmd "w" -- save file
+    local file = vim.fn.expand "%"
+    local file_escaped = vim.fn.shellescape(file)
+    local filename = vim.fn.expand "%:t:r"
+    local cmd = "gcc -g -O0 -o " .. filename .. " " .. file_escaped
+    callback(cmd)
+end
+
 -- Returns the cmd
 function run.compile_only(callback)
     local filetype = vim.bo.filetype
@@ -77,6 +86,10 @@ function run.compile_only(callback)
     end
     if filetype == "dockerfile" then
         compile_dockerfile(callback)
+        return
+    end
+    if filetype == "asm" then
+        compile_asm_arm(callback)
         return
     end
     callback(nil)
@@ -229,10 +242,9 @@ local function run_cpp(additional_cmds, extra_args)
 
     vim.cmd "w" -- Save the file just in case
     local output = vim.fn.expand "%:r"
-    if not string.match(output, "^[./]") and not string.match(output, "^/") then
-        output = "./build/" .. output
-    end
-
+    local parent = vim.fn.fnamemodify(output, ":h")
+    local base = vim.fn.fnamemodify(output, ":t")
+    output = parent .. "/build/" .. base
 
     if additional_cmds ~= nil then
         output = additional_cmds .. " && " .. output
@@ -247,9 +259,9 @@ local function run_c(additional_cmds, extra_args)
     -- local file_name = file_with_ext:gsub("%.c$", "")
     -- local output = "./" .. file_name
     local output = vim.fn.expand "%:r"
-    if not string.match(output, "^[./]") and not string.match(output, "^/") then
-        output = "./build/" .. output
-    end
+    local parent = vim.fn.fnamemodify(output, ":h")
+    local base = vim.fn.fnamemodify(output, ":t")
+    output = parent .. "/build/" .. base
 
     if additional_cmds ~= nil then
         output = additional_cmds .. " && " .. output
