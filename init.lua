@@ -212,6 +212,7 @@ vim.keymap.set("n", "<leader>rcp", function()
 end, { desc = "Compile and Run current file" })
 -- Run current file
 vim.keymap.set("n", "<leader>rp", require("run_file").run_file, { desc = "Run file" })
+vim.keymap.set("n", "<leader>rd", require("run_file").debug_file, { desc = "Debug executables" })
 
 
 --vim

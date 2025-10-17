@@ -427,6 +427,21 @@ local function actual_run(additional_cmds, extra_args)
 
 end
 
+function run.debug_file()
+    local filetype = vim.bo.filetype
+    local cmd = ""
+    if filetype == "asm" then
+        compile_asm_arm()
+        cmd = "gdb " .. vim.fn.expand "%:r"
+        -- Display registers from 1 to 30
+        for i = 1, 30 do
+            cmd = cmd .. string.format(" -ex 'display /d $x%d'", i)
+        end
+    end
+
+    run_cmd(cmd)
+end
+
 function run.run_file(additional_cmds)
     local args_files = vim.fn.glob("*.args", false, true)
     local extra_args = ""
