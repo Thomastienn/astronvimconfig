@@ -435,7 +435,7 @@ local function debug_asm(extra_cmd)
     -- Display registers from 1 to 30
     cmd = cmd .. ' -ex "break main" -ex "run"'
     for i = 1, 30 do
-        cmd = cmd .. string.format(' -ex "display /d $x%d"', i)
+        cmd = cmd .. string.format(' -ex "display /d \\$x%d"', i)
     end
     run_cmd(cmd)
 end
