@@ -436,16 +436,12 @@ local function debug_asm(extra_cmd)
     if cmd ~= "" then
         cmd = cmd .. " && "
     end
-    local file_in_build = vim.fn.expand "%:r"
-    if not string.match(file_in_build, "^[./]") and not string.match(file_in_build, "^/") then
-        file_in_build = "./" .. file_in_build
-    end
-    cmd = cmd .. "gdb " .. file_in_build
+    cmd = cmd .. "gdb " .. vim.fn.expand "%:r"
     -- Display registers from 1 to 30
     for i = 1, 30 do
         cmd = cmd .. string.format(' -ex "display /d $x%d"', i)
     end
-    run_cmd(cmd)
+    run_cmd(cmd, false)
 end
 
 function run.debug_file()
