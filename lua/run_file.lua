@@ -435,7 +435,7 @@ function run.debug_file()
         cmd = "gdb " .. vim.fn.expand "%:r"
         -- Display registers from 1 to 30
         for i = 1, 30 do
-            cmd = cmd .. string.format(" -ex 'display /d $x%d'", i)
+            cmd = cmd .. string.format(' -ex "display /d $x%d"', i)
         end
     end
 
