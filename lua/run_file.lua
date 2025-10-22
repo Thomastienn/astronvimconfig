@@ -1,12 +1,16 @@
 local run = {}
 
-local function run_cmd(cmd)
-    local post_process_cmd = "sh -c '" .. cmd .. "'"
-    -- local post_process_cmd = cmd
-    vim.notify("Running: " .. post_process_cmd, vim.log.levels.INFO)
+local function run_cmd(cmd, wrap)
+    if wrap == nil then
+        wrap = true
+    end
+    if wrap then
+        cmd = "sh -c '" .. cmd .. "'"
+    end
+    vim.notify("Running: " .. cmd, vim.log.levels.INFO)
     require("toggleterm.terminal").Terminal
     :new({
-        cmd = post_process_cmd,
+        cmd = cmd,
         direction = "float",
         close_on_exit = false,
     })
@@ -427,19 +431,29 @@ local function actual_run(additional_cmds, extra_args)
 
 end
 
+local function debug_asm(extra_cmd)
+    local cmd = extra_cmd or ""
+    if cmd ~= "" then
+        cmd = cmd .. " && "
+    end
+    local file_in_build = vim.fn.expand "%:r"
+    if not string.match(file_in_build, "^[./]") and not string.match(file_in_build, "^/") then
+        file_in_build = "./" .. file_in_build
+    end
+    cmd = cmd .. "gdb " .. file_in_build
+    -- Display registers from 1 to 30
+    for i = 1, 30 do
+        cmd = cmd .. string.format(' -ex "display /d $x%d"', i)
+    end
+    run_cmd(cmd)
+end
+
 function run.debug_file()
     local filetype = vim.bo.filetype
-    local cmd = ""
-    if filetype == "asm" then
-        compile_asm_arm(run_cmd)
-        cmd = "gdb " .. vim.fn.expand "%:r"
-        -- Display registers from 1 to 30
-        for i = 1, 30 do
-            cmd = cmd .. string.format(' -ex "display /d $x%d"', i)
-        end
-    end
 
-    run_cmd(cmd)
+    if filetype == "asm" then
+        compile_asm_arm(debug_asm)
+    end
 end
 
 function run.run_file(additional_cmds)
