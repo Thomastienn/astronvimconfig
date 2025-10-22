@@ -1,15 +1,31 @@
 local run = {}
 
-local function run_cmd(cmd)
+local function run_cmd(cmd, toggleterm_opts)
     cmd = "sh -c '" .. cmd .. "'"
     vim.notify("Running: " .. cmd, vim.log.levels.INFO)
-    require("toggleterm.terminal").Terminal
-    :new({
+
+    local default_opts = {
         cmd = cmd,
         direction = "float",
         close_on_exit = false,
-    })
+    }
+    local opts = vim.tbl_extend("force", default_opts, toggleterm_opts or {})
+
+    require("toggleterm.terminal").Terminal
+    :new(opts)
     :toggle()
+end
+
+local function full_screen_opt()
+    return {
+        direction = "float",
+        float_opts = {
+            width = vim.o.columns,
+            height = vim.o.lines,
+            row = 0,
+            col = 0,
+        }
+    }
 end
 
 local function compile_c_cpp(callback, filetype)
@@ -449,7 +465,7 @@ local function debug_asm(extra_cmd)
             cmd = cmd .. string.format(' -ex "display ' .. format .. ' \\$x%d"', i)
         end
         cmd = cmd .. ' -ex "set pagination off"'
-        run_cmd(cmd)
+        run_cmd(cmd, full_screen_opt())
     end)
 end
 
