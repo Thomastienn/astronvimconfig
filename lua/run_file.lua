@@ -1,12 +1,7 @@
 local run = {}
 
-local function run_cmd(cmd, wrap)
-    if wrap == nil then
-        wrap = true
-    end
-    if wrap then
-        cmd = "sh -c '" .. cmd .. "'"
-    end
+local function run_cmd(cmd)
+    cmd = "sh -c '" .. cmd .. "'"
     vim.notify("Running: " .. cmd, vim.log.levels.INFO)
     require("toggleterm.terminal").Terminal
     :new({
@@ -438,10 +433,11 @@ local function debug_asm(extra_cmd)
     end
     cmd = cmd .. "gdb " .. vim.fn.expand "%:r"
     -- Display registers from 1 to 30
+    cmd = cmd .. ' -ex "break main" -ex "run"'
     for i = 1, 30 do
         cmd = cmd .. string.format(' -ex "display /d $x%d"', i)
     end
-    run_cmd(cmd, false)
+    run_cmd(cmd)
 end
 
 function run.debug_file()
