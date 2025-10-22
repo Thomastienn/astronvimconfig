@@ -442,7 +442,7 @@ local function debug_asm(extra_cmd)
         elseif choice == "Decimal" then
             format = "/d"
         elseif choice == "Binary" then
-            format = "/b"
+            format = "/t"
         end
 
         for i = 1, 30 do
