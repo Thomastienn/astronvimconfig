@@ -434,10 +434,23 @@ local function debug_asm(extra_cmd)
     cmd = cmd .. "gdb " .. vim.fn.expand "%:r"
     -- Display registers from 1 to 30
     cmd = cmd .. ' -ex "break main" -ex "run"'
-    for i = 1, 30 do
-        cmd = cmd .. string.format(' -ex "display /d \\$x%d"', i)
-    end
-    run_cmd(cmd)
+
+    vim.ui.select({"Decimal", "Hexadecimal", "Binary"}, { prompt = "Select display format for registers:" }, function(choice)
+        local format = "/d"
+        if choice == "Hexadecimal" then
+            format = "/x"
+        elseif choice == "Decimal" then
+            format = "/d"
+        elseif choice == "Binary" then
+            format = "/b"
+        end
+
+        for i = 1, 30 do
+            cmd = cmd .. string.format(' -ex "display ' .. format .. ' \\$x%d"', i)
+        end
+        cmd = cmd .. ' -ex "set pagination off"'
+        run_cmd(cmd)
+    end)
 end
 
 function run.debug_file()
