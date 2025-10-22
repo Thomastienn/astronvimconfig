@@ -431,7 +431,7 @@ function run.debug_file()
     local filetype = vim.bo.filetype
     local cmd = ""
     if filetype == "asm" then
-        compile_asm_arm()
+        compile_asm_arm(run_cmd)
         cmd = "gdb " .. vim.fn.expand "%:r"
         -- Display registers from 1 to 30
         for i = 1, 30 do
