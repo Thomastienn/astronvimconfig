@@ -33,32 +33,36 @@ dap.configurations.cpp = {
 local function compile_current_asm()
   local src = vim.fn.expand("%:p")
   if src == "" then
-    print("No file to compile (empty buffer?)")
+    vim.notify("No file to compile (empty buffer?)", vim.log.levels.ERROR)
     return nil
   end
+
+  -- Save the file before compiling
+  vim.cmd("silent! write")
 
   local out = vim.fn.expand("%:p:r")  -- same name without extension
   local compile_cmds = {
     -- try gcc/clang directly (works for AT&T/GAS-style .s or .asm with GCC-compatible syntax)
     string.format("gcc -g %s -o %s 2>&1", vim.fn.shellescape(src), vim.fn.shellescape(out)),
     -- fallback: assume NASM syntax: assemble then link via gcc to keep -g
-    string.format("nasm -f elf64 %s -o %s.o 2>&1 && gcc -g %s.o -o %s 2>&1", vim.fn.shellescape(src), vim.fn.shellescape(out), vim.fn.shellescape(out), vim.fn.shellescape(out))
+    string.format("nasm -f elf64 %s -o %s.o 2>&1 && gcc -g %s.o -o %s 2>&1 && rm -f %s.o", vim.fn.shellescape(src), vim.fn.shellescape(out), vim.fn.shellescape(out), vim.fn.shellescape(out), vim.fn.shellescape(out))
   }
 
   for _, cmd in ipairs(compile_cmds) do
-    print("Running: " .. cmd)
+    vim.notify("Compiling: " .. cmd, vim.log.levels.INFO)
     local result = vim.fn.system(cmd)
     local code = vim.v.shell_error
     if code == 0 then
       -- success
+      vim.notify("Compilation successful: " .. out, vim.log.levels.INFO)
       return out
     else
       -- show compiler/linker output and continue to next fallback
-      print("Compile attempt failed:\n" .. result)
+      vim.notify("Compile attempt failed:\n" .. result, vim.log.levels.WARN)
     end
   end
 
-  print("All compile attempts failed. Fix errors and try again.")
+  vim.notify("All compile attempts failed. Fix errors and try again.", vim.log.levels.ERROR)
   return nil
 end
 
@@ -68,6 +72,13 @@ local asm_launch_compile = {
   type = "codelldb",
   request = "launch",
   program = function()
+    -- Only compile when actually starting debug session
+    -- DAP may evaluate this to validate the config, so we add a guard
+    if vim.fn.expand("%:p") == "" then
+      vim.notify("No file to debug", vim.log.levels.ERROR)
+      return nil
+    end
+    
     local exe = compile_current_asm()
     if not exe or exe == "" then
       -- return nil so dap won't start; user sees printed errors
