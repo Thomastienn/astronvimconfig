@@ -330,33 +330,18 @@ local function run_asm(...)
     local file_escaped = vim.fn.shellescape(file)
     local filename = vim.fn.expand "%:t:r"
 
-    local opts = { "machine", "arm" }
+    if vim.fn.isdirectory("build") == 0 then
+        vim.fn.mkdir("build")
+    end
 
-    vim.ui.select(opts, { prompt = "Select architecture:" }, function(choice)
-        if choice then
-            if vim.fn.isdirectory("build") == 0 then
-                vim.fn.mkdir("build")
-            end
+    local compile = "as"
+    local link = "ld"
+    local compile_cmd = compile .. " -o build/" .. filename .. ".o " .. file_escaped
+    local link_cmd = link .. " -o build/" .. filename .. " build/" .. filename .. ".o"
+    local cmd = "./" .. filename
 
-            local compile = "as"
-            if choice == "arm" then
-                compile = "aarch64-linux-gnu-as"
-            end
-            local link = "ld"
-            if choice == "arm" then
-                link = "aarch64-linux-gnu-ld"
-            end
-            local compile_cmd = compile .. " -o build/" .. filename .. ".o " .. file_escaped
-            local link_cmd = link .. " -o build/" .. filename .. " build/" .. filename .. ".o"
-            local cmd = "./" .. filename
-            if choice == "arm" then
-                cmd = "qemu-aarch64 ./build/" .. filename
-            end
-
-            local final_cmd = compile_cmd .. " && " .. link_cmd .. " && " .. cmd
-            run_cmd(final_cmd)
-        end
-    end)
+    local final_cmd = compile_cmd .. " && " .. link_cmd .. " && " .. cmd
+    run_cmd(final_cmd)
 end
 
 -- Find project root (example using .git as marker)
