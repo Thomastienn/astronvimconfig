@@ -330,7 +330,7 @@ local function run_asm(...)
     local file_escaped = vim.fn.shellescape(file)
     local filename = vim.fn.expand "%:t:r"
 
-    local opts = { "machine", "arm", "arm-gcc" }
+    local opts = { "arm", "arm-emu", "arm-gcc" }
 
     vim.ui.select(opts, { prompt = "Select architecture:" }, function(choice)
         if choice then
