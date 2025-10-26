@@ -334,19 +334,23 @@ local function run_asm(...)
 
     vim.ui.select(opts, { prompt = "Select architecture:" }, function(choice)
         if choice then
+            if vim.fn.isdirectory("build") == 0 then
+                vim.fn.mkdir("build")
+            end
+
             local compile = "as"
             if choice == "arm" then
                 compile = "aarch64-linux-gnu-as"
             end
             local link = "ld"
             if choice == "arm" then
-                link = "aarch64-linux-gnu-gcc -static"
+                link = "aarch64-linux-gnu-ld"
             end
-            local compile_cmd = compile .. " -o " .. filename .. ".o " .. file_escaped
-            local link_cmd = link .. " -o " .. filename .. " " .. filename .. ".o"
+            local compile_cmd = compile .. " -o build/" .. filename .. ".o " .. file_escaped
+            local link_cmd = link .. " -o build/" .. filename .. " build/" .. filename .. ".o"
             local cmd = "./" .. filename
             if choice == "arm" then
-                cmd = "qemu-aarch64 ./" .. filename
+                cmd = "qemu-aarch64 ./build/" .. filename
             end
 
             local final_cmd = compile_cmd .. " && " .. link_cmd .. " && " .. cmd
