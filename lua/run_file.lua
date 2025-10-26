@@ -1,7 +1,7 @@
 local run = {}
 
 local function run_cmd(cmd, toggleterm_opts)
-    cmd = "sh -c '" .. cmd .. "'"
+    cmd = "sh -c '" .. cmd .. ";echo $?'"
     vim.notify("Running: " .. cmd, vim.log.levels.INFO)
 
     local default_opts = {
@@ -339,11 +339,11 @@ local function run_asm(...)
             end
 
             local compile = "as"
-            if choice == "arm" then
+            if choice == "arm-emu" then
                 compile = "aarch64-linux-gnu-as"
             end
             local link = "ld"
-            if choice == "arm" then
+            if choice == "arm-emu" then
                 link = "aarch64-linux-gnu-ld"
             end
             if choice == "arm-gcc" then
@@ -352,7 +352,7 @@ local function run_asm(...)
             local compile_cmd = compile .. " -o build/" .. filename .. ".o " .. file_escaped
             local link_cmd = link .. " -o build/" .. filename .. " build/" .. filename .. ".o"
             local cmd = "./" .. filename
-            if choice == "arm" then
+            if choice == "arm-emu" then
                 cmd = "qemu-aarch64 ./build/" .. filename
             end
 
