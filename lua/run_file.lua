@@ -330,7 +330,7 @@ local function run_asm(...)
     local file_escaped = vim.fn.shellescape(file)
     local filename = vim.fn.expand "%:t:r"
 
-    local opts = { "arm", "arm-emu", "arm-gcc" }
+    local opts = { "arm", "arm-emu", "arm-emu-gcc", "arm-gcc" }
 
     vim.ui.select(opts, { prompt = "Select architecture:" }, function(choice)
         if choice then
@@ -345,15 +345,20 @@ local function run_asm(...)
             local link = "ld"
             if choice == "arm-emu" then
                 link = "aarch64-linux-gnu-ld"
+            elseif choice == "arm-emu-gcc" then
+                link = "aarch64-linux-gnu-gcc"
             end
             if choice == "arm-gcc" then
                 link = "gcc"
             end
+
             local compile_cmd = compile .. " -o build/" .. filename .. ".o " .. file_escaped
             local link_cmd = link .. " -o build/" .. filename .. " build/" .. filename .. ".o"
             local cmd = "./" .. filename
             if choice == "arm-emu" then
                 cmd = "qemu-aarch64 ./build/" .. filename
+            elseif choice == "arm-emu-gcc" then
+                cmd = "qemu-aarch64 -L /usr/aarch64-linux-gnu ./build/" .. filename
             end
 
             local final_cmd = compile_cmd .. " && " .. link_cmd .. " && " .. cmd
