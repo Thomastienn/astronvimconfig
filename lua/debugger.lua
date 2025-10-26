@@ -128,6 +128,6 @@ local asm_attach = {
 }
 
 -- register for common assembly filetypes
-dap.configurations.asm = { asm_launch_compile, asm_launch_build, asm_attach }
-dap.configurations.asmx86 = { asm_launch_compile, asm_launch_build, asm_attach } -- if you use asmx86
-dap.configurations.nasm = { asm_launch_compile, asm_launch_build, asm_attach }  -- if filetype is 'nasm'
+-- dap.configurations.asm = { asm_launch_compile, asm_launch_build, asm_attach }
+-- dap.configurations.asmx86 = { asm_launch_compile, asm_launch_build, asm_attach } -- if you use asmx86
+-- dap.configurations.nasm = { asm_launch_compile, asm_launch_build, asm_attach }  -- if filetype is 'nasm'

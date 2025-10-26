@@ -329,20 +329,27 @@ local function run_asm(...)
     local file = vim.fn.expand "%"
     local file_escaped = vim.fn.shellescape(file)
     local filename = vim.fn.expand "%:t:r"
-    local compile_cmd = "as -o " .. filename .. ".o " .. file_escaped
-    local link_cmd = "ld -o " .. filename .. " " .. filename .. ".o"
-    local cmd = "./" .. filename
 
-    local final_cmd = compile_cmd .. " && " .. link_cmd .. " && " .. cmd
-
-    local opts = {
-        "qemu-aarch64 ".. cmd,
-        cmd,
-    }
+    local opts = { "machine", "arm" }
 
     vim.ui.select(opts, { prompt = "Select architecture:" }, function(choice)
         if choice then
-            final_cmd = compile_cmd .. " && " .. link_cmd .. " && " .. choice
+            local compile = "as"
+            if choice == "arm" then
+                compile = "aarch64-linux-gnu-as"
+            end
+            local link = "ld"
+            if choice == "arm" then
+                link = "aarch64-linux-gnu-gcc -static"
+            end
+            local compile_cmd = compile .. " -o " .. filename .. ".o " .. file_escaped
+            local link_cmd = link .. " -o " .. filename .. " " .. filename .. ".o"
+            local cmd = "./" .. filename
+            if choice == "arm" then
+                cmd = "qemu-aarch64 ./" .. filename
+            end
+
+            local final_cmd = compile_cmd .. " && " .. link_cmd .. " && " .. cmd
             run_cmd(final_cmd)
         end
     end)
