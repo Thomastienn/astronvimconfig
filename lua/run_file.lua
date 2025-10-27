@@ -339,17 +339,17 @@ local function run_asm(...)
             end
 
             local compile = "as"
-            if choice == "arm-emu" then
+            if string.find(choice, "emu") then
                 compile = "aarch64-linux-gnu-as"
             end
+
             local link = "ld"
             if choice == "arm-emu" then
                 link = "aarch64-linux-gnu-ld"
+            elseif choice == "arm-gcc" then
+                link = "gcc"
             elseif choice == "arm-emu-gcc" then
                 link = "aarch64-linux-gnu-gcc"
-            end
-            if choice == "arm-gcc" then
-                link = "gcc"
             end
 
             local compile_cmd = compile .. " -o build/" .. filename .. ".o " .. file_escaped
