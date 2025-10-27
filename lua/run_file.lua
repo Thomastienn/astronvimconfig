@@ -354,11 +354,11 @@ local function run_asm(...)
 
             local compile_cmd = compile .. " -o build/" .. filename .. ".o " .. file_escaped
             local link_cmd = link .. " -o build/" .. filename .. " build/" .. filename .. ".o"
-            local cmd = "./" .. filename
+            local cmd = "./build/" .. filename
             if choice == "arm-emu" then
-                cmd = "qemu-aarch64 ./build/" .. filename
+                cmd = "qemu-aarch64 " .. filename
             elseif choice == "arm-emu-gcc" then
-                cmd = "qemu-aarch64 -L /usr/aarch64-linux-gnu ./build/" .. filename
+                cmd = "qemu-aarch64 -L /usr/aarch64-linux-gnu " .. filename
             end
 
             local final_cmd = compile_cmd .. " && " .. link_cmd .. " && " .. cmd
