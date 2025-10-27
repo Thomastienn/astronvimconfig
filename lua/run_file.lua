@@ -16,6 +16,14 @@ local function run_cmd(cmd, toggleterm_opts)
     :toggle()
 end
 
+local function get_exec_path()
+    local filepath = vim.fn.expand "%:p"
+    local parent = vim.fn.fnamemodify(filepath, ":h")
+    local filename = vim.fn.expand "%:t:r"
+    local exe_path = parent .. "/build/" .. filename
+    return exe_path
+end
+
 local function full_screen_opt()
     return {
         direction = "float",
@@ -72,15 +80,6 @@ local function compile_dockerfile(callback)
     end)
 end
 
-local function compile_asm_arm(callback)
-    vim.cmd "w" -- save file
-    local file = vim.fn.expand "%"
-    local file_escaped = vim.fn.shellescape(file)
-    local filename = vim.fn.expand "%:t:r"
-    local cmd = "gcc -g -O0 -o " .. filename .. " " .. file_escaped
-    callback(cmd)
-end
-
 -- Returns the cmd
 function run.compile_only(callback)
     local filetype = vim.bo.filetype
@@ -104,7 +103,6 @@ function run.compile_only(callback)
         return
     end
     if filetype == "asm" then
-        compile_asm_arm(callback)
         return
     end
     callback(nil)
@@ -466,7 +464,9 @@ local function debug_asm(extra_cmd)
     if cmd ~= "" then
         cmd = cmd .. " && "
     end
-    cmd = cmd .. "gdb " .. vim.fn.expand "%:r"
+    local exe_path = get_exec_path()
+
+    cmd = cmd .. "gdb " .. exe_path
     -- Display registers from 1 to 30
     cmd = cmd .. ' -ex "break main" -ex "run"'
 
@@ -492,7 +492,7 @@ function run.debug_file()
     local filetype = vim.bo.filetype
 
     if filetype == "asm" then
-        compile_asm_arm(debug_asm)
+        debug_asm()
     end
 end
 
