@@ -357,3 +357,6 @@ if vim.env.SSH_CONNECTION then
     vim.notify("OSC52 enabled (SSH detected)", vim.log.levels.INFO)
     require('osc52').setup()
 end
+
+-- Leetcode
+vim.keymap.set("n", "<leader>lc", "<cmd>Leet<CR>", { desc = "Turn on leetcode mode" })
