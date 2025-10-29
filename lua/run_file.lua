@@ -506,7 +506,7 @@ local function debug_asm(extra_cmd)
 
     cmd = cmd .. "gdb " .. exe_path
     -- Display registers from 1 to 30
-    cmd = cmd .. ' -ex "break main" -ex "run" -ex "layout asm"'
+    cmd = cmd .. ' -ex "break main" -ex "run" -ex "layout asm" -ex "layout regs"'
 
     vim.ui.select({"Decimal", "Hexadecimal", "Binary"}, { prompt = "Select display format for registers:" }, function(choice)
         local format = "/d"
