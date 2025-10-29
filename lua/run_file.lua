@@ -80,6 +80,46 @@ local function compile_dockerfile(callback)
     end)
 end
 
+local function compile_asm(callback)
+    vim.cmd "w"
+    local file = vim.fn.expand "%"
+    local file_escaped = vim.fn.shellescape(file)
+    local filename = vim.fn.expand "%:t:r"
+
+    local opts = { "arm", "arm-emu", "arm-emu-gcc", "arm-gcc" }
+
+    vim.ui.select(opts, { prompt = "Select architecture:" }, function(choice)
+        if choice then
+            if vim.fn.isdirectory("build") == 0 then
+                vim.fn.mkdir("build")
+            end
+
+            local compile = "as"
+            if string.find(choice, "emu") then
+                compile = "aarch64-linux-gnu-as"
+            end
+
+            local link = "ld"
+            if choice == "arm-emu" then
+                link = "aarch64-linux-gnu-ld"
+            elseif choice == "arm-gcc" then
+                link = "gcc"
+            elseif choice == "arm-emu-gcc" then
+                link = "aarch64-linux-gnu-gcc"
+            end
+
+            local compile_cmd = compile .. " -o build/" .. filename .. ".o " .. file_escaped
+            local link_cmd = link .. " -o build/" .. filename .. " build/" .. filename .. ".o"
+            filename = "./build/" .. filename
+
+            local full_compile = compile_cmd .. " && " .. link_cmd
+
+            local opts_params_to_run = { architecture = choice }
+            callback(full_compile, opts_params_to_run)
+        end
+    end)
+end
+
 -- Returns the cmd
 function run.compile_only(callback)
     local filetype = vim.bo.filetype
@@ -103,6 +143,7 @@ function run.compile_only(callback)
         return
     end
     if filetype == "asm" then
+        compile_asm(callback)
         return
     end
     callback(nil)
@@ -322,46 +363,42 @@ local function run_bash_sh(_, extra_args)
     run_cmd(cmd)
 end
 
-local function run_asm(...)
+local function run_asm(additional_cmds, extra_args, opts_params_to_run)
     vim.cmd "w" -- save file
-    local file = vim.fn.expand "%"
-    local file_escaped = vim.fn.shellescape(file)
-    local filename = vim.fn.expand "%:t:r"
+    local filename = get_exec_path()
+
+    local run_cmd_map = {
+        ["arm"] = filename,
+        ["arm-gcc"] = filename,
+        ["arm-emu"] = "qemu-aarch64 " .. filename,
+        ["arm-emu-gcc"] = "qemu-aarch64 -L /usr/aarch64-linux-gnu " .. filename,
+    }
+
+    local architecture = opts_params_to_run and opts_params_to_run.architecture or nil
+
+    if architecture ~= nil then
+        local cmd = run_cmd_map[architecture]
+        if additional_cmds ~= nil then
+            cmd = additional_cmds .. " && " .. cmd
+        end
+        if extra_args ~= nil and extra_args ~= "" then
+            cmd = cmd .. " " .. extra_args
+        end
+        run_cmd(cmd)
+        return
+    end
 
     local opts = { "arm", "arm-emu", "arm-emu-gcc", "arm-gcc" }
-
     vim.ui.select(opts, { prompt = "Select architecture:" }, function(choice)
         if choice then
-            if vim.fn.isdirectory("build") == 0 then
-                vim.fn.mkdir("build")
+            local cmd = run_cmd_map[choice]
+            if additional_cmds ~= nil then
+                cmd = additional_cmds .. " && " .. cmd
             end
-
-            local compile = "as"
-            if string.find(choice, "emu") then
-                compile = "aarch64-linux-gnu-as"
+            if extra_args ~= nil and extra_args ~= "" then
+                cmd = cmd .. " " .. extra_args
             end
-
-            local link = "ld"
-            if choice == "arm-emu" then
-                link = "aarch64-linux-gnu-ld"
-            elseif choice == "arm-gcc" then
-                link = "gcc"
-            elseif choice == "arm-emu-gcc" then
-                link = "aarch64-linux-gnu-gcc"
-            end
-
-            local compile_cmd = compile .. " -o build/" .. filename .. ".o " .. file_escaped
-            local link_cmd = link .. " -o build/" .. filename .. " build/" .. filename .. ".o"
-            filename = "./build/" .. filename
-            local cmd = filename
-            if choice == "arm-emu" then
-                cmd = "qemu-aarch64 " .. filename
-            elseif choice == "arm-emu-gcc" then
-                cmd = "qemu-aarch64 -L /usr/aarch64-linux-gnu " .. filename
-            end
-
-            local final_cmd = compile_cmd .. " && " .. link_cmd .. " && " .. cmd
-            run_cmd(final_cmd)
+            run_cmd(cmd)
         end
     end)
 end
@@ -421,7 +458,7 @@ local function run_executable(additional_cmds, extra_args)
 end
 
 
-local function actual_run(additional_cmds, extra_args)
+local function actual_run(additional_cmds, extra_args, opts_params_to_run)
     -- Check if run.sh exists in the current directory
     -- If it exists, use it to run the file
 
@@ -452,7 +489,7 @@ local function actual_run(additional_cmds, extra_args)
         elseif filetype == "sh" or filetype == "bash" then
             run_bash_sh(additional_cmds, extra_args)
         elseif filetype == "asm" then
-            run_asm(additional_cmds, extra_args)
+            run_asm(additional_cmds, extra_args, opts_params_to_run)
         else
             run_executable(additional_cmds, extra_args)
         end
@@ -493,11 +530,11 @@ function run.debug_file()
     local filetype = vim.bo.filetype
 
     if filetype == "asm" then
-        debug_asm()
+        compile_asm(debug_asm)
     end
 end
 
-function run.run_file(additional_cmds)
+function run.run_file(additional_cmds, opts_params_to_run)
     local args_files = vim.fn.glob("*.args", false, true)
     local extra_args = ""
     if #args_files > 0 then
@@ -514,13 +551,13 @@ function run.run_file(additional_cmds)
                     vim.ui.input({ prompt = "Additional args: " }, function(input)
                         if input ~= nil then
                             extra_args = input
-                            actual_run(additional_cmds, input)
+                            actual_run(additional_cmds, input, opts_params_to_run)
                         end
                     end)
                     return
                 end
                 extra_args = vim.fn.trim(vim.fn.join(vim.fn.readfile(choice), " "))
-                actual_run(additional_cmds, extra_args)
+                actual_run(additional_cmds, extra_args, opts_params_to_run)
             end
         end)
     else
@@ -528,7 +565,7 @@ function run.run_file(additional_cmds)
         vim.ui.input({ prompt = "Additional args: " }, function(input)
             if input ~= nil then
                 extra_args = input
-                actual_run(additional_cmds, extra_args)
+                actual_run(additional_cmds, extra_args, opts_params_to_run)
             end
         end)
     end
