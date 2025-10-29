@@ -4,7 +4,7 @@ return {
 	config = function()
 	    require('competitest').setup({
 	        runner_ui = {
-	            interface = "split"
+	            interface = "popup"
 	        }
 	    })
 	end,
