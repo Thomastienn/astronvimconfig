@@ -359,7 +359,12 @@ if vim.env.SSH_CONNECTION then
 end
 
 -- Leetcode
-vim.keymap.set("n", "<leader>lc", "<cmd>Leet<CR>", { desc = "Toggle leetcode" })
+vim.keymap.set("n", "<leader>lcc", "<cmd>Leet<CR>", { desc = "Toggle leetcode" })
+vim.keymap.set("n", "<leader>lcr", "<cmd>Leet run<CR>", { desc = "Leetcode run" })
+vim.keymap.set("n", "<leader>lcs", "<cmd>Leet submit<CR>", { desc = "Leetcode submit" })
+vim.keymap.set("n", "<leader>lcl", "<cmd>Leet lang<CR>", { desc = "Leetcode pick language" })
+vim.keymap.set("n", "<leader>lci", "<cmd>Leet info<CR>", { desc = "Leetcode info question" })
+vim.keymap.set("n", "<leader>lcd", "<cmd>Leet desc<CR>", { desc = "Leetcode description question" })
 
 -- Competitive Programming (CP)
 -- Control processes
