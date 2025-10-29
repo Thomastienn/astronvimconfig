@@ -359,4 +359,16 @@ if vim.env.SSH_CONNECTION then
 end
 
 -- Leetcode
-vim.keymap.set("n", "<leader>lc", "<cmd>Leet<CR>", { desc = "Turn on leetcode mode" })
+vim.keymap.set("n", "<leader>lc", "<cmd>Leet<CR>", { desc = "Toggle leetcode" })
+
+-- Competitive Programming (CP)
+-- Control processes
+-- Run again a testcase by pressing R
+-- Run again all testcases by pressing <C-r>
+-- Kill the process associated with a testcase by pressing K
+-- Kill all the processes associated with testcases by pressing <C-k>
+vim.keymap.set("n", "<leader>rtt", "<cmd>CompetiTest run<CR>", { desc = "Toggle/Run competitest" })
+vim.keymap.set("n", "<leader>rtd", "<cmd>CompetiTest delete_testcase<CR>", { desc = "Delete testcase" })
+vim.keymap.set("n", "<leader>rtc", "<cmd>CompetiTest run_no_compile<CR>", { desc = "Run no compile" })
+vim.keymap.set("n", "<leader>rta", "<cmd>CompetiTest add_testcase<CR>", { desc = "Add testcase" })
+vim.keymap.set("n", "<leader>rte", "<cmd>CompetiTest edit_testcase<CR>", { desc = "Edit testcase" })
