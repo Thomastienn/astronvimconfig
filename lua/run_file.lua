@@ -83,7 +83,6 @@ end
 local function compile_asm(callback)
     vim.cmd "w"
     local file = vim.fn.expand "%"
-    local file_escaped = vim.fn.shellescape(file)
     local filename = vim.fn.expand "%:t:r"
 
     local opts = { "arm", "arm-emu", "arm-emu-gcc", "arm-gcc" }
@@ -108,7 +107,7 @@ local function compile_asm(callback)
                 link = "aarch64-linux-gnu-gcc"
             end
 
-            local compile_cmd = compile .. " -o build/" .. filename .. ".o " .. file_escaped
+            local compile_cmd = compile .. " -o build/" .. filename .. ".o " .. file
             local link_cmd = link .. " -o build/" .. filename .. " build/" .. filename .. ".o"
             filename = "./build/" .. filename
 
