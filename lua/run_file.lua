@@ -1,7 +1,7 @@
 local run = {}
 
 local function run_cmd(cmd, toggleterm_opts)
-    cmd = "sh -c '" .. cmd .. ";echo $?'"
+    cmd = "sh -c '" .. cmd .. "' || true"
     vim.notify("Running: " .. cmd, vim.log.levels.INFO)
 
     local default_opts = {
@@ -182,7 +182,9 @@ local function run_java(additional_cmds, extra_args, callback)
     -- local file_escaped = vim.fn.shellescape(file)
     -- local classname = vim.fn.expand "%:t:r"
     -- vim.cmd("!javac " .. file_escaped)
-    local cmd = "java -cp build " .. file
+    local compile_cmd = "javac -d build " .. file
+    local run_c = "java -cp build " .. file
+    local cmd = compile_cmd .. " && " .. run_c
     if additional_cmds ~= nil then
         cmd = additional_cmds .. " && " .. cmd
     end
