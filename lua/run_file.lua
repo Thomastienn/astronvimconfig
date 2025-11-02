@@ -85,12 +85,20 @@ local function compile_asm(callback)
     local file = vim.fn.expand "%"
     local filename = vim.fn.expand "%:t:r"
 
-    local opts = { "arm", "arm-emu", "arm-emu-gcc", "arm-gcc" }
+    local opts = { "arm", "arm-emu", "arm-emu-gcc", "arm-gcc", "m4" }
 
     vim.ui.select(opts, { prompt = "Select architecture:" }, function(choice)
         if choice then
             if vim.fn.isdirectory("build") == 0 then
                 vim.fn.mkdir("build")
+            end
+
+            if choice == "m4" then
+                local m4_compile_cmd = "m4 " .. file .. " > build/" .. filename .. ".s"
+                local gcc_compile_cmd = "gcc -o build/" .. filename .. " build/" .. filename .. ".s"
+                local compile_cmd = m4_compile_cmd .. " && " .. gcc_compile_cmd
+                callback(compile_cmd)
+                return
             end
 
             local compile = "as"
@@ -379,6 +387,9 @@ local function run_asm(additional_cmds, extra_args, opts_params_to_run)
 
     if architecture ~= nil then
         local cmd = run_cmd_map[architecture]
+        if not cmd then
+            cmd = filename
+        end
         if additional_cmds ~= nil then
             cmd = additional_cmds .. " && " .. cmd
         end
@@ -393,6 +404,9 @@ local function run_asm(additional_cmds, extra_args, opts_params_to_run)
     vim.ui.select(opts, { prompt = "Select architecture:" }, function(choice)
         if choice then
             local cmd = run_cmd_map[choice]
+            if not cmd then
+                cmd = filename
+            end
             if additional_cmds ~= nil then
                 cmd = additional_cmds .. " && " .. cmd
             end
