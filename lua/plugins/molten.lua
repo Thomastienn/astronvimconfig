@@ -31,7 +31,7 @@ return {
       ":noautocmd MoltenEnterOutput<CR>",
       { silent = true, desc = "show/enter output" }
     )
-    vim.keymap.set("n", "<leader>mti", ":MoltenInterrupt<CR>")
+    vim.keymap.set("n", "<leader>mtp", ":MoltenInterrupt<CR>")
 
     -- Disable formatting when molten is active
     vim.api.nvim_create_autocmd("User", {
