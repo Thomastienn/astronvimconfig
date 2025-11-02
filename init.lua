@@ -377,3 +377,5 @@ vim.keymap.set("n", "<leader>rtd", "<cmd>CompetiTest delete_testcase<CR>", { des
 vim.keymap.set("n", "<leader>rtc", "<cmd>CompetiTest run_no_compile<CR>", { desc = "Run no compile" })
 vim.keymap.set("n", "<leader>rta", "<cmd>CompetiTest add_testcase<CR>", { desc = "Add testcase" })
 vim.keymap.set("n", "<leader>rte", "<cmd>CompetiTest edit_testcase<CR>", { desc = "Edit testcase" })
+
+vim.g.python3_host_prog = "/home/linuxbrew/.linuxbrew/bin/python3"

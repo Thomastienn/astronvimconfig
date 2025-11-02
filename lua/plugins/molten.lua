@@ -3,12 +3,15 @@ return {
   build = ":UpdateRemotePlugins",
   init = function()
     vim.g.molten_output_win_max_height = 20
+    vim.g.molten_image_provider = "none"
+    vim.g.molten_use_border_highlights = true
+    vim.g.molten_auto_image_popup = false
     -- Create augroup for molten formatting control
     vim.api.nvim_create_augroup("MoltenFormatting", { clear = true })
   end,
   ft = { "python", "r", "julia" },
   config = function()
-    vim.keymap.set("n", "<leader>mti", ":MoltenInit<CR>", { silent = true, desc = "Initialize molten" })
+    vim.keymap.set("n", "<leader>mtt", ":MoltenInit<CR>", { silent = true, desc = "Initialize molten" })
     vim.keymap.set(
       "n",
       "<leader>mte",
@@ -31,28 +34,6 @@ return {
       ":noautocmd MoltenEnterOutput<CR>",
       { silent = true, desc = "show/enter output" }
     )
-    vim.keymap.set("n", "<leader>mtp", ":MoltenInterrupt<CR>")
-
-    -- Disable formatting when molten is active
-    vim.api.nvim_create_autocmd("User", {
-      pattern = "MoltenInitPost",
-      group = "MoltenFormatting",
-      callback = function()
-        -- Disable format on save for current buffer
-        vim.b.autoformat = false
-        print("Molten active: Disabled autoformat for this buffer")
-      end,
-    })
-
-    -- Re-enable formatting when molten is deinitialized
-    vim.api.nvim_create_autocmd("User", {
-      pattern = "MoltenDeinitPost",
-      group = "MoltenFormatting",
-      callback = function()
-        -- Re-enable format on save for current buffer
-        vim.b.autoformat = nil
-        print("Molten deactivated: Re-enabled autoformat for this buffer")
-      end,
-    })
+    vim.keymap.set("n", "<leader>mti", ":MoltenInterrupt<CR>")
   end,
 }
