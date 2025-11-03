@@ -92,12 +92,13 @@ local function compile_asm(callback)
             if vim.fn.isdirectory("build") == 0 then
                 vim.fn.mkdir("build")
             end
+            local opts_params_to_run = { architecture = choice }
 
             if choice == "m4" then
                 local m4_compile_cmd = "m4 " .. file .. " > build/" .. filename .. ".s"
                 local gcc_compile_cmd = "gcc -o build/" .. filename .. " build/" .. filename .. ".s"
                 local compile_cmd = m4_compile_cmd .. " && " .. gcc_compile_cmd
-                callback(compile_cmd)
+                callback(compile_cmd, opts_params_to_run)
                 return
             end
 
@@ -121,7 +122,6 @@ local function compile_asm(callback)
 
             local full_compile = compile_cmd .. " && " .. link_cmd
 
-            local opts_params_to_run = { architecture = choice }
             callback(full_compile, opts_params_to_run)
         end
     end)
@@ -377,8 +377,6 @@ local function run_asm(additional_cmds, extra_args, opts_params_to_run)
     local filename = get_exec_path()
 
     local run_cmd_map = {
-        ["arm"] = filename,
-        ["arm-gcc"] = filename,
         ["arm-emu"] = "qemu-aarch64 " .. filename,
         ["arm-emu-gcc"] = "qemu-aarch64 -L /usr/aarch64-linux-gnu " .. filename,
     }
@@ -386,10 +384,7 @@ local function run_asm(additional_cmds, extra_args, opts_params_to_run)
     local architecture = opts_params_to_run and opts_params_to_run.architecture or nil
 
     if architecture ~= nil then
-        local cmd = run_cmd_map[architecture]
-        if not cmd then
-            cmd = filename
-        end
+        local cmd = run_cmd_map[architecture] or filename
         if additional_cmds ~= nil then
             cmd = additional_cmds .. " && " .. cmd
         end
@@ -403,10 +398,7 @@ local function run_asm(additional_cmds, extra_args, opts_params_to_run)
     local opts = { "arm", "arm-emu", "arm-emu-gcc", "arm-gcc" }
     vim.ui.select(opts, { prompt = "Select architecture:" }, function(choice)
         if choice then
-            local cmd = run_cmd_map[choice]
-            if not cmd then
-                cmd = filename
-            end
+            local cmd = run_cmd_map[choice] or filename
             if additional_cmds ~= nil then
                 cmd = additional_cmds .. " && " .. cmd
             end
