@@ -85,7 +85,7 @@ local function compile_asm(callback)
     local file = vim.fn.expand "%"
     local filename = vim.fn.expand "%:t:r"
 
-    local opts = { "arm", "arm-emu", "arm-emu-gcc", "arm-gcc", "m4" }
+    local opts = { "arm", "arm-emu", "arm-emu-gcc", "arm-gcc", "m4", "m4-emu"}
 
     vim.ui.select(opts, { prompt = "Select architecture:" }, function(choice)
         if choice then
@@ -94,9 +94,13 @@ local function compile_asm(callback)
             end
             local opts_params_to_run = { architecture = choice }
 
-            if choice == "m4" then
+            if string.find(choice, "m4") then
                 local m4_compile_cmd = "m4 " .. file .. " > build/" .. filename .. ".s"
-                local gcc_compile_cmd = "gcc -o build/" .. filename .. " build/" .. filename .. ".s"
+                local gcc = "gcc"
+                if choice == "m4-emu" then
+                    gcc = "aarch64-linux-gnu-gcc"
+                end
+                local gcc_compile_cmd = gcc .. " -o build/" .. filename .. " build/" .. filename .. ".s"
                 local compile_cmd = m4_compile_cmd .. " && " .. gcc_compile_cmd
                 callback(compile_cmd, opts_params_to_run)
                 return
@@ -379,6 +383,7 @@ local function run_asm(additional_cmds, extra_args, opts_params_to_run)
     local run_cmd_map = {
         ["arm-emu"] = "qemu-aarch64 " .. filename,
         ["arm-emu-gcc"] = "qemu-aarch64 -L /usr/aarch64-linux-gnu " .. filename,
+        ["m4-emu"] = "qemu-aarch64 -L /usr/aarch64-linux-gnu " .. filename,
     }
 
     local architecture = opts_params_to_run and opts_params_to_run.architecture or nil
