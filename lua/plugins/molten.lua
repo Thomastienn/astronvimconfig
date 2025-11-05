@@ -6,6 +6,12 @@ return {
     vim.g.molten_image_provider = "none"
     vim.g.molten_use_border_highlights = true
     vim.g.molten_auto_image_popup = false
+    vim.g.molten_auto_open_output = false
+    vim.g.molten_virt_text_output = true
+    vim.g.molten_virt_lines_off_by_1 = true
+    vim.g.molten_output_show_more = true
+    vim.g.molten_wrap_output = true
+    vim.g.molten_tick_rate = 500
     -- Create augroup for molten formatting control
     vim.api.nvim_create_augroup("MoltenFormatting", { clear = true })
   end,
