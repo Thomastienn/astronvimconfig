@@ -7,6 +7,14 @@ return {
             cmdline_popup = {
                 position = { row = 2, col = "50%" },   -- top of screen
             },
+        },
+        lsp = {
+            hover = {
+                enabled = false,
+            },
+            signature = {
+                enabled = false,
+            },
         }
     },
     dependencies = {
