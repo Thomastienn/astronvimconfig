@@ -8,12 +8,12 @@ return {
     vim.g.molten_auto_image_popup = false
     vim.g.molten_auto_open_output = true
     vim.g.molten_virt_text_output = true
-    vim.g.molten_virt_lines_off_by_1 = true
     vim.g.molten_output_show_more = true
     vim.g.molten_wrap_output = true
     vim.g.molten_tick_rate = 500
 
-    local custom_marker = '^# %%%s*$'  -- matches lines that are exactly "# %%", possibly with trailing spaces
+    -- Regex pattern (not vim regex)
+    local custom_marker = '^# %%\\s*$'  -- matches lines that are exactly "# %%", possibly with trailing spaces
 
     -- Run all # %% cells sequentially using MoltenEvaluateRange
     vim.keymap.set('n', '<leader>mta', function()
@@ -23,7 +23,7 @@ return {
 
       -- find marker lines (matches "# %%" with optional spaces)
       for i, line in ipairs(lines) do
-        if line:match(custom_marker) then
+        if vim.fn.match(line, custom_marker) ~= -1 then
           table.insert(markers, i)
         end
       end
@@ -78,7 +78,7 @@ return {
         -- Execute the selected range
         vim.fn.MoltenEvaluateRange(start_line, end_line - 1)
       else
-        print('No Python cell found.')
+        vim.notify('Molten: No cell marker found above cursor', vim.log.levels.WARN)
       end
     end, { desc = 'Execute current cell' })
 
