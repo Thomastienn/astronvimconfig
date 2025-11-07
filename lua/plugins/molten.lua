@@ -13,6 +13,75 @@ return {
     vim.g.molten_wrap_output = true
     vim.g.molten_tick_rate = 500
 
+    local custom_marker = '^# %%%s*$'  -- matches lines that are exactly "# %%", possibly with trailing spaces
+
+    -- Run all # %% cells sequentially using MoltenEvaluateRange
+    vim.keymap.set('n', '<leader>mta', function()
+      local buf = 0
+      local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+      local markers = {}
+
+      -- find marker lines (matches "# %%" with optional spaces)
+      for i, line in ipairs(lines) do
+        if line:match(custom_marker) then
+          table.insert(markers, i)
+        end
+      end
+
+      -- if no markers found -> evaluate whole buffer
+      if #markers == 0 then
+        vim.notify('Molten: no markers found', vim.log.levels.INFO)
+        return
+      end
+
+      -- build inclusive ranges: marker_i .. (marker_{i+1}-1)  (last marker -> EOF)
+      local ranges = {}
+      for i = 1, #markers do
+        local start_line = markers[i]
+        local end_line = (markers[i+1] and markers[i+1] - 1) or #lines
+        if end_line < start_line then end_line = start_line end
+        table.insert(ranges, { start_line, end_line })
+      end
+
+      -- delay between sending ranges (ms). Tweak if your kernel is slow.
+      local delay_ms = 80
+
+      -- recursive runner to execute ranges sequentially
+      local function run_idx(idx)
+        if idx > #ranges then
+          vim.notify(string.format('Molten: finished %d cells', #ranges), vim.log.levels.INFO)
+          return
+        end
+        local r = ranges[idx]
+        vim.notify(string.format('Molten: running cell %d/%d (%d..%d)', idx, #ranges, r[1], r[2]), vim.log.levels.INFO)
+        pcall(vim.fn.MoltenEvaluateRange, r[1], r[2])
+        vim.defer_fn(function() run_idx(idx + 1) end, delay_ms)
+      end
+
+      run_idx(1)
+    end, { desc = 'Run all cells' })
+
+
+    vim.keymap.set('n', '<leader>mtp', function()
+      local cmd = "python -m venv venv && source venv/bin/activate && pip install ipykernel pynvim"
+      vim.fn.system(cmd)
+    end, { desc = 'Set up python venv and jupyter for molten' })
+
+    vim.keymap.set('n', '<leader>mtb', function()
+      local start_line = vim.fn.search(custom_marker, 'bnw')  -- Search backward for start marker
+      local end_line = vim.fn.search(custom_marker, 'nw')     -- Search forward for next marker
+
+      if start_line > 0 then
+        if end_line == 0 then
+          end_line = vim.fn.line('$') + 1 -- If no next marker, go to end of file
+        end
+        -- Execute the selected range
+        vim.fn.MoltenEvaluateRange(start_line, end_line - 1)
+      else
+        print('No Python cell found.')
+      end
+    end, { desc = 'Execute current cell' })
+
     vim.keymap.set("n", "<leader>mtt", ":MoltenInit python3<CR>", { silent = true, desc = "Initialize molten" })
     vim.keymap.set(
       "n",
