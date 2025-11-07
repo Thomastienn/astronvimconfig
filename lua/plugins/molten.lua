@@ -15,6 +15,17 @@ return {
     -- Regex pattern (not vim regex)
     local custom_marker = '^# %%\\s*$'  -- matches lines that are exactly "# %%", possibly with trailing spaces
 
+    local function skip_newline(start, end_l)
+      for line_num = end_l, start, -1 do
+        local line_content = vim.fn.getline(line_num)
+        if not line_content:match("^%s*$") then
+          return line_num
+        end
+      end
+      return start
+    end
+
+
     -- Run all # %% cells sequentially using MoltenEvaluateRange
     vim.keymap.set('n', '<leader>mta', function()
       local buf = 0
@@ -40,6 +51,7 @@ return {
         local start_line = markers[i]
         local end_line = (markers[i+1] and markers[i+1] - 1) or #lines
         if end_line < start_line then end_line = start_line end
+        end_line = skip_newline(start_line, end_line)
         table.insert(ranges, { start_line, end_line })
       end
 
@@ -73,14 +85,18 @@ return {
 
       if start_line > 0 then
         if end_line == 1 then
-          end_line = vim.fn.line('$') + 1 -- If no next marker, go to end of file
+          end_line = vim.fn.line('$') -- If no next marker, go to end of file
+        else
+          end_line = end_line - 1 -- Adjust to be inclusive
         end
         if start_line >= end_line then
           vim.notify('Start line is after end line. Cannot execute cell.', vim.log.levels.WARN)
           return
         end
+
+        end_line = skip_newline(start_line, end_line - 1)
         -- Execute the selected range
-        vim.fn.MoltenEvaluateRange(start_line, end_line - 1)
+        vim.fn.MoltenEvaluateRange(start_line, end_line)
       else
         vim.notify('Molten: No cell marker found above cursor', vim.log.levels.WARN)
       end
