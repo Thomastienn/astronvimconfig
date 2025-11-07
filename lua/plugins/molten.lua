@@ -53,7 +53,7 @@ return {
           return
         end
         local r = ranges[idx]
-        vim.notify(string.format('Molten: running cell %d/%d (%d..%d)', idx, #ranges, r[1], r[2]), vim.log.levels.INFO)
+        -- vim.notify(string.format('Molten: running cell %d/%d (%d..%d)', idx, #ranges, r[1], r[2]), vim.log.levels.INFO)
         pcall(vim.fn.MoltenEvaluateRange, r[1], r[2])
         vim.defer_fn(function() run_idx(idx + 1) end, delay_ms)
       end
@@ -68,12 +68,16 @@ return {
     end, { desc = 'Set up python venv and jupyter for molten' })
 
     vim.keymap.set('n', '<leader>mtb', function()
-      local start_line = vim.fn.search(custom_marker, 'bnw')  -- Search backward for start marker
-      local end_line = vim.fn.search(custom_marker, 'nw')     -- Search forward for next marker
+      local start_line = vim.fn.search(custom_marker, 'bn')  -- Search backward for start marker
+      local end_line = vim.fn.search(custom_marker, 'n')     -- Search forward for next marker
 
       if start_line > 0 then
-        if end_line == 0 then
+        if end_line == 1 then
           end_line = vim.fn.line('$') + 1 -- If no next marker, go to end of file
+        end
+        if start_line >= end_line then
+          vim.notify('Start line is after end line. Cannot execute cell.', vim.log.levels.WARN)
+          return
         end
         -- Execute the selected range
         vim.fn.MoltenEvaluateRange(start_line, end_line - 1)
