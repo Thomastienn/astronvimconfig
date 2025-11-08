@@ -1,6 +1,13 @@
 return {
     "folke/noice.nvim",
     event = "VeryLazy",
+    keys = {
+        {
+            "<leader>ih",
+            "<cmd>Noice pick<CR>",
+            desc = "Noice History",
+        },
+    },
     opts = {
         -- add any options here
         views = {
