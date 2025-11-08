@@ -1,28 +1,29 @@
 return {
   "lewis6991/hover.nvim",
   lazy = true,
-  specs = {
-    {
-      "AstroNvim/astrocore",
-      opts = {
-        options = { opt = { mousemoveevent = true } },
-        mappings = {
-          n = {
-            K = { function() require("hover").hover() end, desc = "Hover cursor" },
-            gK = { function() require("hover").hover_select() end, desc = "Hover selection" },
-            ["]h"] = { function() require("hover").hover_switch "next" end, desc = "Next hover source" },
-            ["[h"] = { function() require("hover").hover_switch "previous" end, desc = "Previous hover source" },
-            ["<MouseMove>"] = { function() require("hover").hover_mouse() end, desc = "Hover mouse" },
-          },
-        },
-      },
-    },
-    {
-      "AstroNvim/astrolsp",
-      opts = { mappings = { n = { K = false } } },
-    },
+  init = function()
+    -- plugin expects mousemove events for mouse hover
+    vim.o.mousemoveevent = true
+  end,
+  keys = {
+    { "K",      function() require("hover").open() end,              desc = "Hover (open)" },
+    { "<leader>hve",     function() require("hover").enter() end,             desc = "Hover (enter)" },
+    { "<leader>hvn",     function() require("hover").switch("next") end,      desc = "Hover (next source)" },
+    { "<leader>hvp",     function() require("hover").switch("previous") end,  desc = "Hover (previous source)" },
+    { "<MouseMove>", function() require("hover").mouse() end,        desc = "Hover (mouse)" },
   },
   opts = {
-    init = function() require "hover.providers.lsp" end,
+    providers = {
+      "hover.providers.diagnostic",
+      "hover.providers.man",
+      "hover.providers.lsp",
+      "hover.providers.dap",
+      "hover.providers.dictionary",
+    },
+    preview_opts = { border = "single" },
+    preview_window = false,
+    title = true,
+    mouse_providers = { "hover.providers.lsp" },
+    mouse_delay = 1000,
   },
 }
