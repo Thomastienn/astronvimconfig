@@ -27,11 +27,35 @@ return {
               local path = node:get_id()
               -- Only open files externally, not directories
               if not node.type or node.type == "file" then
-                local win_path = vim.fn.system({ "wslpath", "-w", path }):gsub("\n", "")
-                vim.fn.jobstart({ "explorer.exe", win_path }, { detach = true })
+                local is_wsl = vim.fn.has("wsl") == 1
+                if is_wsl then
+                  local win_path = vim.fn.system({ "wslpath", "-w", path }):gsub("\n", "")
+                  vim.fn.jobstart({ "explorer.exe", win_path }, { detach = true })
+                else
+                  vim.fn.jobstart({ "xdg-open", path }, { detach = true })
+                end
               end
             end,
-            desc = "Open with Windows default app (via explorer.exe)",
+            desc = "Open with default app",
+          },
+          ["<leader>se"] = {
+            function(state)
+              local node = state.tree:get_node()
+              local path = node.path or vim.fn.expand "%:p"
+              -- If the node is a file, get its parent directory
+              if node.type == "file" then 
+                path = vim.fn.fnamemodify(path, ":h")
+              end
+              
+              local is_wsl = vim.fn.has("wsl") == 1
+              if is_wsl then
+                local win_path = vim.fn.system({ "wslpath", "-w", path }):gsub("\n", "")
+                vim.fn.system({ "explorer.exe", win_path })
+              else
+                vim.fn.system({ "xdg-open", path })
+              end
+            end,
+            desc = "Open directory in file explorer",
           },
         },
       },

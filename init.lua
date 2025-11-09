@@ -44,19 +44,6 @@ require "polish"
 --   end,
 -- })
 
--- Neo tree
-vim.api.nvim_create_user_command("OpenInExplorer", function()
-    local node = require("neo-tree.sources.manager").get_state("filesystem").tree:get_node()
-    local path = node.path or vim.fn.expand "%:p"
-
-    -- If the node is a file, get its parent directory
-    if node.type == "file" then path = vim.fn.fnamemodify(path, ":h") end
-
-    local cmd = "explorer.exe $(wslpath -w " .. path .. ")"
-    vim.fn.system(cmd)
-end, {})
-vim.api.nvim_set_keymap("n", "<leader>se", ":OpenInExplorer<CR>", { noremap = true, silent = true })
-
 -- Overwrite default
 vim.keymap.set("n", "<C-d>", "<C-d>zz", { noremap = true })
 vim.keymap.set("n", "<C-u>", "<C-u>zz", { noremap = true })
