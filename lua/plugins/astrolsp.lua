@@ -50,12 +50,8 @@ return {
 
         settings = {
           python = {
-            -- Where your venv folder lives, relative to project root
-            venvPath = "./",
-            venv = "venv",
-
             -- Which interpreter inside that venv to analyze with
-            pythonPath = vim.fn.getcwd() .. "/venv/bin/python",
+            pythonPath = "~/.virtualenvs/neovim/bin/python",
 
             analysis = {
               -- scan *all* imports in your workspace, not just open files

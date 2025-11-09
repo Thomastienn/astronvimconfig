@@ -1,3 +1,4 @@
+local python_venv = "~/.virtualenvs/neovim/bin/activate"
 local run = {}
 
 local function run_cmd(cmd, toggleterm_opts)
@@ -211,6 +212,7 @@ local function run_python(_, extra_args)
     local venv_paths = {
         cwd .. "/venv/bin/activate",
         cwd .. "/.venv/bin/activate",
+        python_venv,
     }
     local activate_cmd = nil
     for _, path in ipairs(venv_paths) do
@@ -356,6 +358,7 @@ local function run_bash_sh(_, extra_args)
     local venv_paths = {
         cwd .. "/venv/bin/activate",
         cwd .. "/.venv/bin/activate",
+        python_venv,
     }
     local activate_cmd = nil
     for _, path in ipairs(venv_paths) do
