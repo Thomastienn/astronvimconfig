@@ -378,22 +378,4 @@ vim.keymap.set("n", "<leader>rtc", "<cmd>CompetiTest run_no_compile<CR>", { desc
 vim.keymap.set("n", "<leader>rta", "<cmd>CompetiTest add_testcase<CR>", { desc = "Add testcase" })
 vim.keymap.set("n", "<leader>rte", "<cmd>CompetiTest edit_testcase<CR>", { desc = "Edit testcase" })
 
--- Auto-detect and set Python host for Neovim
-local function update_python_host()
-  local cwd = vim.fn.getcwd()
-  local venv_python = cwd .. "/venv/bin/python3"
-  if vim.fn.executable(venv_python) == 1 then
-    vim.g.python3_host_prog = venv_python
-  else
-    -- fallback to your global Neovim python
-    vim.g.python3_host_prog = vim.fn.expand("/home/linuxbrew/.linuxbrew/bin/python3")
-  end
-end
-
--- Run once at startup
-update_python_host()
-
--- Automatically run again when you change directories
-vim.api.nvim_create_autocmd("DirChanged", {
-  callback = update_python_host,
-})
+vim.g.python3_host_prog=vim.fn.expand("~/.virtualenvs/neovim/bin/python3")
