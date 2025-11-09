@@ -5,7 +5,7 @@ return {
   config = function()
     vim.g.molten_image_provider = "image.nvim"
     vim.g.molten_use_border_highlights = true
-    vim.g.molten_auto_image_popup = true
+    vim.g.molten_auto_image_popup = false
     vim.g.molten_auto_open_output = true
     vim.g.molten_virt_text_output = true
     vim.g.molten_output_show_more = true
@@ -73,11 +73,8 @@ return {
       run_idx(1)
     end, { desc = 'Run all cells' })
 
-
-    vim.keymap.set('n', '<leader>mtp', function()
-      local cmd = "python -m venv venv && source venv/bin/activate && pip install ipykernel pynvim"
-      vim.fn.system(cmd)
-    end, { desc = 'Set up python venv and jupyter for molten' })
+    vim.keymap.set('n', '<leader>mtm', function()
+    end, { desc = 'Image popup' })
 
     vim.keymap.set('n', '<leader>mtb', function()
       local start_line = vim.fn.search(custom_marker, 'bn')  -- Search backward for start marker
@@ -107,23 +104,23 @@ return {
       "n",
       "<leader>mte",
       ":MoltenEvaluateOperator<CR>",
-      { silent = true, desc = "run operator selection" }
+      { silent = true, desc = "Run operator selection" }
     )
-    vim.keymap.set("n", "<leader>mtl", ":MoltenEvaluateLine<CR>", { silent = true, desc = "evaluate line" })
-    vim.keymap.set("n", "<leader>mtr", ":MoltenReevaluateCell<CR>", { silent = true, desc = "re-evaluate cell" })
+    vim.keymap.set("n", "<leader>mtl", ":MoltenEvaluateLine<CR>", { silent = true, desc = "Evaluate line" })
+    vim.keymap.set("n", "<leader>mtr", ":MoltenReevaluateCell<CR>", { silent = true, desc = "Re-evaluate cell" })
     vim.keymap.set(
       "v",
       "<leader>mtr",
       ":<C-u>MoltenEvaluateVisual<CR>gv",
-      { silent = true, desc = "evaluate visual selection" }
+      { silent = true, desc = "Evaluate visual selection" }
     )
-    vim.keymap.set("n", "<leader>mtd", ":MoltenDelete<CR>", { silent = true, desc = "molten delete cell" })
-    vim.keymap.set("n", "<leader>mth", ":MoltenHideOutput<CR>", { silent = true, desc = "hide output" })
+    vim.keymap.set("n", "<leader>mtd", ":MoltenDelete<CR>", { silent = true, desc = "Molten delete cell" })
+    vim.keymap.set("n", "<leader>mth", ":MoltenHideOutput<CR>", { silent = true, desc = "Hide output" })
     vim.keymap.set(
       "n",
       "<leader>mto",
       ":noautocmd MoltenEnterOutput<CR>",
-      { silent = true, desc = "show/enter output" }
+      { silent = true, desc = "Show/enter output" }
     )
     vim.keymap.set("n", "<leader>mti", ":MoltenInterrupt<CR>")
   end,
