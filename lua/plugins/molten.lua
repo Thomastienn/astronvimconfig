@@ -1,11 +1,12 @@
 return {
   "benlubas/molten-nvim",
   build = ":UpdateRemotePlugins",
+  version="^1.9.2",
   ft = { "python", "r", "julia" },
   config = function()
     vim.g.molten_image_provider = "image.nvim"
     vim.g.molten_use_border_highlights = true
-    vim.g.molten_auto_image_popup = false
+    vim.g.molten_auto_image_popup = true
     vim.g.molten_auto_open_output = true
     vim.g.molten_virt_text_output = true
     vim.g.molten_output_show_more = true
@@ -81,14 +82,10 @@ return {
       local end_line = vim.fn.search(custom_marker, 'n')     -- Search forward for next marker
 
       if start_line > 0 then
-        if end_line == 1 then
-          end_line = vim.fn.line('$') -- If no next marker, go to end of file
+        if end_line <= start_line then
+          end_line = vim.fn.line('$') + 1 -- If no next marker, go to end of file
         else
           end_line = end_line - 1 -- Adjust to be inclusive
-        end
-        if start_line >= end_line then
-          vim.notify('Start line is after end line. Cannot execute cell.', vim.log.levels.WARN)
-          return
         end
 
         end_line = skip_newline(start_line, end_line - 1)
