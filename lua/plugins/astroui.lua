@@ -2,6 +2,6 @@ return {
   "AstroNvim/astroui",
   ---@type AstroUIOpts
   opts = {
-    colorscheme = "kanagawa-paper-canvas",
+    colorscheme = "kanagawa-paper-ink",
   },
 }
