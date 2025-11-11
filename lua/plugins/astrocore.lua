@@ -101,7 +101,10 @@ return {
         ["<leader>lc"] = { desc = "Leetcode" },
         ["<leader>rt"] = { desc = "Competitive Programming" },
         ["<leader>rc"] = { desc = "Compiling" },
+
         ["<leader>mt"] = { desc = "Molten" },
+        ["<leader>mtr"] = { desc = "Run" },
+
         ["<leader>hv"] = { desc = "Hover" },
 
         -- setting a mapping to false will disable it
