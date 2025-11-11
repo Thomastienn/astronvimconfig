@@ -74,8 +74,7 @@ return {
       run_idx(1)
     end, { desc = 'Run all cells' })
 
-    vim.keymap.set('n', '<leader>mtm', function()
-    end, { desc = 'Image popup' })
+    vim.keymap.set('n', '<leader>mtm', "<cmd>MoltenImagePopup<CR>", { desc = 'Image popup' })
 
     vim.keymap.set('n', '<leader>mtb', function()
       local start_line = vim.fn.search(custom_marker, 'bn')  -- Search backward for start marker
