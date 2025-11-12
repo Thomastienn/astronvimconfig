@@ -106,12 +106,12 @@ return {
 
       if start_line > 0 then
         if end_line <= start_line then
-          end_line = vim.fn.line('$') + 1 -- If no next marker, go to end of file
+          end_line = vim.fn.line('$') -- If no next marker, go to end of file
         else
           end_line = end_line - 1 -- Adjust to be inclusive
         end
 
-        end_line = skip_newline(start_line, end_line - 1)
+        end_line = skip_newline(start_line, end_line)
         -- Execute the selected range
         vim.fn.MoltenEvaluateRange(start_line, end_line)
       else
