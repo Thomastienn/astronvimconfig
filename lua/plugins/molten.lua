@@ -7,7 +7,7 @@ return {
     vim.g.molten_image_provider = "image.nvim"
     vim.g.molten_use_border_highlights = true
     vim.g.molten_auto_image_popup = false
-    vim.g.molten_auto_open_output = true
+    vim.g.molten_auto_open_output = false
     vim.g.molten_virt_text_output = true
     vim.g.molten_output_show_more = true
     vim.g.molten_wrap_output = true
@@ -48,12 +48,12 @@ return {
       for i = 1, #markers do
         local start_line = markers[i]
         local end_line = (markers[i + 1] and markers[i + 1] - 1) or #lines
-        
+
         -- If start_line_override is set, skip cells that end before the cursor
         if start_line_override and end_line < start_line_override then
           goto continue
         end
-        
+
         if end_line < start_line then end_line = start_line end
         end_line = skip_newline(start_line, end_line)
         table.insert(ranges, { start_line, end_line })
