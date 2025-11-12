@@ -56,6 +56,12 @@ return {
 
         if end_line < start_line then end_line = start_line end
         end_line = skip_newline(start_line, end_line)
+
+        -- Skip invalid ranges where end is before or at start
+        if end_line <= start_line then
+          goto continue
+        end
+
         table.insert(ranges, { start_line, end_line })
         ::continue::
       end
