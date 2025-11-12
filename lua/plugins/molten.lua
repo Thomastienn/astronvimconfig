@@ -1,7 +1,6 @@
 return {
   "benlubas/molten-nvim",
   build = ":UpdateRemotePlugins",
-  version="^1.9.2",
   ft = { "python", "r", "julia" },
   config = function()
     vim.g.molten_image_provider = "image.nvim"
