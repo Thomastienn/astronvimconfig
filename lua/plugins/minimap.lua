@@ -1,3 +1,6 @@
+-- Disable for now
+if true then return {} end
+
 return {
   "wfxr/minimap.vim",
   build = "cargo install --locked code-minimap",

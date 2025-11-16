@@ -71,7 +71,7 @@ return {
     -- Core runner function
     local function run_ranges(ranges)
       if #ranges == 0 then return end
-      local delay_ms = 80
+      local delay_ms = 200
 
       local function run_idx(idx)
         if idx > #ranges then
@@ -79,7 +79,11 @@ return {
           return
         end
         local r = ranges[idx]
-        pcall(vim.fn.MoltenEvaluateRange, r[1], r[2])
+        local suc, err = pcall(vim.fn.MoltenEvaluateRange, r[1], r[2])
+        if not suc then
+          vim.notify(string.format('Molten: error running cell %d: %s', idx, err), vim.log.levels.ERROR)
+          return
+        end
         vim.defer_fn(function() run_idx(idx + 1) end, delay_ms)
       end
 
