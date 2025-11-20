@@ -403,7 +403,7 @@ local function run_asm(additional_cmds, extra_args, opts_params_to_run)
         return
     end
 
-    local opts = { "arm", "arm-emu", "arm-emu-gcc", "arm-gcc" }
+    local opts = { "arm", "arm-emu", "arm-emu-gcc", "arm-gcc", "m4", "m4-emu" }
     vim.ui.select(opts, { prompt = "Select architecture:" }, function(choice)
         if choice then
             local cmd = run_cmd_map[choice] or filename
