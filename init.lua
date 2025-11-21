@@ -382,3 +382,6 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+if require("lspconfig").omnisharp then
+    vim.lsp.enable("omnisharp")
+end
