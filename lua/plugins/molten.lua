@@ -96,6 +96,96 @@ return {
       run_ranges(ranges)
     end, { desc = 'Run all cells' })
 
+    vim.keymap.set('n', '<leader>mte', function()
+      -- Get all cells
+      local buf = 0
+      local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+      local markers = {}
+
+      -- Find marker lines
+      for i, line in ipairs(lines) do
+        if vim.fn.match(line, custom_marker) ~= -1 then
+          table.insert(markers, i)
+        end
+      end
+
+      if #markers == 0 then
+        vim.notify('Molten: no markers found to export', vim.log.levels.WARN)
+        return
+      end
+
+      -- Build cells array
+      local cells = {}
+      for i = 1, #markers do
+        local start_line = markers[i]
+        local end_line = (markers[i + 1] and markers[i + 1] - 1) or #lines
+
+        -- Get cell content (excluding the marker line itself)
+        local cell_lines = {}
+        for j = start_line + 1, end_line do
+          table.insert(cell_lines, lines[j])
+        end
+
+        -- Create Jupyter cell structure
+        table.insert(cells, {
+          cell_type = "code",
+          execution_count = vim.NIL,  -- JSON null
+          metadata = {},
+          outputs = {},
+          source = cell_lines
+        })
+      end
+
+      -- Create Jupyter notebook structure
+      local notebook = {
+        cells = cells,
+        metadata = {
+          kernelspec = {
+            display_name = "Python 3",
+            language = "python",
+            name = "python3"
+          },
+          language_info = {
+            name = "python",
+            version = "3.0.0"
+          }
+        },
+        nbformat = 4,
+        nbformat_minor = 5
+      }
+
+      -- Convert to JSON
+      local json_str = vim.fn.json_encode(notebook)
+
+      -- Get output filename from current file
+      local current_file = vim.api.nvim_buf_get_name(buf)
+      local filename = current_file:match("(.+)%..+$") or "notebook"
+      filename = filename .. ".ipynb"
+
+      -- Write file asynchronously
+      local uv = vim.loop or vim.uv
+      uv.fs_open(filename, "w", 438, function(err_open, fd)
+        if err_open then
+          vim.schedule(function()
+            vim.notify('Molten: failed to open file: ' .. err_open, vim.log.levels.ERROR)
+          end)
+          return
+        end
+
+        uv.fs_write(fd, json_str, -1, function(err_write)
+          uv.fs_close(fd, function() end)
+
+          vim.schedule(function()
+            if err_write then
+              vim.notify('Molten: failed to write file: ' .. err_write, vim.log.levels.ERROR)
+            else
+              vim.notify(string.format('Molten: exported %d cells to %s', #cells, filename), vim.log.levels.INFO)
+            end
+          end)
+        end)
+      end)
+    end, { desc = 'Export to jupyter notebook' })
+
     vim.keymap.set('n', '<leader>mtrd', function()
       local cursor_line = vim.api.nvim_win_get_cursor(0)[1]  -- get current line (1-indexed)
       local ranges = get_cell_ranges(cursor_line)
