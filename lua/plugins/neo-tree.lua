@@ -43,16 +43,16 @@ return {
               local node = state.tree:get_node()
               local path = node.path or vim.fn.expand "%:p"
               -- If the node is a file, get its parent directory
-              if node.type == "file" then 
+              if node.type == "file" then
                 path = vim.fn.fnamemodify(path, ":h")
               end
-              
+
               local is_wsl = vim.fn.has("wsl") == 1
               if is_wsl then
                 local win_path = vim.fn.system({ "wslpath", "-w", path }):gsub("\n", "")
-                vim.fn.system({ "explorer.exe", win_path })
+                vim.fn.jobstart({ "explorer.exe", win_path }, { detach = true })
               else
-                vim.fn.system({ "xdg-open", path })
+                vim.fn.jobstart({ "xdg-open", path }, { detach = true })
               end
             end,
             desc = "Open directory in file explorer",
