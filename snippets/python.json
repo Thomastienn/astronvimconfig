@@ -432,14 +432,6 @@
             "description": "Desciption"
         }
     ,
-        "mst": {
-            "prefix": ["mst"],
-            "body": [
-                
-            ],
-            "description": "Desciption"
-        }
-    ,
         "kosaraju": {
             "prefix": ["kosaraju"],
             "body": [
