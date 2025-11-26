@@ -137,6 +137,32 @@
             "description": "Desciption"
         }
     ,
+        "kruskal": {
+            "prefix": ["kruskal"],
+            "body": [
+                "def kruskal_mst(n, edges):",
+				"    dsu = DSU(n) # type: ignore # noqa",
+				"    ",
+				"    # Sort edges by weight",
+				"    edges.sort(key=lambda x: x[2])",
+				"    ",
+				"    total_weight = 0",
+				"    mst_edges = []",
+				"    ",
+				"    for u, v, weight in edges:",
+				"        if dsu.find(u) != dsu.find(v):",
+				"            dsu.union(u, v)",
+				"            total_weight += weight",
+				"            mst_edges.append((u, v, weight))",
+				"            if len(mst_edges) == n - 1:",
+				"                break",
+				"    ",
+				"    return total_weight, mst_edges"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
         "tem": {
             "prefix": ["tem"],
             "body": [
@@ -294,6 +320,39 @@
             "description": "Desciption"
         }
     ,
+        "prim": {
+            "prefix": ["prim"],
+            "body": [
+                "def prim_mst(n, adj):",
+				"    import heapq",
+				"    ",
+				"    visited = [False] * n",
+				"    min_heap = [(0, 0, -1)]  # (weight, node, parent)",
+				"    total_weight = 0",
+				"    edges = []",
+				"    ",
+				"    while min_heap:",
+				"        weight, u, parent = heapq.heappop(min_heap)",
+				"        ",
+				"        if visited[u]:",
+				"            continue",
+				"        ",
+				"        visited[u] = True",
+				"        total_weight += weight",
+				"        ",
+				"        if parent != -1:",
+				"            edges.append((parent, u, weight))",
+				"        ",
+				"        for v, w in adj[u]:",
+				"            if not visited[v]:",
+				"                heapq.heappush(min_heap, (w, v, u))",
+				"    ",
+				"    return total_weight, edges"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
         "segt": {
             "prefix": ["segt"],
             "body": [
@@ -369,6 +428,14 @@
 				"    def range_query(self, l, r):",
 				"        return self.query(r) - self.query(l)"
 
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "mst": {
+            "prefix": ["mst"],
+            "body": [
+                
             ],
             "description": "Desciption"
         }
