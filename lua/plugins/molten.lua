@@ -192,6 +192,21 @@ return {
       run_ranges(ranges)
     end, { desc = 'Run all cells from cursor' })
 
+    vim.keymap.set('n', '<leader>mtru', function()
+      local cursor_line = vim.api.nvim_win_get_cursor(0)[1]
+      local all_ranges = get_cell_ranges()
+
+      -- Filter to only include cells that start at or before cursor
+      local ranges = {}
+      for _, range in ipairs(all_ranges) do
+        if range[1] <= cursor_line then
+          table.insert(ranges, range)
+        end
+      end
+
+      run_ranges(ranges)
+    end, { desc = 'Run all cells top to cursor' })
+
     vim.keymap.set('n', '<leader>mtm', "<cmd>MoltenImagePopup<CR>", { desc = 'Image popup' })
 
     vim.keymap.set('n', '<leader>mtrc', function()
