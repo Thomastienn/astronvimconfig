@@ -2,10 +2,12 @@ import ast
 import os
 
 def convert_code_snippet(
-    input_path="/home/thomastien/.config/nvim/snippets/converter_input",
-    output_path="/home/thomastien/.config/nvim/snippets/converter_output",
+    input_path="~/.config/nvim/snippets/converter_input",
+    output_path="~/thomastien/.config/nvim/snippets/converter_output",
     output_to_file=True,
 ):
+    input_path = os.path.expanduser(input_path)
+    output_path = os.path.expanduser(output_path)
     with open(input_path, "r") as file:
         code = file.read()
         
@@ -30,9 +32,10 @@ def convert_code_snippet(
     return "".join(converted_lines)
 
 def update_json_snippet(
-    input_path="/home/thomastien/.config/nvim/snippets/",
+    input_path="~/.config/nvim/snippets/",
     filetype="python",
 ):
+    input_path = os.path.expanduser(input_path)
     input_path = os.path.join(input_path, filetype)
     template = """
         "<name>": {
@@ -58,7 +61,8 @@ def update_json_snippet(
 
         updated_json.append(updated_content)
 
-    with open(f"/home/thomastien/.config/nvim/snippets/{filetype}.json", "w") as file:
+    snippet_file = os.path.expanduser(f"~/.config/nvim/snippets/{filetype}.json")
+    with open(snippet_file, "w") as file:
         file.write("{\n")
         file.write(",".join(updated_json))
         file.write("\n}\n")
