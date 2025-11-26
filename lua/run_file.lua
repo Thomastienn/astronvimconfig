@@ -232,9 +232,7 @@ local function run_python(_, extra_args)
     run_cmd(cmd)
 end
 
-local function run_rust(...)
-    local Terminal = require("toggleterm.terminal").Terminal
-
+local function run_rust(additional_cmds, extra_args)
     -- Get full path of the current file
     local current_file = vim.fn.expand "%:p"
 
@@ -251,8 +249,12 @@ local function run_rust(...)
     -- Save current file before running
     vim.cmd "w"
 
-    -- Create and toggle the terminal with cargo run
-    local cmd = "cd " .. project_root .. " && cargo run"
+    -- Just cargo run with extra args (run will auto build)
+    local cmd = "cd " .. vim.fn.shellescape(project_root) .. " && cargo run -- " .. extra_args
+    if additional_cmds ~= nil then
+        cmd = additional_cmds .. " && " .. cmd
+    end
+
     run_cmd(cmd)
 end
 
