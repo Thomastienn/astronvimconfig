@@ -65,6 +65,78 @@
             "description": "Desciption"
         }
     ,
+        "ternary": {
+            "prefix": ["ternary"],
+            "body": [
+                "def f(x):",
+				"    return (x+2)**2-5",
+				"",
+				"def ternary_search(l, r):",
+				"    eps = 10**(-6)",
+				"    while r-l > eps:",
+				"        m1 = l+(r-l)/3",
+				"        m2 = r-(r-l)/3",
+				"        ",
+				"        f1 = f(m1)",
+				"        f2 = f(m2)",
+				"        if f1 < f2:",
+				"            r = m2",
+				"        else:",
+				"            l = m1",
+				"    ",
+				"    return round(f(l)), round(l)",
+				"",
+				"print(ternary_search(-10, 10))"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "sieve": {
+            "prefix": ["sieve"],
+            "body": [
+                "def sieve(n):",
+				"    is_prime = [True] * (n + 1)",
+				"    is_prime[0] = is_prime[1] = False",
+				"    for p in range(2, int(n**0.5) + 1):",
+				"        if is_prime[p]:",
+				"            for multiple in range(p * p, n + 1, p):",
+				"                is_prime[multiple] = False",
+				"    primes = [p for p, prime in enumerate(is_prime) if prime]",
+				"    return primes"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "topo": {
+            "prefix": ["topo"],
+            "body": [
+                "def topological_sort(n, adj):",
+				"    from collections import deque",
+				"    ",
+				"    in_degree = [0] * n",
+				"    for u in range(n):",
+				"        for v in adj[u]:",
+				"            in_degree[v] += 1",
+				"    ",
+				"    queue = deque([i for i in range(n) if in_degree[i] == 0])",
+				"    topo_order = []",
+				"    ",
+				"    while queue:",
+				"        u = queue.popleft()",
+				"        topo_order.append(u)",
+				"        for v in adj[u]:",
+				"            in_degree[v] -= 1",
+				"            if in_degree[v] == 0:",
+				"                queue.append(v)",
+				"    ",
+				"    return topo_order"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
         "tem": {
             "prefix": ["tem"],
             "body": [
@@ -87,6 +159,79 @@
 				"    ",
 				"for line in f.split(\"\\n\"):",
 				"    pass"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "rollhash": {
+            "prefix": ["rollhash"],
+            "body": [
+                "class RollingHash:",
+				"    def __init__(self, s, base=911382629, mod=10**18 + 3):",
+				"        self.s = s",
+				"        self.n = len(s)",
+				"        self.base = base",
+				"        self.mod = mod",
+				"        self.powers = [1] * (self.n + 1)",
+				"        self.prefix_hashes = [0] * (self.n + 1)",
+				"        for i in range(1, self.n + 1):",
+				"            self.powers[i] = (self.powers[i - 1] * self.base) % self.mod",
+				"        for i in range(1, self.n + 1):",
+				"            self.prefix_hashes[i] = (self.prefix_hashes[i - 1] * self.base + ord(s[i - 1])) % self.mod",
+				"    def get_hash(self, l, r):",
+				"        return (self.prefix_hashes[r] - self.prefix_hashes[l] * self.powers[r - l]) % self.mod"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "sparse": {
+            "prefix": ["sparse"],
+            "body": [
+                "class SparseTable:",
+				"    def __init__(self, array, func=min):",
+				"        self.n = len(array)",
+				"        self.func = func",
+				"        self.k = self.n.bit_length()",
+				"        self.st = [[0] * self.n for _ in range(self.k)]",
+				"        self.st[0] = array.copy()",
+				"        for i in range(1, self.k):",
+				"            j = 0",
+				"            while j + (1 << i) <= self.n:",
+				"                self.st[i][j] = self.func(self.st[i - 1][j], self.st[i - 1][j + (1 << (i - 1))])",
+				"                j += 1",
+				"",
+				"    def query(self, l, r):",
+				"        i = (r - l + 1).bit_length() - 1",
+				"        return self.func(self.st[i][l], self.st[i][r - (1 << i) + 1])"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "cycledir": {
+            "prefix": ["cycledir"],
+            "body": [
+                "def has_cycle_directed(n, adj):",
+				"    WHITE, GRAY, BLACK = 0, 1, 2",
+				"    color = [WHITE] * n",
+				"    ",
+				"    def dfs(u):",
+				"        color[u] = GRAY",
+				"        for v in adj[u]:",
+				"            if color[v] == GRAY:  # Back edge = cycle",
+				"                return True",
+				"            if color[v] == WHITE and dfs(v):",
+				"                return True",
+				"        color[u] = BLACK",
+				"        return False",
+				"    ",
+				"    for i in range(n):",
+				"        if color[i] == WHITE:",
+				"            if dfs(i):",
+				"                return True",
+				"    return False"
 
             ],
             "description": "Desciption"
@@ -118,6 +263,32 @@
 				"",
 				"for i in range(n-1, 0, -1):",
 				"    tree[i] = tree[i*2] + tree[i*2+1]"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "cycleundir": {
+            "prefix": ["cycleundir"],
+            "body": [
+                "def has_cycle_undirected(n, adj):",
+				"    visited = [False] * n",
+				"    ",
+				"    def dfs(u, parent):",
+				"        visited[u] = True",
+				"        for v in adj[u]:",
+				"            if not visited[v]:",
+				"                if dfs(v, u):",
+				"                    return True",
+				"            elif v != parent:  # Visited and not parent = cycle",
+				"                return True",
+				"        return False",
+				"    ",
+				"    for i in range(n):",
+				"        if not visited[i]:",
+				"            if dfs(i, -1):",
+				"                return True",
+				"    return False"
 
             ],
             "description": "Desciption"
@@ -202,47 +373,6 @@
             "description": "Desciption"
         }
     ,
-        "siv": {
-            "prefix": ["siv"],
-            "body": [
-                "def sieve(n):",
-				"    is_prime = [True] * (n + 1)",
-				"    is_prime[0] = is_prime[1] = False",
-				"    for p in range(2, int(n**0.5) + 1):",
-				"        if is_prime[p]:",
-				"            for multiple in range(p * p, n + 1, p):",
-				"                is_prime[multiple] = False",
-				"    primes = [p for p, prime in enumerate(is_prime) if prime]",
-				"    return primes"
-
-            ],
-            "description": "Desciption"
-        }
-    ,
-        "spt": {
-            "prefix": ["spt"],
-            "body": [
-                "class SparseTable:",
-				"    def __init__(self, array, func=min):",
-				"        self.n = len(array)",
-				"        self.func = func",
-				"        self.k = self.n.bit_length()",
-				"        self.st = [[0] * self.n for _ in range(self.k)]",
-				"        self.st[0] = array.copy()",
-				"        for i in range(1, self.k):",
-				"            j = 0",
-				"            while j + (1 << i) <= self.n:",
-				"                self.st[i][j] = self.func(self.st[i - 1][j], self.st[i - 1][j + (1 << (i - 1))])",
-				"                j += 1",
-				"",
-				"    def query(self, l, r):",
-				"        i = (r - l + 1).bit_length() - 1",
-				"        return self.func(self.st[i][l], self.st[i][r - (1 << i) + 1])"
-
-            ],
-            "description": "Desciption"
-        }
-    ,
         "kosaraju": {
             "prefix": ["kosaraju"],
             "body": [
@@ -286,55 +416,6 @@
 				"            sccs.append(scc)",
 				"    ",
 				"    return sccs"
-
-            ],
-            "description": "Desciption"
-        }
-    ,
-        "roll": {
-            "prefix": ["roll"],
-            "body": [
-                "class RollingHash:",
-				"    def __init__(self, s, base=911382629, mod=10**18 + 3):",
-				"        self.s = s",
-				"        self.n = len(s)",
-				"        self.base = base",
-				"        self.mod = mod",
-				"        self.powers = [1] * (self.n + 1)",
-				"        self.prefix_hashes = [0] * (self.n + 1)",
-				"        for i in range(1, self.n + 1):",
-				"            self.powers[i] = (self.powers[i - 1] * self.base) % self.mod",
-				"        for i in range(1, self.n + 1):",
-				"            self.prefix_hashes[i] = (self.prefix_hashes[i - 1] * self.base + ord(s[i - 1])) % self.mod",
-				"    def get_hash(self, l, r):",
-				"        return (self.prefix_hashes[r] - self.prefix_hashes[l] * self.powers[r - l]) % self.mod"
-
-            ],
-            "description": "Desciption"
-        }
-    ,
-        "ter": {
-            "prefix": ["ter"],
-            "body": [
-                "def f(x):",
-				"    return (x+2)**2-5",
-				"",
-				"def ternary_search(l, r):",
-				"    eps = 10**(-6)",
-				"    while r-l > eps:",
-				"        m1 = l+(r-l)/3",
-				"        m2 = r-(r-l)/3",
-				"        ",
-				"        f1 = f(m1)",
-				"        f2 = f(m2)",
-				"        if f1 < f2:",
-				"            r = m2",
-				"        else:",
-				"            l = m1",
-				"    ",
-				"    return round(f(l)), round(l)",
-				"",
-				"print(ternary_search(-10, 10))"
 
             ],
             "description": "Desciption"
