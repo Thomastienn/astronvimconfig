@@ -40,6 +40,7 @@
   "mini.pick": { "branch": "main", "commit": "b4351399db5043a781a32699a1bde60b747f711f" },
   "mini.surround": { "branch": "main", "commit": "88c52297ed3e69ecf9f8652837888ecc727a28ee" },
   "molten-nvim": { "branch": "main", "commit": "4fd7be6a12b5efda5179db642f13bad60893acca" },
+  "multicursor.nvim": { "branch": "1.0", "commit": "a6cf4e7daaf10a6b14bb7838caf779f0de5070cd" },
   "neo-tree.nvim": { "branch": "main", "commit": "f3df514fff2bdd4318127c40470984137f87b62e" },
   "neoconf.nvim": { "branch": "main", "commit": "757a4cc7e12cdd4e2fe5f4abe97769742f50bf98" },
   "neogit": { "branch": "master", "commit": "451e57fa3633c935c4c32c669ad5aa447d3db257" },

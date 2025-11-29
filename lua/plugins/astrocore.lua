@@ -106,6 +106,7 @@ return {
         ["<leader>mtr"] = { desc = "Run" },
 
         ["<leader>hv"] = { desc = "Hover" },
+        ["<leader>mc"] = { desc = "Multicursor" },
 
         -- setting a mapping to false will disable it
         -- ["<C-S>"] = false,
