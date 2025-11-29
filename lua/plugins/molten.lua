@@ -13,7 +13,7 @@ return {
     vim.g.molten_tick_rate = 500
 
     -- Regex pattern (not vim regex)
-    local custom_marker = '^# %%\\s*$'  -- matches lines that are exactly "# %%", possibly with trailing spaces
+    local custom_marker = '^# %%.*$'  -- matches lines that are  "# %%", possibly with more text after
 
     local function skip_newline(start, end_l)
       for line_num = end_l, start, -1 do
