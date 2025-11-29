@@ -13,7 +13,23 @@ return {
     vim.g.molten_tick_rate = 500
 
     -- Regex pattern (not vim regex)
-    local custom_marker = '^# %%.*$'  -- matches lines that are  "# %%", possibly with more text after
+    -- local custom_marker = '^# %%.*$'  -- matches lines that are  "# %%", possibly with more text after
+
+    -- Match code cells only, skip markdown/raw cells
+    local function is_code_cell(line)
+      -- Skip if it's a markdown or raw cell
+      if line:match("^# %%%% %[markdown%]") or
+        line:match("^# %%%% %[md%]") or
+        line:match("^# %%%% %[raw%]") then
+        return false
+      end
+      -- Match regular code cells: "# %%" with optional title
+      return line:match("^# %%%%") ~= nil
+    end
+
+    local function is_any_cell(line)
+      return line:match("^# %%%%") ~= nil
+    end
 
     local function skip_newline(start, end_l)
       for line_num = end_l, start, -1 do
@@ -29,39 +45,40 @@ return {
     local function get_cell_ranges(start_line_override)
       local buf = 0
       local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-      local markers = {}
+      local all_markers = {}
+      local code_markers = {}
 
-      -- find marker lines
+      -- Find ALL markers for boundaries
       for i, line in ipairs(lines) do
-        if vim.fn.match(line, custom_marker) ~= -1 then
-          table.insert(markers, i)
+        if is_any_cell(line) then
+          table.insert(all_markers, i)
+          if is_code_cell(line) then
+            table.insert(code_markers, { line = i, idx = #all_markers })
+          end
         end
       end
 
-      if #markers == 0 then
-        vim.notify('Molten: no markers found', vim.log.levels.INFO)
+      if #code_markers == 0 then
+        vim.notify('Molten: no code cells found', vim.log.levels.INFO)
         return {}
       end
 
       local ranges = {}
-      for i = 1, #markers do
-        local start_line = markers[i]
-        local end_line = (markers[i + 1] and markers[i + 1] - 1) or #lines
+      for _, marker in ipairs(code_markers) do
+        local start_line = marker.line
+        -- Find next marker (any type) for boundary
+        local next_marker = all_markers[marker.idx + 1]
+        local end_line = next_marker and (next_marker - 1) or #lines
 
-        -- If start_line_override is set, skip cells that end before the cursor
         if start_line_override and end_line < start_line_override then
           goto continue
         end
 
-        if end_line < start_line then end_line = start_line end
         end_line = skip_newline(start_line, end_line)
 
-        -- Skip invalid ranges where end is before or at start
-        if end_line <= start_line then
-          goto continue
+        if end_line > start_line then
+          table.insert(ranges, { start_line, end_line })
         end
-
-        table.insert(ranges, { start_line, end_line })
         ::continue::
       end
 
@@ -96,7 +113,7 @@ return {
       run_ranges(ranges)
     end, { desc = 'Run all cells' })
 
-    vim.keymap.set('n', '<leader>mte', function()
+    vim.keymap.set('n', '<leader>mtj', function()
       -- Get all cells
       local buf = 0
       local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
@@ -252,5 +269,8 @@ return {
       { silent = true, desc = "Show/enter output" }
     )
     vim.keymap.set("n", "<leader>mti", ":MoltenInterrupt<CR>")
+
+    vim.keymap.set("n", "<leader>mte", ":MoltenExportOutput!", { silent = true, desc = "Export all outputs" })
+    vim.keymap.set("n", "<leader>mtp", ":MoltenImportOutput", { silent = true, desc = "Import all outputs" })
   end,
 }
