@@ -254,22 +254,35 @@ return {
     vim.keymap.set('n', '<leader>mtm', "<cmd>MoltenImagePopup<CR>", { desc = 'Image popup' })
 
     vim.keymap.set('n', '<leader>mtrc', function()
-      local start_line = vim.fn.search(custom_marker, 'bn')  -- Search backward for start marker
-      local end_line = vim.fn.search(custom_marker, 'n')     -- Search forward for next marker
+      local buf = 0
+      local cursor_line = vim.api.nvim_win_get_cursor(0)[1]
+      local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
 
-      if start_line > 0 then
-        if end_line <= start_line then
-          end_line = vim.fn.line('$') -- If no next marker, go to end of file
-        else
-          end_line = end_line - 1 -- Adjust to be inclusive
+      -- Search backward for start marker
+      local start_line = nil
+      for i = cursor_line, 1, -1 do
+        if is_code_cell(lines[i]) then
+          start_line = i
+          break
         end
-
-        end_line = skip_newline(start_line, end_line)
-        -- Execute the selected range
-        vim.fn.MoltenEvaluateRange(start_line, end_line)
-      else
-        vim.notify('Molten: No cell marker found above cursor', vim.log.levels.WARN)
       end
+
+      if not start_line then
+        vim.notify('Molten: No cell marker found above cursor', vim.log.levels.WARN)
+        return
+      end
+
+      -- Search forward for next marker (any type)
+      local end_line = #lines
+      for i = start_line + 1, #lines do
+        if is_any_cell(lines[i]) then
+          end_line = i - 1
+          break
+        end
+      end
+
+      end_line = skip_newline(start_line, end_line)
+      vim.fn.MoltenEvaluateRange(start_line, end_line)
     end, { desc = 'Execute current cell' })
 
     vim.keymap.set("n", "<leader>mtt", ":MoltenInit python3<CR>", { silent = true, desc = "Initialize molten" })
