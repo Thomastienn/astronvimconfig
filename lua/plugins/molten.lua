@@ -51,6 +51,15 @@ return {
       return start
     end
 
+    local function require_kernel(callback)
+      local status = require("molten.status")
+      if status.initialized() == "" then
+        vim.notify('Molten: kernel not initialized. Run <leader>mtt first.', vim.log.levels.WARN)
+        return
+      end
+      callback()
+    end
+
     -- Helper function: get all cell ranges, optionally starting from a line
     local function get_cell_ranges(start_line_override)
       local buf = 0
@@ -119,8 +128,10 @@ return {
 
     -- Run all # %% cells sequentially using MoltenEvaluateRange
     vim.keymap.set('n', '<leader>mtra', function()
-      local ranges = get_cell_ranges()
-      run_ranges(ranges)
+      require_kernel(function()
+        local ranges = get_cell_ranges()
+        run_ranges(ranges)
+      end)
     end, { desc = 'Run all cells' })
 
     vim.keymap.set('n', '<leader>mtj', function()
@@ -231,58 +242,64 @@ return {
     end, { desc = 'Export to jupyter notebook' })
 
     vim.keymap.set('n', '<leader>mtrd', function()
-      local cursor_line = vim.api.nvim_win_get_cursor(0)[1]  -- get current line (1-indexed)
-      local ranges = get_cell_ranges(cursor_line)
-      run_ranges(ranges)
+      require_kernel(function()
+        local cursor_line = vim.api.nvim_win_get_cursor(0)[1]  -- get current line (1-indexed)
+        local ranges = get_cell_ranges(cursor_line)
+        run_ranges(ranges)
+      end)
     end, { desc = 'Run all cells from cursor' })
 
     vim.keymap.set('n', '<leader>mtru', function()
-      local cursor_line = vim.api.nvim_win_get_cursor(0)[1]
-      local all_ranges = get_cell_ranges()
+      require_kernel(function()
+        local cursor_line = vim.api.nvim_win_get_cursor(0)[1]
+        local all_ranges = get_cell_ranges()
 
-      -- Filter to only include cells that start at or before cursor
-      local ranges = {}
-      for _, range in ipairs(all_ranges) do
-        if range[1] <= cursor_line then
-          table.insert(ranges, range)
+        -- Filter to only include cells that start at or before cursor
+        local ranges = {}
+        for _, range in ipairs(all_ranges) do
+          if range[1] <= cursor_line then
+            table.insert(ranges, range)
+          end
         end
-      end
 
-      run_ranges(ranges)
+        run_ranges(ranges)
+      end)
     end, { desc = 'Run all cells top to cursor' })
 
     vim.keymap.set('n', '<leader>mtm', "<cmd>MoltenImagePopup<CR>", { desc = 'Image popup' })
 
     vim.keymap.set('n', '<leader>mtrc', function()
-      local buf = 0
-      local cursor_line = vim.api.nvim_win_get_cursor(0)[1]
-      local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+      require_kernel(function()
+        local buf = 0
+        local cursor_line = vim.api.nvim_win_get_cursor(0)[1]
+        local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
 
-      -- Search backward for start marker
-      local start_line = nil
-      for i = cursor_line, 1, -1 do
-        if is_code_cell(lines[i]) then
-          start_line = i
-          break
+        -- Search backward for start marker
+        local start_line = nil
+        for i = cursor_line, 1, -1 do
+          if is_code_cell(lines[i]) then
+            start_line = i
+            break
+          end
         end
-      end
 
-      if not start_line then
-        vim.notify('Molten: No cell marker found above cursor', vim.log.levels.WARN)
-        return
-      end
-
-      -- Search forward for next marker (any type)
-      local end_line = #lines
-      for i = start_line + 1, #lines do
-        if is_any_cell(lines[i]) then
-          end_line = i - 1
-          break
+        if not start_line then
+          vim.notify('Molten: No cell marker found above cursor', vim.log.levels.WARN)
+          return
         end
-      end
 
-      end_line = skip_newline(start_line, end_line)
-      vim.fn.MoltenEvaluateRange(start_line, end_line)
+        -- Search forward for next marker (any type)
+        local end_line = #lines
+        for i = start_line + 1, #lines do
+          if is_any_cell(lines[i]) then
+            end_line = i - 1
+            break
+          end
+        end
+
+        end_line = skip_newline(start_line, end_line)
+        vim.fn.MoltenEvaluateRange(start_line, end_line)
+      end)
     end, { desc = 'Execute current cell' })
 
     vim.keymap.set("n", "<leader>mtt", ":MoltenInit python3<CR>", { silent = true, desc = "Initialize molten" })
