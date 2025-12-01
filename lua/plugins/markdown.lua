@@ -11,4 +11,8 @@ return {
     -- dependencies = {
     --     "saghen/blink.cmp"
     -- },
+    config = function()
+        vim.keymap.set("n", "<leader>md", "<cmd>Markview toggle<CR>", { desc = "Toggle markdown preview" })
+    end
+,
 }

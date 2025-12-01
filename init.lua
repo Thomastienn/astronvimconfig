@@ -336,27 +336,10 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
-
--- Markdown preview
-vim.keymap.set("n", "<leader>md", "<cmd>Markview toggle<CR>", { desc = "Toggle markdown preview" })
-
 if vim.env.SSH_CONNECTION then
     vim.notify("OSC52 enabled (SSH detected)", vim.log.levels.INFO)
     require('osc52').setup()
 end
-
-
--- Competitive Programming (CP)
--- Control processes
--- Run again a testcase by pressing R
--- Run again all testcases by pressing <C-r>
--- Kill the process associated with a testcase by pressing K
--- Kill all the processes associated with testcases by pressing <C-k>
-vim.keymap.set("n", "<leader>rtt", "<cmd>CompetiTest run<CR>", { desc = "Toggle/Run competitest" })
-vim.keymap.set("n", "<leader>rtd", "<cmd>CompetiTest delete_testcase<CR>", { desc = "Delete testcase" })
-vim.keymap.set("n", "<leader>rtc", "<cmd>CompetiTest run_no_compile<CR>", { desc = "Run no compile" })
-vim.keymap.set("n", "<leader>rta", "<cmd>CompetiTest add_testcase<CR>", { desc = "Add testcase" })
-vim.keymap.set("n", "<leader>rte", "<cmd>CompetiTest edit_testcase<CR>", { desc = "Edit testcase" })
 
 vim.g.python3_host_prog=vim.fn.expand("~/.virtualenvs/neovim/bin/python3")
 
@@ -385,3 +368,12 @@ vim.api.nvim_create_autocmd("FileType", {
 if require("lspconfig").omnisharp then
     vim.lsp.enable("omnisharp")
 end
+
+-- Undo history
+local undodir = vim.fn.stdpath('state') .. '/undo'
+if vim.fn.isdirectory(undodir) == 0 then
+  vim.fn.mkdir(undodir, 'p')
+end
+vim.opt.undofile = true
+vim.opt.undodir = undodir
+vim.opt.undolevels = 10000
