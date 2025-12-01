@@ -31,6 +31,16 @@ return {
       return line:match("^# %%%%") ~= nil
     end
 
+    local function get_cell_type(line)
+      if line:match("^# %%%% %[markdown%]") or line:match("^# %%%% %[md%]") then
+        return "markdown"
+      elseif line:match("^# %%%% %[raw%]") then
+        return "raw"
+      else
+        return "code"
+      end
+    end
+
     local function skip_newline(start, end_l)
       for line_num = end_l, start, -1 do
         local line_content = vim.fn.getline(line_num)
@@ -114,14 +124,13 @@ return {
     end, { desc = 'Run all cells' })
 
     vim.keymap.set('n', '<leader>mtj', function()
-      -- Get all cells
       local buf = 0
       local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
       local markers = {}
 
-      -- Find marker lines
+      -- Find ALL marker lines
       for i, line in ipairs(lines) do
-        if vim.fn.match(line, custom_marker) ~= -1 then
+        if line:match("^# %%%%") then
           table.insert(markers, i)
         end
       end
@@ -136,21 +145,39 @@ return {
       for i = 1, #markers do
         local start_line = markers[i]
         local end_line = (markers[i + 1] and markers[i + 1] - 1) or #lines
+        local cell_type = get_cell_type(lines[start_line])
 
         -- Get cell content (excluding the marker line itself)
         local cell_lines = {}
         for j = start_line + 1, end_line do
-          table.insert(cell_lines, lines[j])
+          local content = lines[j]
+
+          -- For markdown cells, strip leading "# " comment syntax
+          if cell_type == "markdown" then
+            content = content:gsub("^# ?", "")
+          end
+
+          -- Add newline to each line except the last
+          if j < end_line then
+            content = content .. "\n"
+          end
+          table.insert(cell_lines, content)
         end
 
         -- Create Jupyter cell structure
-        table.insert(cells, {
-          cell_type = "code",
-          execution_count = vim.NIL,  -- JSON null
-          metadata = {},
-          outputs = {},
+        local cell = {
+          cell_type = cell_type,
+          metadata = vim.empty_dict(),
           source = cell_lines
-        })
+        }
+
+        -- Code cells need extra fields
+        if cell_type == "code" then
+          cell.execution_count = vim.NIL
+          cell.outputs = {}
+        end
+
+        table.insert(cells, cell)
       end
 
       -- Create Jupyter notebook structure
@@ -172,14 +199,14 @@ return {
       }
 
       -- Convert to JSON
-      local json_str = vim.fn.json_encode(notebook)
+      local json_str = vim.json.encode(notebook)
 
       -- Get output filename from current file
       local current_file = vim.api.nvim_buf_get_name(buf)
       local filename = current_file:match("(.+)%..+$") or "notebook"
-      filename = filename .. ".ipynb"
+      filename = filename .. "_gen" .. ".ipynb"
 
-      -- Write file asynchronously
+      -- Write file
       local uv = vim.loop or vim.uv
       uv.fs_open(filename, "w", 438, function(err_open, fd)
         if err_open then
@@ -270,7 +297,7 @@ return {
     )
     vim.keymap.set("n", "<leader>mti", ":MoltenInterrupt<CR>")
 
-    vim.keymap.set("n", "<leader>mte", ":MoltenExportOutput!", { silent = true, desc = "Export all outputs" })
-    vim.keymap.set("n", "<leader>mtp", ":MoltenImportOutput", { silent = true, desc = "Import all outputs" })
+    vim.keymap.set("n", "<leader>mte", ":MoltenExportOutput!<CR>", { silent = true, desc = "Export all outputs" })
+    vim.keymap.set("n", "<leader>mtp", ":MoltenImportOutput<CR>", { silent = true, desc = "Import all outputs" })
   end,
 }
