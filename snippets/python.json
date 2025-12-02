@@ -163,6 +163,52 @@
             "description": "Desciption"
         }
     ,
+        "millerrabin": {
+            "prefix": ["millerrabin"],
+            "body": [
+                "def miller_rabin(n: int) -> bool:",
+				"    \"\"\"",
+				"    Deterministic primality test for n < 3,317,044,064,679,887,385,961,981",
+				"    Time: O(k log^3 n) where k = number of witnesses",
+				"    \"\"\"",
+				"    if n < 2:",
+				"        return False",
+				"    if n == 2 or n == 3:",
+				"        return True",
+				"    if n % 2 == 0:",
+				"        return False",
+				"    ",
+				"    # Write n-1 as 2^r * d",
+				"    r, d = 0, n - 1",
+				"    while d % 2 == 0:",
+				"        r += 1",
+				"        d //= 2",
+				"    ",
+				"    # Witnesses that work for all n < 3,317,044,064,679,887,385,961,981",
+				"    witnesses = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37]",
+				"    ",
+				"    for a in witnesses:",
+				"        if a >= n:",
+				"            continue",
+				"        ",
+				"        x = pow(a, d, n)",
+				"        ",
+				"        if x == 1 or x == n - 1:",
+				"            continue",
+				"        ",
+				"        for _ in range(r - 1):",
+				"            x = x * x % n",
+				"            if x == n - 1:",
+				"                break",
+				"        else:",
+				"            return False",
+				"    ",
+				"    return True"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
         "lca": {
             "prefix": ["lca"],
             "body": [
@@ -240,6 +286,58 @@
 				"    def dist(self, u: int, v: int) -> int:",
 				"        \"\"\"Returns distance (edges) between u and v\"\"\"",
 				"        return self.depth[u] + self.depth[v] - 2 * self.depth[self.lca(u, v)]"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "fft": {
+            "prefix": ["fft"],
+            "body": [
+                "import cmath",
+				"from typing import List",
+				"",
+				"def fft(a: List[complex], invert: bool = False) -> List[complex]:",
+				"    \"\"\"",
+				"    Fast Fourier Transform (in-place)",
+				"    Time: O(n log n)",
+				"    \"\"\"",
+				"    n = len(a)",
+				"    if n == 1:",
+				"        return a",
+				"    ",
+				"    # Bit-reversal permutation",
+				"    j = 0",
+				"    for i in range(1, n):",
+				"        bit = n >> 1",
+				"        while j & bit:",
+				"            j ^= bit",
+				"            bit >>= 1",
+				"        j ^= bit",
+				"        if i < j:",
+				"            a[i], a[j] = a[j], a[i]",
+				"    ",
+				"    # Cooley-Tukey FFT",
+				"    length = 2",
+				"    while length <= n:",
+				"        angle = 2 * cmath.pi / length * (-1 if invert else 1)",
+				"        wn = cmath.exp(1j * angle)",
+				"        ",
+				"        for i in range(0, n, length):",
+				"            w = 1",
+				"            for k in range(length // 2):",
+				"                u = a[i + k]",
+				"                v = a[i + k + length // 2] * w",
+				"                a[i + k] = u + v",
+				"                a[i + k + length // 2] = u - v",
+				"                w *= wn",
+				"        length *= 2",
+				"    ",
+				"    if invert:",
+				"        for i in range(n):",
+				"            a[i] /= n",
+				"    ",
+				"    return a"
 
             ],
             "description": "Desciption"
@@ -969,6 +1067,40 @@
             "description": "Desciption"
         }
     ,
+        "dijkstra": {
+            "prefix": ["dijkstra"],
+            "body": [
+                "from heapq import heappush, heappop",
+				"",
+				"def dijkstra(",
+				"        graph: list[list[tuple[int, int]]] | dict[int, list[tuple[int, int]]],",
+				"        start: int",
+				") -> list[int | float]:",
+				"    \"\"\"",
+				"    Single source shortest path for non-negative weights",
+				"    graph[u] = [(v, weight), ...]",
+				"    Returns dist array from start",
+				"    Time: O((V + E) log V)",
+				"    \"\"\"",
+				"    n = len(graph)",
+				"    dist = [float('inf')] * n",
+				"    dist[start] = 0",
+				"    pq = [(0, start)]",
+				"    ",
+				"    while pq:",
+				"        d, u = heappop(pq)",
+				"        if d > dist[u]:",
+				"            continue",
+				"        for v, w in graph[u]:",
+				"            if dist[u] + w < dist[v]:",
+				"                dist[v] = dist[u] + w",
+				"                heappush(pq, (dist[v], v)) # pyright: ignore",
+				"    return dist"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
         "tarjan": {
             "prefix": ["tarjan"],
             "body": [
@@ -1008,6 +1140,56 @@
 				"            dfs(i)",
 				"    ",
 				"    return sccs"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "cht": {
+            "prefix": ["cht"],
+            "body": [
+                "from collections import deque",
+				"",
+				"class CHT:",
+				"    \"\"\"",
+				"    Convex Hull Trick for DP optimization",
+				"    Maintains lines y = mx + b, answers min queries",
+				"    ",
+				"    Requirements:",
+				"    - Lines added in decreasing order of slope (m)",
+				"    - Queries in increasing order of x",
+				"    ",
+				"    Time: O(1) amortized per operation",
+				"    ",
+				"    Use case: dp[i] = min(dp[j] + cost(j,i)) where cost(j,i) = m[j] * x[i] + b[j]",
+				"    \"\"\"",
+				"    def __init__(self):",
+				"        self.lines = deque()  # (m, b)",
+				"    ",
+				"    def _bad(self, l1, l2, l3) -> bool:",
+				"        \"\"\"Check if l2 is useless (dominated by l1 and l3)\"\"\"",
+				"        # (b1-b2)/(m2-m1) >= (b2-b3)/(m3-m2)",
+				"        # Cross multiply to avoid division",
+				"        return (l1[1] - l2[1]) * (l3[0] - l2[0]) >= (l2[1] - l3[1]) * (l2[0] - l1[0])",
+				"    ",
+				"    def add(self, m: int, b: int) -> None:",
+				"        \"\"\"Add line y = mx + b (must add in decreasing order of m)\"\"\"",
+				"        line = (m, b)",
+				"        while len(self.lines) >= 2 and self._bad(self.lines[-2], self.lines[-1], line):",
+				"            self.lines.pop()",
+				"        self.lines.append(line)",
+				"    ",
+				"    def query(self, x: int) -> int:",
+				"        \"\"\"Query minimum y at x (must query in increasing order of x)\"\"\"",
+				"        while len(self.lines) >= 2:",
+				"            m1, b1 = self.lines[0]",
+				"            m2, b2 = self.lines[1]",
+				"            if m1 * x + b1 >= m2 * x + b2:",
+				"                self.lines.popleft()",
+				"            else:",
+				"                break",
+				"        m, b = self.lines[0]",
+				"        return m * x + b"
 
             ],
             "description": "Desciption"
