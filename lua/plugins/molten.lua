@@ -302,6 +302,41 @@ return {
       end)
     end, { desc = 'Execute current cell' })
 
+    vim.keymap.set('n', '<leader>mtv', function()
+      local buf = 0
+      local cursor_line = vim.api.nvim_win_get_cursor(0)[1]
+      local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+
+      -- Search backward for start marker
+      local start_line = nil
+      for i = cursor_line, 1, -1 do
+        if is_code_cell(lines[i]) then
+          start_line = i
+          break
+        end
+      end
+
+      if not start_line then
+        vim.notify('Molten: No cell marker found above cursor', vim.log.levels.WARN)
+        return
+      end
+
+      -- Search forward for next marker (any type)
+      local end_line = #lines
+      for i = start_line + 1, #lines do
+        if is_any_cell(lines[i]) then
+          end_line = i - 1
+          break
+        end
+      end
+
+      end_line = skip_newline(start_line, end_line)
+
+      vim.api.nvim_win_set_cursor(0, {start_line, 0})
+      vim.cmd("normal! V" .. (end_line - start_line) .. "j")
+    end, { desc = 'Visual current cell' })
+
+
     vim.keymap.set("n", "<leader>mtt", ":MoltenInit python3<CR>", { silent = true, desc = "Initialize molten" })
     vim.keymap.set(
       "n",
