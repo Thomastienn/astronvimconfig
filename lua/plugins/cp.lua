@@ -5,7 +5,8 @@ return {
 	    require('competitest').setup({
 	        runner_ui = {
 	            interface = "popup" -- "popup" | "split"
-	        }
+	        },
+	        received_files_extension = "py",
 	    })
 		-- Control processes
 		-- Run again a testcase by pressing R
