@@ -1,5 +1,3 @@
-MOD = 10**9 + 7
-
 def mod_add(a: int, b: int, mod: int = MOD) -> int:
     return (a + b) % mod
 

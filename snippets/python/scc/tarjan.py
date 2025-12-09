@@ -1,4 +1,4 @@
-def tarjan_scc(n, adj) -> list[list[int]]:
+def tarjan(n, adj) -> list[list[int]]:
     disc = [-1] * n
     low = [-1] * n
     on_stack = [False] * n

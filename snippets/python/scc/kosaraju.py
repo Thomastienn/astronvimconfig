@@ -1,4 +1,4 @@
-def kosaraju_scc(n, adj):
+def kosaraju(n, adj):
     # Build reverse graph
     rev_adj = [[] for _ in range(n)]
     for u in range(n):

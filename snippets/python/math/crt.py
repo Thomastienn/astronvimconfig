@@ -1,10 +1,3 @@
-def extgcd(a: int, b: int) -> tuple[int, int, int]:
-    """Returns (gcd, x, y) where ax + by = gcd"""
-    if b == 0:
-        return a, 1, 0
-    g, x, y = extgcd(b, a % b)
-    return g, y, x - (a // b) * y
-
 def crt(remainders: list[int], mods: list[int]) -> tuple[int, int]:
     """
     Find x such that x ≡ r[i] (mod m[i])

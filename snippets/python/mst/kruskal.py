@@ -1,4 +1,4 @@
-def kruskal_mst(n, edges):
+def kruskal(n, edges):
     dsu = DSU(n) # type: ignore # noqa
     
     # Sort edges by weight

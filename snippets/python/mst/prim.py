@@ -1,4 +1,4 @@
-def prim_mst(n, adj):
+def prim(n, adj):
     import heapq
     
     visited = [False] * n

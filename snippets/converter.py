@@ -47,19 +47,20 @@ def update_json_snippet(
         }
     """
     updated_json = []
-    for filename in os.listdir(input_path):
-        file_path = os.path.join(input_path, filename)
-        filename_no_ext = filename.rsplit(".", 1)[0]
-            
-        updated_content = template.replace("<name>", filename_no_ext)
-        updated_content = updated_content.replace("<prefix>", filename_no_ext)
-        updated_content = updated_content.replace("<body>", convert_code_snippet(
-            input_path=file_path,
-            output_to_file=False,
-        ))
-        updated_content = updated_content.replace("<description>", "Desciption")
+    for root, _, files in os.walk(input_path):
+        for filename in files:
+            file_path = os.path.join(root, filename)
+            filename_no_ext = filename.rsplit(".", 1)[0]
+                
+            updated_content = template.replace("<name>", filename_no_ext)
+            updated_content = updated_content.replace("<prefix>", filename_no_ext)
+            updated_content = updated_content.replace("<body>", convert_code_snippet(
+                input_path=file_path,
+                output_to_file=False,
+            ))
+            updated_content = updated_content.replace("<description>", "Desciption")
 
-        updated_json.append(updated_content)
+            updated_json.append(updated_content)
 
     snippet_file = os.path.expanduser(f"~/.config/nvim/snippets/{filetype}.json")
     with open(snippet_file, "w") as file:
