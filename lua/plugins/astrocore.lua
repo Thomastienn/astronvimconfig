@@ -99,7 +99,7 @@ return {
         -- this is useful for naming menus
         -- ["<Leader>b"] = { desc = "Buffers" },
         ["<leader>lc"] = { desc = "Leetcode" },
-        ["<leader>rt"] = { desc = "Competitive Programming" },
+        ["<leader>rt"] = { desc = "CompetitiveProgramming" },
         ["<leader>rc"] = { desc = "Compiling" },
 
         ["<leader>mt"] = { desc = "Molten" },
@@ -107,6 +107,8 @@ return {
 
         ["<leader>hv"] = { desc = "Hover" },
         ["<leader>mc"] = { desc = "Multicursor" },
+        ["<leader>st"] = { desc = "Spectre" },
+        ["<leader>sr"] = { desc = "MiniSurround" },
 
         -- setting a mapping to false will disable it
         -- ["<C-S>"] = false,
