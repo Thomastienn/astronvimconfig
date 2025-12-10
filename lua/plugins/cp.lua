@@ -1,3 +1,5 @@
+--@diagnostic disable
+
 return {
 	'xeluxee/competitest.nvim',
 	dependencies = 'MunifTanjim/nui.nvim',
@@ -7,6 +9,11 @@ return {
 	            interface = "popup" -- "popup" | "split"
 	        },
 	        received_files_extension = "py",
+	        template_file = {
+	        	cpp = "~/.config/nvim/snippets/cpp/cp.cpp",
+ 				py = "~/.config/nvim/snippets/python/cp.py",
+	        },
+	        evaluate_template_modifiers = true,
 	    })
 		-- Control processes
 		-- Run again a testcase by pressing R

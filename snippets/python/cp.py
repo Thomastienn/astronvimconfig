@@ -1,3 +1,11 @@
+# Problem: $(PROBLEM)
+# Contest: $(CONTEST)
+# Judge: $(JUDGE)
+# URL: $(URL)
+# Memory Limit: $(MEMLIM)
+# Time Limit: $(TIMELIM)
+# Start: $(DATE)
+
 import sys
 input = sys.stdin.readline
 
