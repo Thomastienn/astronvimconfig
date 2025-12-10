@@ -19,3 +19,6 @@ class DSU:
         self.parent[yroot] = xroot
         self.size[xroot] += self.size[yroot]
         return True
+
+    def same(self, x, y):
+        return self.find(x) == self.find(y)

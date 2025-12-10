@@ -74,5 +74,5 @@ def update_all():
         update_json_snippet(filetype=filetype)
 
 if __name__ == "__main__":
-    # update_json_snippet(filetype="python")
-    update_all()
+    update_json_snippet(filetype="python")
+    # update_all()

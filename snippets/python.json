@@ -23,7 +23,10 @@
 				"            xroot, yroot = yroot, xroot",
 				"        self.parent[yroot] = xroot",
 				"        self.size[xroot] += self.size[yroot]",
-				"        return True"
+				"        return True",
+				"",
+				"    def same(self, x, y):",
+				"        return self.find(x) == self.find(y)"
 
             ],
             "description": "Desciption"
@@ -51,6 +54,33 @@
 				"    return round(f(l)), round(l)",
 				"",
 				"print(ternary_search(-10, 10))"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "cp": {
+            "prefix": ["cp"],
+            "body": [
+                "import sys",
+				"input = sys.stdin.readline",
+				"",
+				"def inp():",
+				"    return(int(input()))",
+				"def inl():",
+				"    return(list(map(int,input().split())))",
+				"def ins():",
+				"    s = input()",
+				"    return(list(s[:len(s) - 1]))",
+				"def inv():",
+				"    return(map(int,input().split()))",
+				"",
+				"def solve():",
+				"    ...",
+				"",
+				"t = inp()",
+				"for _ in range(t):",
+				"    solve()"
 
             ],
             "description": "Desciption"
