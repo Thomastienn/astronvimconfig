@@ -1,3 +1,5 @@
+from point import Point, sign
+
 class Line:
     def __init__(self, p1: Point, p2: Point):
         self.p1 = p1

@@ -1,3 +1,5 @@
+import math
+
 EPS = 1e-9
 def sign(x: float) -> int:
     if x > EPS: return 1

@@ -1,3 +1,5 @@
+from point import Point, sign
+
 class Segment:
     def __init__(self, a: Point, b: Point):
         self.a = a

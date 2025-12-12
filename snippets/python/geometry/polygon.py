@@ -1,3 +1,6 @@
+from point import Point
+from segment import Segment
+
 class Polygon:
     def __init__(self, pts: list[Point]):
         self.pts = pts

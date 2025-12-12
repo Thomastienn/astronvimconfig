@@ -1,3 +1,6 @@
+import math
+from point import Point, sign
+
 class Circle:
     def __init__(self, center: Point, radius: float):
         self.c = center
