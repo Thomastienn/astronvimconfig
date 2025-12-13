@@ -25,5 +25,7 @@ return {
 		vim.keymap.set("n", "<leader>rtc", ":CompetiTest run_no_compile<CR>", { desc = "Run no compile" })
 		vim.keymap.set("n", "<leader>rta", ":CompetiTest add_testcase<CR>", { desc = "Add testcase" })
 		vim.keymap.set("n", "<leader>rte", ":CompetiTest edit_testcase<CR>", { desc = "Edit testcase" })
+		vim.keymap.set("n", "<leader>rtp", ":CompetiTest receive problem<CR>", { desc = "Receive problem" })
+		vim.keymap.set("n", "<leader>rtn", ":CompetiTest receive contest<CR>", { desc = "Receive contest" })
 	end,
 }
