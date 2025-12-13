@@ -13,6 +13,11 @@ return {
 	        	cpp = "~/.config/nvim/snippets/cpp/cp.cpp",
  				py = "~/.config/nvim/snippets/python/cp.py",
 	        },
+	        received_problems_path = "$(CWD)/$(PROBLEM)/$(PROBLEM).$(FEXT)",
+	        received_contests_directory = "$(CWD)/$(CONTEST)",
+	        compile_command = {
+	        	cpp = { exec = "g++", args = { "-DLOCAL", "-Wall", "$(FNAME)", "-o", "$(FNOEXT)" } },
+	        },
 	        evaluate_template_modifiers = true,
 	    })
 		-- Control processes
