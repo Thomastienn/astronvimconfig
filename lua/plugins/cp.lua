@@ -13,11 +13,13 @@ return {
 	        	cpp = "~/.config/nvim/snippets/cpp/cp.cpp",
  				py = "~/.config/nvim/snippets/python/cp.py",
 	        },
-	        received_problems_path = "$(CWD)/$(PROBLEM)/$(PROBLEM).$(FEXT)",
+	        received_problems_path = "$(CWD)/$(JAVA_TASK_CLASS)/$(JAVA_TASK_CLASS).$(FEXT)",
 	        received_contests_directory = "$(CWD)/$(CONTEST)",
 	        compile_command = {
 	        	cpp = { exec = "g++", args = { "-DLOCAL", "-Wall", "$(FNAME)", "-o", "$(FNOEXT)" } },
 	        },
+	        testcases_use_single_file = true,
+	        view_output_diff = true,
 	        evaluate_template_modifiers = true,
 	    })
 		-- Control processes
