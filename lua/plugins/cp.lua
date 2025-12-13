@@ -8,7 +8,7 @@ return {
 	        runner_ui = {
 	            interface = "popup" -- "popup" | "split"
 	        },
-	        received_files_extension = "py",
+	        received_files_extension = "cpp",
 	        template_file = {
 	        	cpp = "~/.config/nvim/snippets/cpp/cp.cpp",
  				py = "~/.config/nvim/snippets/python/cp.py",
