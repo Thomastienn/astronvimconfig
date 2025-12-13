@@ -2,7 +2,7 @@ local python_venv = "~/.virtualenvs/neovim/bin/activate"
 local run = {}
 
 local function run_cmd(cmd, toggleterm_opts)
-    cmd = "sh -c '" .. cmd .. "' || true"
+    cmd = "sh -c '/usr/bin/time -f \"\\nreal\\t%E\\nuser\\t%Us\\nsys\\t%Ss\" " .. cmd .. "' || true"
     vim.notify("Running: " .. cmd, vim.log.levels.INFO)
 
     local default_opts = {
