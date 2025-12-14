@@ -76,7 +76,6 @@ return {
           Rule("(", ")", { "tex", "latex", "typst" }),
           Rule("[", "]", { "tex", "latex", "typst" }),
           Rule("{", "}", { "tex", "latex", "typst" }),
-          Rule("<", ">", { "cpp" }),
         },
         -- disable for .vim files, but it work for another filetypes
         Rule("a", "a", "-vim")
