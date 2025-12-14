@@ -220,7 +220,7 @@ struct Scanner {
     assert(f);
     read(t...);
   }
-  Scanner(FILE *fp) : fp(fp) {}
+  Scanner(FILE *in) : fp(in) {}
 };
  
 struct Printer {
