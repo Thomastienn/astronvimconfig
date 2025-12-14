@@ -28,6 +28,7 @@ return {
 		-- Kill the process associated with a testcase by pressing K
 		-- Kill all the processes associated with testcases by pressing <C-k>
 		vim.keymap.set("n", "<leader>rtt", ":CompetiTest run<CR>", { desc = "Toggle/Run competitest" })
+		vim.keymap.set("n", "<leader>rtu", ":CompetiTest show_ui<CR>", { desc = "Open UI" })
 		vim.keymap.set("n", "<leader>rtd", ":CompetiTest delete_testcase<CR>", { desc = "Delete testcase" })
 		vim.keymap.set("n", "<leader>rtc", ":CompetiTest run_no_compile<CR>", { desc = "Run no compile" })
 		vim.keymap.set("n", "<leader>rta", ":CompetiTest add_testcase<CR>", { desc = "Add testcase" })
