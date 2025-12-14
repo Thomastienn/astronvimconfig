@@ -16,7 +16,7 @@ return {
 	        received_problems_path = "$(CWD)/$(JAVA_TASK_CLASS)/$(JAVA_TASK_CLASS).$(FEXT)",
 	        received_contests_directory = "$(CWD)/$(CONTEST)",
 	        compile_command = {
-	        	cpp = { exec = "g++", args = { "-DLOCAL", "-Wall", "$(FNAME)", "-o", "$(FNOEXT)" } },
+	        	cpp = { exec = "g++", args = { "-O2", "-std=c++20", "-DLOCAL", "-Wall", "-Wextra", "-Wshadow", "-fsanitize=undefined", "$(FNAME)", "-o", "$(FNOEXT)" } },
 	        },
 	        testcases_use_single_file = true,
 	        view_output_diff = true,
