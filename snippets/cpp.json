@@ -1,76 +1,25 @@
 {
 
-        "tem": {
-            "prefix": ["tem"],
+        "cht": {
+            "prefix": ["cht"],
             "body": [
-                "#include <bits/stdc++.h>",
-				"",
-				"using namespace std;",
-				"template<typename A, typename B> ostream& operator<<(ostream &os, const pair<A, B> &p) { return os << '(' << p.first << \", \" << p.second << ')'; }",
-				"template<typename T_container, typename T = typename enable_if<!is_same<T_container, string>::value, typename T_container::value_type>::type> ostream& operator<<(ostream &os, const T_container &v) { os << '{'; string sep; for (const T &x : v) os << sep << x, sep = \", \"; return os << '}'; }",
-				"void dbg_out() { cerr << endl; }",
-				"template<typename Head, typename... Tail> void dbg_out(Head H, Tail... T) { cerr << ' ' << H; dbg_out(T...); }",
-				"#ifdef LOCAL",
-				"#define dbg(...) cerr << \"(\" << #__VA_ARGS__ << \"):\", dbg_out(__VA_ARGS__)",
-				"#else",
-				"#define dbg(...)",
-				"#endif",
-				"",
-				"#define ar array",
-				"#define ll long long",
-				"#define ld long double",
-				"#define sza(x) ((int)x.size())",
-				"#define all(a) (a).begin(), (a).end()",
-				"#define mp(x, y) make_pair(x, y)",
-				"#define pb push_back",
-				"#define ppb pop_back",
-				"#define f first",
-				"#define s second",
-				"#define el '\\n'",
-				"",
-				"#define PI 3.1415926535897932384626433832795l ",
-				"const int MAX_N = 1e5 + 5;",
-				"const ll MOD = 1e9 + 7;",
-				"const ll INF = 1e9;",
-				"const ld EPS = 1e-9;",
-				"",
-				"// -------------------------<RNG>------------------------- ",
-				"// RANDOM NUMBER GENERATOR",
-				"mt19937 RNG(chrono::steady_clock::now().time_since_epoch().count());  ",
-				"#define SHUF(v) shuffle(all(v), RNG); ",
-				"// Use mt19937_64 for 64 bit random numbers.",
-				"",
-				"void solve() {",
-				"}",
-				"",
-				"int main() {",
-				"    ios_base::sync_with_stdio(0);",
-				"    cin.tie(0); cout.tie(0);",
-				"    int tc = 1;",
-				"    // cin >> tc;",
-				"    for (int t = 1; t <= tc; t++) {",
-				"        // cout << \"Case #\" << t << \": \";",
-				"        solve();",
+                "struct CHT {",
+				"    deque<pll> lines;",
+				"    bool bad(pll l1, pll l2, pll l3) {",
+				"        return (__int128)(l1.s - l2.s) * (l3.f - l2.f) >= (__int128)(l2.s - l3.s) * (l2.f - l1.f);",
 				"    }",
-				"}"
-
-            ],
-            "description": "Desciption"
-        }
-    ,
-        "pow": {
-            "prefix": ["pow"],
-            "body": [
-                "int pow(int a, int b, int m) {",
-				"    int res = 1;",
-				"    while (b) {",
-				"        if (b & 1)",
-				"            res = res * a % m;",
-				"        a = a * a % m;",
-				"        b >>= 1;",
+				"    void add(ll m, ll b) {",
+				"        pll line = {m, b};",
+				"        while (sza(lines) >= 2 && bad(lines[sza(lines)-2], lines.back(), line))",
+				"            lines.ppb();",
+				"        lines.pb(line);",
 				"    }",
-				"    return res;",
-				"}"
+				"    ll query(ll x) {",
+				"        while (sza(lines) >= 2 && lines[0].f * x + lines[0].s >= lines[1].f * x + lines[1].s)",
+				"            lines.pop_front();",
+				"        return lines[0].f * x + lines[0].s;",
+				"    }",
+				"};"
 
             ],
             "description": "Desciption"
@@ -112,6 +61,886 @@
 				"}  ",
 				"",
 				"// ----------------------</MATH>-------------------------- "
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "pow": {
+            "prefix": ["pow"],
+            "body": [
+                "int pow(int a, int b, int m) {",
+				"    int res = 1;",
+				"    while (b) {",
+				"        if (b & 1)",
+				"            res = res * a % m;",
+				"        a = a * a % m;",
+				"        b >>= 1;",
+				"    }",
+				"    return res;",
+				"}"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "rollhash": {
+            "prefix": ["rollhash"],
+            "body": [
+                "struct RollHash {",
+				"    static const ll B = 911382629, M = 1e18 + 3;",
+				"    int n; vector<ll> pow, h;",
+				"    RollHash(string &s) : n(sza(s)), pow(n + 1, 1), h(n + 1) {",
+				"        for (int i = 1; i <= n; i++) pow[i] = pow[i-1] * B % M;",
+				"        for (int i = 1; i <= n; i++) h[i] = (h[i-1] * B + s[i-1]) % M;",
+				"    }",
+				"    ll get(int l, int r) { return (h[r] - h[l] * pow[r-l] % M + M) % M; }",
+				"};"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "cp": {
+            "prefix": ["cp"],
+            "body": [
+                "#include <bits/stdc++.h>",
+				"",
+				"using namespace std;",
+				"template<typename A, typename B> ostream& operator<<(ostream &os, const pair<A, B> &p) { return os << '(' << p.first << \", \" << p.second << ')'; }",
+				"template<typename T_container, typename T = typename enable_if<!is_same<T_container, string>::value, typename T_container::value_type>::type> ostream& operator<<(ostream &os, const T_container &v) { os << '{'; string sep; for (const T &x : v) os << sep << x, sep = \", \"; return os << '}'; }",
+				"void dbg_out() { cerr << endl; }",
+				"template<typename Head, typename... Tail> void dbg_out(Head H, Tail... T) { cerr << ' ' << H; dbg_out(T...); }",
+				"#ifdef LOCAL",
+				"#define dbg(...) cerr << \"(\" << #__VA_ARGS__ << \"):\", dbg_out(__VA_ARGS__)",
+				"#else",
+				"#define dbg(...)",
+				"#endif",
+				"",
+				"#define ar array",
+				"#define ll long long",
+				"#define ld long double",
+				"#define sza(x) ((int)x.size())",
+				"#define all(a) (a).begin(), (a).end()",
+				"#define mp(x, y) make_pair(x, y)",
+				"#define vi vector<int>",
+				"#define vvi vector<vector<int>>",
+				"#define vii vector<pair<int, int>>",
+				"#define pb push_back",
+				"#define ppb pop_back",
+				"#define f first",
+				"#define s second",
+				"#define el '\\n'",
+				"",
+				"#define REP(i, n) for (int i = 0; i < n; i++)",
+				"#define RREP(i, n) for (int i = n - 1; i >= 0; i--)",
+				"#define FOR(i, a, b) for (int i = a; i < b; i++)",
+				"#define RFOR(i, b, a) for (int i = b; i >= a; i--)",
+				"#define EACH(x, a) for (auto& x : a)",
+				"",
+				"#define PI 3.1415926535897932384626433832795l ",
+				"const int MAX_N = 1e5 + 5;",
+				"const ll MOD = 1e9 + 7;",
+				"const ll INF = 1e9;",
+				"const ld EPS = 1e-9;",
+				"",
+				"// -------------------------<RNG>------------------------- ",
+				"// RANDOM NUMBER GENERATOR",
+				"mt19937 RNG(chrono::steady_clock::now().time_since_epoch().count());  ",
+				"#define SHUF(v) shuffle(all(v), RNG); ",
+				"// Use mt19937_64 for 64 bit random numbers.",
+				"",
+				"void solve() {",
+				"}",
+				"",
+				"int main() {",
+				"    ios_base::sync_with_stdio(0);",
+				"    cin.tie(0); cout.tie(0);",
+				"    int tc = 1;",
+				"    // cin >> tc;",
+				"    for (int t = 1; t <= tc; t++) {",
+				"        // cout << \"Case #\" << t << \": \";",
+				"        solve();",
+				"    }",
+				"}"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "dsu": {
+            "prefix": ["dsu"],
+            "body": [
+                "struct DSU {",
+				"    vi p, sz;",
+				"    DSU(int n) : p(n), sz(n, 1) { iota(all(p), 0); }",
+				"    int find(int x) { return p[x] == x ? x : p[x] = find(p[x]); }",
+				"    bool unite(int x, int y) {",
+				"        x = find(x), y = find(y);",
+				"        if (x == y) return false;",
+				"        if (sz[x] < sz[y]) swap(x, y);",
+				"        p[y] = x, sz[x] += sz[y];",
+				"        return true;",
+				"    }",
+				"    bool same(int x, int y) { return find(x) == find(y); }",
+				"};"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "millerrabin": {
+            "prefix": ["millerrabin"],
+            "body": [
+                "ll mulmod(ll a, ll b, ll m) {",
+				"    return (__int128)a * b % m;",
+				"}",
+				"ll powmod(ll a, ll b, ll m) {",
+				"    ll r = 1;",
+				"    for (; b; b >>= 1, a = mulmod(a, a, m))",
+				"        if (b & 1) r = mulmod(r, a, m);",
+				"    return r;",
+				"}",
+				"bool miller_rabin(ll n) {",
+				"    if (n < 2) return false;",
+				"    if (n == 2 || n == 3) return true;",
+				"    if (n % 2 == 0) return false;",
+				"    ll r = 0, d = n - 1;",
+				"    while (d % 2 == 0) r++, d /= 2;",
+				"    for (ll a : {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37}) {",
+				"        if (a >= n) continue;",
+				"        ll x = powmod(a, d, n);",
+				"        if (x == 1 || x == n - 1) continue;",
+				"        bool ok = false;",
+				"        for (int i = 0; i < r - 1; i++) {",
+				"            x = mulmod(x, x, n);",
+				"            if (x == n - 1) { ok = true; break; }",
+				"        }",
+				"        if (!ok) return false;",
+				"    }",
+				"    return true;",
+				"}"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "extgcd": {
+            "prefix": ["extgcd"],
+            "body": [
+                "ll extgcd(ll a, ll b, ll &x, ll &y) {",
+				"    if (!b) { x = 1, y = 0; return a; }",
+				"    ll g = extgcd(b, a % b, y, x);",
+				"    y -= a / b * x;",
+				"    return g;",
+				"}",
+				"ll modinv(ll a, ll m) {",
+				"    ll x, y, g = extgcd(a, m, x, y);",
+				"    return g == 1 ? (x % m + m) % m : -1;",
+				"}"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "matrix": {
+            "prefix": ["matrix"],
+            "body": [
+                "using Mat = vector<vector<ll>>;",
+				"Mat matmul(Mat &a, Mat &b, ll m = MOD) {",
+				"    int n = sza(a), p = sza(b[0]);",
+				"    Mat c(n, vector<ll>(p));",
+				"    for (int i = 0; i < n; i++)",
+				"        for (int k = 0; k < sza(b); k++)",
+				"            for (int j = 0; j < p; j++)",
+				"                c[i][j] = (c[i][j] + a[i][k] * b[k][j]) % m;",
+				"    return c;",
+				"}",
+				"Mat matpow(Mat a, ll n, ll m = MOD) {",
+				"    int sz = sza(a);",
+				"    Mat r(sz, vector<ll>(sz));",
+				"    for (int i = 0; i < sz; i++) r[i][i] = 1;",
+				"    for (; n; n >>= 1, a = matmul(a, a, m))",
+				"        if (n & 1) r = matmul(r, a, m);",
+				"    return r;",
+				"}"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "modmath": {
+            "prefix": ["modmath"],
+            "body": [
+                "ll add(ll a, ll b, ll m = MOD) { return (a + b) % m; }",
+				"ll sub(ll a, ll b, ll m = MOD) { return ((a - b) % m + m) % m; }",
+				"ll mul(ll a, ll b, ll m = MOD) { return a * b % m; }",
+				"ll power(ll a, ll b, ll m = MOD) {",
+				"    ll r = 1;",
+				"    for (; b; b >>= 1, a = a * a % m)",
+				"        if (b & 1) r = r * a % m;",
+				"    return r;",
+				"}",
+				"ll inv(ll a, ll m = MOD) { return power(a, m - 2, m); }"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "ncr": {
+            "prefix": ["ncr"],
+            "body": [
+                "const int MAXN = 2e5 + 5;",
+				"ll fact[MAXN], ifact[MAXN];",
+				"void precompute(int n = MAXN - 1, ll m = MOD) {",
+				"    fact[0] = 1;",
+				"    for (int i = 1; i <= n; i++) fact[i] = fact[i-1] * i % m;",
+				"    ifact[n] = power(fact[n], m - 2, m);",
+				"    for (int i = n - 1; i >= 0; i--) ifact[i] = ifact[i+1] * (i+1) % m;",
+				"}",
+				"ll ncr(int n, int r, ll m = MOD) {",
+				"    if (r < 0 || r > n) return 0;",
+				"    return fact[n] * ifact[r] % m * ifact[n-r] % m;",
+				"}"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "crt": {
+            "prefix": ["crt"],
+            "body": [
+                "pll crt(vector<ll> &r, vector<ll> &m) {",
+				"    ll x = 0, M = 1;",
+				"    for (int i = 0; i < sza(r); i++) {",
+				"        ll a, b, g = extgcd(M, m[i], a, b);",
+				"        if ((r[i] - x) % g) return {-1, -1};",
+				"        x += M * ((r[i] - x) / g % (m[i] / g) * a % (m[i] / g));",
+				"        M *= m[i] / g;",
+				"        x = (x % M + M) % M;",
+				"    }",
+				"    return {x, M};",
+				"}"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "sieve": {
+            "prefix": ["sieve"],
+            "body": [
+                "vi sieve(int n) {",
+				"    vector<bool> is_p(n + 1, true);",
+				"    is_p[0] = is_p[1] = false;",
+				"    for (int p = 2; p * p <= n; p++)",
+				"        if (is_p[p])",
+				"            for (int i = p * p; i <= n; i += p)",
+				"                is_p[i] = false;",
+				"    vi primes;",
+				"    for (int p = 2; p <= n; p++)",
+				"        if (is_p[p]) primes.pb(p);",
+				"    return primes;",
+				"}"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "trie": {
+            "prefix": ["trie"],
+            "body": [
+                "struct Trie {",
+				"    struct Node { int cnt; array<int, 26> to; };",
+				"    vector<Node> t; int sz;",
+				"    Trie() : t(1), sz(1) { t[0].to.fill(-1); }",
+				"    void insert(string &s) {",
+				"        int u = 0;",
+				"        for (char c : s) {",
+				"            int ch = c - 'a';",
+				"            if (t[u].to[ch] == -1) {",
+				"                t[u].to[ch] = sz++;",
+				"                t.pb({}); t.back().to.fill(-1);",
+				"            }",
+				"            u = t[u].to[ch];",
+				"        }",
+				"        t[u].cnt++;",
+				"    }",
+				"    bool search(string &s) {",
+				"        int u = 0;",
+				"        for (char c : s) {",
+				"            int ch = c - 'a';",
+				"            if (t[u].to[ch] == -1) return false;",
+				"            u = t[u].to[ch];",
+				"        }",
+				"        return t[u].cnt > 0;",
+				"    }",
+				"};"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "lca": {
+            "prefix": ["lca"],
+            "body": [
+                "struct LCA {",
+				"    int n, lg; vector<vi> up, g; vi dep;",
+				"    LCA(vector<vi> &g, int root = 0) : n(sza(g)), lg(__lg(n) + 1), up(lg, vi(n)), g(g), dep(n) {",
+				"        dfs(root, root);",
+				"        for (int i = 1; i < lg; i++)",
+				"            for (int u = 0; u < n; u++)",
+				"                up[i][u] = up[i-1][up[i-1][u]];",
+				"    }",
+				"    void dfs(int u, int p) {",
+				"        up[0][u] = p;",
+				"        for (int v : g[u])",
+				"            if (v != p) dep[v] = dep[u] + 1, dfs(v, u);",
+				"    }",
+				"    int lca(int u, int v) {",
+				"        if (dep[u] < dep[v]) swap(u, v);",
+				"        int diff = dep[u] - dep[v];",
+				"        for (int i = 0; i < lg; i++)",
+				"            if (diff >> i & 1) u = up[i][u];",
+				"        if (u == v) return u;",
+				"        for (int i = lg - 1; i >= 0; i--)",
+				"            if (up[i][u] != up[i][v])",
+				"                u = up[i][u], v = up[i][v];",
+				"        return up[0][u];",
+				"    }",
+				"    int dist(int u, int v) { return dep[u] + dep[v] - 2 * dep[lca(u, v)]; }",
+				"};"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "cycledir": {
+            "prefix": ["cycledir"],
+            "body": [
+                "vi find_cycle_dir(vector<vi> &g, int s) {",
+				"    int n = sza(g); vi col(n), par(n, -1); vi cycle;",
+				"    function<bool(int)> dfs = [&](int u) {",
+				"        col[u] = 1;",
+				"        for (int v : g[u]) {",
+				"            if (col[v] == 0) {",
+				"                par[v] = u;",
+				"                if (dfs(v)) return true;",
+				"            } else if (col[v] == 1) {",
+				"                for (int x = u; x != v; x = par[x]) cycle.pb(x);",
+				"                cycle.pb(v); reverse(all(cycle));",
+				"                return true;",
+				"            }",
+				"        }",
+				"        col[u] = 2;",
+				"        return false;",
+				"    };",
+				"    for (int i = 0; i < n; i++)",
+				"        if (!col[i] && dfs(i)) return cycle;",
+				"    return {};",
+				"}"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "cycleundir": {
+            "prefix": ["cycleundir"],
+            "body": [
+                "vi find_cycle_undir(vector<vi> &g, int s) {",
+				"    int n = sza(g); vi vis(n), par(n, -1); vi cycle;",
+				"    function<bool(int, int)> dfs = [&](int u, int p) {",
+				"        vis[u] = 1;",
+				"        for (int v : g[u]) {",
+				"            if (v == p) continue;",
+				"            if (vis[v]) {",
+				"                for (int x = u; x != v; x = par[x]) cycle.pb(x);",
+				"                cycle.pb(v); reverse(all(cycle));",
+				"                return true;",
+				"            }",
+				"            par[v] = u;",
+				"            if (dfs(v, u)) return true;",
+				"        }",
+				"        return false;",
+				"    };",
+				"    for (int i = 0; i < n; i++)",
+				"        if (!vis[i] && dfs(i, -1)) return cycle;",
+				"    return {};",
+				"}"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "polygon": {
+            "prefix": ["polygon"],
+            "body": [
+                "ld polygon_area(vector<Pt> &p) {",
+				"    ld a = 0; int n = sza(p);",
+				"    for (int i = 0; i < n; i++)",
+				"        a += p[i].cross(p[(i + 1) % n]);",
+				"    return abs(a) / 2;",
+				"}",
+				"bool in_polygon(vector<Pt> &p, Pt q) {",
+				"    int n = sza(p), cnt = 0;",
+				"    for (int i = 0; i < n; i++) {",
+				"        Pt a = p[i], b = p[(i + 1) % n];",
+				"        if ((a.y <= q.y && q.y < b.y) || (b.y <= q.y && q.y < a.y))",
+				"            if (q.x < a.x + (b.x - a.x) * (q.y - a.y) / (b.y - a.y))",
+				"                cnt++;",
+				"    }",
+				"    return cnt & 1;",
+				"}"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "circle": {
+            "prefix": ["circle"],
+            "body": [
+                "struct Circle {",
+				"    Pt c; ld r;",
+				"    Circle(Pt c = {}, ld r = 0) : c(c), r(r) {}",
+				"    bool contains(Pt p) { return (p - c).len() <= r + EPS; }",
+				"    ld area() { return PI * r * r; }",
+				"    ld circ() { return 2 * PI * r; }",
+				"};",
+				"pair<Pt, Pt> inter(Circle c, Line l) {",
+				"    Pt p = l.p, d = l.d.norm();",
+				"    ld h = d.cross(c.c - p), s = sqrt(c.r * c.r - h * h);",
+				"    Pt m = p + d * d.dot(c.c - p);",
+				"    return {m + d * s, m - d * s};",
+				"}"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "point": {
+            "prefix": ["point"],
+            "body": [
+                "struct Pt {",
+				"    ld x, y;",
+				"    Pt(ld x = 0, ld y = 0) : x(x), y(y) {}",
+				"    Pt operator+(Pt p) { return {x + p.x, y + p.y}; }",
+				"    Pt operator-(Pt p) { return {x - p.x, y - p.y}; }",
+				"    Pt operator*(ld t) { return {x * t, y * t}; }",
+				"    Pt operator/(ld t) { return {x / t, y / t}; }",
+				"    ld dot(Pt p) { return x * p.x + y * p.y; }",
+				"    ld cross(Pt p) { return x * p.y - y * p.x; }",
+				"    ld len2() { return x * x + y * y; }",
+				"    ld len() { return sqrt(len2()); }",
+				"    Pt norm() { return *this / len(); }",
+				"    Pt rot90() { return {-y, x}; }",
+				"};"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "line": {
+            "prefix": ["line"],
+            "body": [
+                "struct Line {",
+				"    Pt p, d;",
+				"    Line(Pt p = {}, Pt d = {}) : p(p), d(d) {}",
+				"    Pt eval(ld t) { return p + d * t; }",
+				"    ld dist(Pt q) { return abs(d.cross(q - p)) / d.len(); }",
+				"};",
+				"bool inter(Line l1, Line l2, Pt &p) {",
+				"    ld det = l1.d.cross(l2.d);",
+				"    if (abs(det) < EPS) return false;",
+				"    ld t = (l2.p - l1.p).cross(l2.d) / det;",
+				"    p = l1.eval(t);",
+				"    return true;",
+				"}"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "segment": {
+            "prefix": ["segment"],
+            "body": [
+                "struct Seg {",
+				"    Pt a, b;",
+				"    Seg(Pt a = {}, Pt b = {}) : a(a), b(b) {}",
+				"    ld dist(Pt p) {",
+				"        Pt ab = b - a, ap = p - a, bp = p - b;",
+				"        if (ab.dot(ap) < 0) return ap.len();",
+				"        if (ab.dot(bp) > 0) return bp.len();",
+				"        return abs(ab.cross(ap)) / ab.len();",
+				"    }",
+				"    bool contains(Pt p) {",
+				"        return abs((b - a).cross(p - a)) < EPS && (p - a).dot(p - b) <= 0;",
+				"    }",
+				"};"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "hierholzer": {
+            "prefix": ["hierholzer"],
+            "body": [
+                "vi eulerian_path(vector<vpii> &g, int s = 0) {",
+				"    int n = sza(g); vector<vi> used(n);",
+				"    for (int u = 0; u < n; u++)",
+				"        used[u].resize(sza(g[u]));",
+				"    vi path; stack<int> st; st.push(s);",
+				"    while (!st.empty()) {",
+				"        int u = st.top();",
+				"        bool found = false;",
+				"        for (int i = 0; i < sza(g[u]); i++) {",
+				"            if (!used[u][i]) {",
+				"                used[u][i] = 1;",
+				"                st.push(g[u][i].f);",
+				"                found = true;",
+				"                break;",
+				"            }",
+				"        }",
+				"        if (!found) { path.pb(u); st.pop(); }",
+				"    }",
+				"    reverse(all(path));",
+				"    return path;",
+				"}"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "dijkstra": {
+            "prefix": ["dijkstra"],
+            "body": [
+                "vi dijkstra(vector<vpii> &g, int s) {",
+				"    int n = sza(g); vi d(n, INF); d[s] = 0;",
+				"    priority_queue<pii, vpii, greater<pii>> pq; pq.push({0, s});",
+				"    while (!pq.empty()) {",
+				"        auto [dist, u] = pq.top(); pq.pop();",
+				"        if (dist > d[u]) continue;",
+				"        for (auto [v, w] : g[u])",
+				"            if (d[u] + w < d[v])",
+				"                d[v] = d[u] + w, pq.push({d[v], v});",
+				"    }",
+				"    return d;",
+				"}"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "topo": {
+            "prefix": ["topo"],
+            "body": [
+                "vi topo_sort(vector<vi> &g) {",
+				"    int n = sza(g); vi in(n), ord;",
+				"    for (int u = 0; u < n; u++)",
+				"        for (int v : g[u]) in[v]++;",
+				"    queue<int> q;",
+				"    for (int i = 0; i < n; i++)",
+				"        if (!in[i]) q.push(i);",
+				"    while (!q.empty()) {",
+				"        int u = q.front(); q.pop(); ord.pb(u);",
+				"        for (int v : g[u])",
+				"            if (!--in[v]) q.push(v);",
+				"    }",
+				"    return sza(ord) == n ? ord : vi{};",
+				"}"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "ternary": {
+            "prefix": ["ternary"],
+            "body": [
+                "ld ternary_search(ld l, ld r, auto f) {",
+				"    const ld eps = 1e-9;",
+				"    while (r - l > eps) {",
+				"        ld m1 = l + (r - l) / 3;",
+				"        ld m2 = r - (r - l) / 3;",
+				"        if (f(m1) < f(m2)) r = m2;",
+				"        else l = m1;",
+				"    }",
+				"    return l;",
+				"}"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "kruskal": {
+            "prefix": ["kruskal"],
+            "body": [
+                "ll kruskal(int n, vector<array<int,3>> &edges) {",
+				"    sort(all(edges));",
+				"    DSU dsu(n); ll cost = 0;",
+				"    for (auto [w, u, v] : edges)",
+				"        if (dsu.unite(u, v)) cost += w;",
+				"    return cost;",
+				"}"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "prim": {
+            "prefix": ["prim"],
+            "body": [
+                "ll prim(vector<vpii> &g, int s = 0) {",
+				"    int n = sza(g); vi vis(n); ll cost = 0;",
+				"    priority_queue<pii, vpii, greater<pii>> pq; pq.push({0, s});",
+				"    while (!pq.empty()) {",
+				"        auto [w, u] = pq.top(); pq.pop();",
+				"        if (vis[u]) continue;",
+				"        vis[u] = 1; cost += w;",
+				"        for (auto [v, wt] : g[u])",
+				"            if (!vis[v]) pq.push({wt, v});",
+				"    }",
+				"    return cost;",
+				"}"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "kmp": {
+            "prefix": ["kmp"],
+            "body": [
+                "vi kmp_table(string &s) {",
+				"    int n = sza(s); vi lps(n);",
+				"    for (int i = 1, j = 0; i < n; i++) {",
+				"        while (j && s[i] != s[j]) j = lps[j-1];",
+				"        if (s[i] == s[j]) lps[i] = ++j;",
+				"    }",
+				"    return lps;",
+				"}",
+				"vi kmp_search(string &txt, string &pat) {",
+				"    vi lps = kmp_table(pat), res;",
+				"    for (int i = 0, j = 0; i < sza(txt); i++) {",
+				"        while (j && txt[i] != pat[j]) j = lps[j-1];",
+				"        if (txt[i] == pat[j]) j++;",
+				"        if (j == sza(pat)) res.pb(i - j + 1), j = lps[j-1];",
+				"    }",
+				"    return res;",
+				"}"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "zfunc": {
+            "prefix": ["zfunc"],
+            "body": [
+                "vi z_function(string &s) {",
+				"    int n = sza(s); vi z(n); z[0] = n;",
+				"    for (int i = 1, l = 0, r = 0; i < n; i++) {",
+				"        if (i <= r) z[i] = min(r - i + 1, z[i - l]);",
+				"        while (i + z[i] < n && s[z[i]] == s[i + z[i]]) z[i]++;",
+				"        if (i + z[i] - 1 > r) l = i, r = i + z[i] - 1;",
+				"    }",
+				"    return z;",
+				"}"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "tarjan": {
+            "prefix": ["tarjan"],
+            "body": [
+                "struct Tarjan {",
+				"    int n, timer, scc_cnt; vector<vi> g; vi low, id, on_stack, comp;",
+				"    stack<int> st;",
+				"    Tarjan(vector<vi> &g) : n(sza(g)), timer(0), scc_cnt(0), g(g), low(n), id(n, -1), on_stack(n), comp(n) {",
+				"        for (int i = 0; i < n; i++)",
+				"            if (id[i] == -1) dfs(i);",
+				"    }",
+				"    void dfs(int u) {",
+				"        low[u] = id[u] = timer++;",
+				"        st.push(u); on_stack[u] = 1;",
+				"        for (int v : g[u]) {",
+				"            if (id[v] == -1) dfs(v);",
+				"            if (on_stack[v]) low[u] = min(low[u], low[v]);",
+				"        }",
+				"        if (low[u] == id[u]) {",
+				"            while (1) {",
+				"                int v = st.top(); st.pop(); on_stack[v] = 0;",
+				"                comp[v] = scc_cnt;",
+				"                if (v == u) break;",
+				"            }",
+				"            scc_cnt++;",
+				"        }",
+				"    }",
+				"};"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "kosaraju": {
+            "prefix": ["kosaraju"],
+            "body": [
+                "struct Kosaraju {",
+				"    int n, scc_cnt; vector<vi> g, rg; vi vis, comp, ord;",
+				"    Kosaraju(vector<vi> &g) : n(sza(g)), scc_cnt(0), g(g), rg(n), vis(n), comp(n) {",
+				"        for (int u = 0; u < n; u++)",
+				"            for (int v : g[u]) rg[v].pb(u);",
+				"        for (int i = 0; i < n; i++)",
+				"            if (!vis[i]) dfs1(i);",
+				"        reverse(all(ord)); vis.assign(n, 0);",
+				"        for (int u : ord)",
+				"            if (!vis[u]) dfs2(u), scc_cnt++;",
+				"    }",
+				"    void dfs1(int u) {",
+				"        vis[u] = 1;",
+				"        for (int v : g[u])",
+				"            if (!vis[v]) dfs1(v);",
+				"        ord.pb(u);",
+				"    }",
+				"    void dfs2(int u) {",
+				"        vis[u] = 1; comp[u] = scc_cnt;",
+				"        for (int v : rg[u])",
+				"            if (!vis[v]) dfs2(v);",
+				"    }",
+				"};"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "bit": {
+            "prefix": ["bit"],
+            "body": [
+                "struct BIT {",
+				"    int n; vi t;",
+				"    BIT(int n) : n(n), t(n + 1) {}",
+				"    void upd(int i, int v) { for (; i <= n; i += i & -i) t[i] += v; }",
+				"    int qry(int i) { int r = 0; for (; i; i -= i & -i) r += t[i]; return r; }",
+				"    int qry(int l, int r) { return qry(r) - qry(l); }",
+				"};"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "segt": {
+            "prefix": ["segt"],
+            "body": [
+                "struct SegTree {",
+				"    int n; vi t;",
+				"    SegTree(int n) : n(n), t(4 * n) {}",
+				"    SegTree(vi &a) : n(sza(a)), t(4 * n) { build(a, 0, 0, n - 1); }",
+				"    void build(vi &a, int v, int l, int r) {",
+				"        if (l == r) { t[v] = a[l]; return; }",
+				"        int m = (l + r) / 2;",
+				"        build(a, 2*v+1, l, m); build(a, 2*v+2, m+1, r);",
+				"        t[v] = t[2*v+1] + t[2*v+2];",
+				"    }",
+				"    void upd(int i, int v, int x, int l, int r) {",
+				"        if (l == r) { t[x] = v; return; }",
+				"        int m = (l + r) / 2;",
+				"        if (i <= m) upd(i, v, 2*x+1, l, m);",
+				"        else upd(i, v, 2*x+2, m+1, r);",
+				"        t[x] = t[2*x+1] + t[2*x+2];",
+				"    }",
+				"    int qry(int ql, int qr, int x, int l, int r) {",
+				"        if (ql > r || qr < l) return 0;",
+				"        if (ql <= l && r <= qr) return t[x];",
+				"        int m = (l + r) / 2;",
+				"        return qry(ql, qr, 2*x+1, l, m) + qry(ql, qr, 2*x+2, m+1, r);",
+				"    }",
+				"    void upd(int i, int v) { upd(i, v, 0, 0, n - 1); }",
+				"    int qry(int l, int r) { return qry(l, r, 0, 0, n - 1); }",
+				"};"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "sparse": {
+            "prefix": ["sparse"],
+            "body": [
+                "struct SparseTable {",
+				"    int n, lg; vector<vi> st;",
+				"    SparseTable(vi &a) : n(sza(a)), lg(__lg(n) + 1), st(lg, vi(n)) {",
+				"        st[0] = a;",
+				"        for (int i = 1; i < lg; i++)",
+				"            for (int j = 0; j + (1 << i) <= n; j++)",
+				"                st[i][j] = min(st[i-1][j], st[i-1][j + (1 << (i-1))]);",
+				"    }",
+				"    int qry(int l, int r) {",
+				"        int i = __lg(r - l + 1);",
+				"        return min(st[i][l], st[i][r - (1 << i) + 1]);",
+				"    }",
+				"};"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "ssegt": {
+            "prefix": ["ssegt"],
+            "body": [
+                "struct LazySegTree {",
+				"    int n; vi t, lz;",
+				"    LazySegTree(int n) : n(n), t(4 * n), lz(4 * n) {}",
+				"    void push(int v, int l, int r) {",
+				"        if (!lz[v]) return;",
+				"        t[v] += (r - l + 1) * lz[v];",
+				"        if (l != r) lz[2*v+1] += lz[v], lz[2*v+2] += lz[v];",
+				"        lz[v] = 0;",
+				"    }",
+				"    void upd(int ql, int qr, int val, int v, int l, int r) {",
+				"        push(v, l, r);",
+				"        if (ql > r || qr < l) return;",
+				"        if (ql <= l && r <= qr) {",
+				"            lz[v] += val; push(v, l, r);",
+				"            return;",
+				"        }",
+				"        int m = (l + r) / 2;",
+				"        upd(ql, qr, val, 2*v+1, l, m);",
+				"        upd(ql, qr, val, 2*v+2, m+1, r);",
+				"        push(2*v+1, l, m); push(2*v+2, m+1, r);",
+				"        t[v] = t[2*v+1] + t[2*v+2];",
+				"    }",
+				"    int qry(int ql, int qr, int v, int l, int r) {",
+				"        if (ql > r || qr < l) return 0;",
+				"        push(v, l, r);",
+				"        if (ql <= l && r <= qr) return t[v];",
+				"        int m = (l + r) / 2;",
+				"        return qry(ql, qr, 2*v+1, l, m) + qry(ql, qr, 2*v+2, m+1, r);",
+				"    }",
+				"    void upd(int l, int r, int v) { upd(l, r, v, 0, 0, n - 1); }",
+				"    int qry(int l, int r) { return qry(l, r, 0, 0, n - 1); }",
+				"};"
+
+            ],
+            "description": "Desciption"
+        }
+    ,
+        "dpdigit": {
+            "prefix": ["dpdigit"],
+            "body": [
+                "ll digit_dp(ll num) {",
+				"    string s = to_string(num); int n = sza(s);",
+				"    map<tuple<int,int,int,int>, ll> dp;",
+				"    function<ll(int, bool, bool, int)> go = [&](int pos, bool tight, bool started, int state) {",
+				"        if (pos == n) return started ? 1LL : 0LL;",
+				"        auto key = make_tuple(pos, tight, started, state);",
+				"        if (dp.count(key)) return dp[key];",
+				"        int lim = tight ? s[pos] - '0' : 9;",
+				"        ll res = 0;",
+				"        for (int d = 0; d <= lim; d++) {",
+				"            bool new_tight = tight && (d == lim);",
+				"            bool new_started = started || (d != 0);",
+				"            int new_state = new_started ? state : state;",
+				"            res += go(pos + 1, new_tight, new_started, new_state);",
+				"        }",
+				"        return dp[key] = res;",
+				"    };",
+				"    return go(0, true, false, 0);",
+				"}"
 
             ],
             "description": "Desciption"
