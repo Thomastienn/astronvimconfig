@@ -17,11 +17,20 @@ template<typename Head, typename... Tail> void dbg_out(Head H, Tail... T) { cerr
 #define sza(x) ((int)x.size())
 #define all(a) (a).begin(), (a).end()
 #define mp(x, y) make_pair(x, y)
+#define vi vector<int>
+#define vvi vector<vector<int>>
+#define vii vector<pair<int, int>>
 #define pb push_back
 #define ppb pop_back
 #define f first
 #define s second
 #define el '\n'
+
+#define REP(i, n) for (int i = 0; i < n; i++)
+#define RREP(i, n) for (int i = n - 1; i >= 0; i--)
+#define FOR(i, a, b) for (int i = a; i < b; i++)
+#define RFOR(i, b, a) for (int i = b; i >= a; i--)
+#define EACH(x, a) for (auto& x : a)
 
 #define PI 3.1415926535897932384626433832795l 
 const int MAX_N = 1e5 + 5;
