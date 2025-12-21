@@ -347,10 +347,10 @@ local function run_cuda(...)
     local file_escaped = vim.fn.shellescape(file)
     local filename = vim.fn.expand "%:t:r"
     local compile_cmd = "nvcc -o " .. filename .. " " .. file_escaped
-    local run_cmd = "./" .. filename
+    local runcmd = "./" .. filename
 
 
-    local final_cmd = compile_cmd .. " && " .. run_cmd
+    local final_cmd = compile_cmd .. " && " .. runcmd
     run_cmd(final_cmd)
 end
 
@@ -374,9 +374,9 @@ local function run_bash_sh(_, extra_args)
     local cmd = ""
     if activate_cmd then
         -- Use bash to source and run bash
-        cmd = string.format('bash -c "source %s && sh %s %s"', activate_cmd, file_escaped, extra_args)
+        cmd = string.format('bash -c "source %s && %s %s"', activate_cmd, file_escaped, extra_args)
     else
-        cmd = "sh " .. file_escaped .. " " .. extra_args
+        cmd = file_escaped .. " " .. extra_args
     end
     run_cmd(cmd)
 end

@@ -22,6 +22,18 @@ return {
 	        view_output_diff = true,
 	        evaluate_template_modifiers = true,
 	    })
+	    local function disable_help()
+			vim.api.nvim_create_autocmd({"BufEnter", "BufWinEnter"}, {
+				pattern = "*.cpp",
+				callback = function()
+					-- Disable inlay hints
+					vim.lsp.inlay_hint.enable(false, { bufnr = 0 })
+
+					-- Disable GitHub Copilot
+					vim.cmd("Copilot disable")
+				end,
+			})
+	    end
 		-- Control processes
 		-- Run again a testcase by pressing R
 		-- Run again all testcases by pressing <C-r>
@@ -33,7 +45,15 @@ return {
 		vim.keymap.set("n", "<leader>rtc", ":CompetiTest run_no_compile<CR>", { desc = "Run no compile" })
 		vim.keymap.set("n", "<leader>rta", ":CompetiTest add_testcase<CR>", { desc = "Add testcase" })
 		vim.keymap.set("n", "<leader>rte", ":CompetiTest edit_testcase<CR>", { desc = "Edit testcase" })
-		vim.keymap.set("n", "<leader>rtp", ":CompetiTest receive problem<CR>", { desc = "Receive problem" })
-		vim.keymap.set("n", "<leader>rtn", ":CompetiTest receive contest<CR>", { desc = "Receive contest" })
+		vim.keymap.set("n", "<leader>rtp", function()
+			-- ":CompetiTest receive problem<CR>"
+			vim.cmd("CompetiTest receive problem")
+			disable_help()
+		end, { desc = "Receive problem" })
+		vim.keymap.set("n", "<leader>rtn", function()
+			-- ":CompetiTest receive contest<CR>"
+			vim.cmd("CompetiTest receive contest")
+			disable_help()
+		end, { desc = "Receive contest" })
 	end,
 }

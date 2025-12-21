@@ -11,7 +11,10 @@ return {
         lang="python3",
     },
     keys = {
-        { "<leader>lcc", "<cmd>Leet<CR>", desc = "Toggle leetcode" },
+        { "<leader>lcc", function()
+            vim.cmd("Leet")
+            vim.cmd("Copilot disable")
+        end, desc = "Toggle leetcode" },
         { "<leader>lcr", "<cmd>Leet run<CR>", desc = "Run" },
         { "<leader>lcs", "<cmd>Leet submit<CR>", desc = "Submit" },
         { "<leader>lcl", "<cmd>Leet lang<CR>", desc = "Pick language" },
