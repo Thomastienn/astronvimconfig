@@ -67,6 +67,7 @@ return {
     		local template_dir = vim.fn.expand("~/.config/nvim/snippets/")
     		local bash_template = template_dir .. "bash/diff.sh"
     		local gen_template = template_dir .. "python/brute/gen.py"
+    		local brute_template = template_dir .. "python/cp.py"
 
     		local function read_file(path)
         		local f = io.open(path, "r")
@@ -84,13 +85,13 @@ return {
         		return true
     		end
 
-    		-- Copy main solution to brute
-    		local main_content = read_file(main_file)
-    		if main_content then
-        		write_file(brute_filename, main_content)
-    		else
-        		write_file(brute_filename, "")
-    		end
+    		-- Use brute template
+    		local brute_content = read_file(brute_template)
+    		if brute_content then
+    			write_file(brute_filename, brute_content)
+			else
+				write_file(brute_filename, "")
+			end
 
     		-- Use gen template
     		local gen_content = read_file(gen_template)
