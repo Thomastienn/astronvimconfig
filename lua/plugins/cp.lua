@@ -55,5 +55,66 @@ return {
 			vim.cmd("CompetiTest receive contest")
 			disable_help()
 		end, { desc = "Receive contest" })
+
+		vim.keymap.set("n", "<leader>rtb", function()
+    		local filepath = vim.fn.expand("%:p:h")
+    		local filename = vim.fn.expand("%:t:r")
+    		local main_file = filepath .. "/" .. filename .. ".py"
+    		local brute_filename = filepath .. "/" .. filename .. "_brute.py"
+    		local gen_filename = filepath .. "/" .. filename .. "_gen.py"
+    		local bash_filename = filepath .. "/diff_" .. filename .. ".sh"
+
+    		local template_dir = vim.fn.expand("~/.config/nvim/snippets/")
+    		local bash_template = template_dir .. "bash/diff.sh"
+    		local gen_template = template_dir .. "python/brute/gen.py"
+
+    		local function read_file(path)
+        		local f = io.open(path, "r")
+        		if not f then return nil end
+        		local content = f:read("*a")
+        		f:close()
+        		return content
+    		end
+
+    		local function write_file(path, content)
+        		local f = io.open(path, "w")
+        		if not f then return false end
+        		f:write(content)
+        		f:close()
+        		return true
+    		end
+
+    		-- Copy main solution to brute
+    		local main_content = read_file(main_file)
+    		if main_content then
+        		write_file(brute_filename, main_content)
+    		else
+        		write_file(brute_filename, "")
+    		end
+
+    		-- Use gen template
+    		local gen_content = read_file(gen_template)
+    		if gen_content then
+        		write_file(gen_filename, gen_content)
+    		else
+        		write_file(gen_filename, "")
+    		end
+
+    		local bash_content = read_file(bash_template)
+    		if not bash_content then
+        		vim.notify("Error: missing " .. bash_template, vim.log.levels.ERROR)
+        		return
+    		end
+
+    		bash_content = bash_content:gsub("{{DIR}}", filepath)
+    		bash_content = bash_content:gsub("{{MAIN}}", main_file)
+    		bash_content = bash_content:gsub("{{BRUTE}}", brute_filename)
+    		bash_content = bash_content:gsub("{{GEN}}", gen_filename)
+
+    		write_file(bash_filename, bash_content)
+    		os.execute("chmod +x " .. bash_filename)
+
+    		vim.notify("Created: " .. brute_filename .. ", " .. gen_filename .. ", " .. bash_filename, vim.log.levels.INFO)
+		end, { desc = "Brute force and diff" })
 	end,
 }

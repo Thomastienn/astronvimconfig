@@ -369,7 +369,7 @@ local function run_bash_sh(_, extra_args)
             break
         end
     end
-    local file = vim.fn.expand "%"
+    local file = vim.fn.expand "%:p"
     local file_escaped = vim.fn.shellescape(file)
     local cmd = ""
     if activate_cmd then

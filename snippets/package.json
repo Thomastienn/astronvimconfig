@@ -24,6 +24,10 @@
             {
                 "language": "asm",
                 "path": "./asm.json"
+            },
+            {
+                "language": "bash",
+                "path": "./bash.json"
             }
         ]
     }
