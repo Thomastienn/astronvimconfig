@@ -6,4 +6,6 @@ Only print 1 test case per execution (randomly) since the script already handle 
 If problem has t (as input) as the number of test cases, generate t test cases.
 """
 import random
+random.seed(20)
+
 print(1)
