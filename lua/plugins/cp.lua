@@ -59,15 +59,15 @@ return {
 		vim.keymap.set("n", "<leader>rtb", function()
     		local filepath = vim.fn.expand("%:p:h")
     		local filename = vim.fn.expand("%:t:r")
-    		local main_file = filepath .. "/" .. filename .. ".py"
-    		local brute_filename = filepath .. "/" .. filename .. "_brute.py"
+    		local extension = vim.fn.expand("%:e")
+    		local main_file = vim.fn.expand("%:p")
+    		local brute_filename = filepath .. "/" .. filename .. "_brute." .. extension
     		local gen_filename = filepath .. "/" .. filename .. "_gen.py"
     		local bash_filename = filepath .. "/diff_" .. filename .. ".sh"
 
     		local template_dir = vim.fn.expand("~/.config/nvim/snippets/")
     		local bash_template = template_dir .. "bash/diff.sh"
     		local gen_template = template_dir .. "python/brute/gen.py"
-    		local brute_template = template_dir .. "python/cp.py"
 
     		local function read_file(path)
         		local f = io.open(path, "r")
@@ -85,13 +85,8 @@ return {
         		return true
     		end
 
-    		-- Use brute template
-    		local brute_content = read_file(brute_template)
-    		if brute_content then
-    			write_file(brute_filename, brute_content)
-			else
-				write_file(brute_filename, "")
-			end
+    		-- Copy main file to brute file (same extension)
+    		os.execute("cp " .. vim.fn.shellescape(main_file) .. " " .. vim.fn.shellescape(brute_filename))
 
     		-- Use gen template
     		local gen_content = read_file(gen_template)
