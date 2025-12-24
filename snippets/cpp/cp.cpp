@@ -385,12 +385,12 @@ void solve() {
 }
 
 int main() {
-    ios_base::sync_with_stdio(0);
-    cin.tie(0); cout.tie(0);
-    int tc = 1;
-    // INT(tc);
-    for (int t = 1; t <= tc; t++) {
-        // print("Case #" + to_string(t) + ": ");
-        solve();
-    }
+  ios_base::sync_with_stdio(0);
+  cin.tie(0); cout.tie(0);
+  int tc = 1;
+  // read(tc);
+  for (int t = 1; t <= tc; t++) {
+    // print("Case #" + to_string(t) + ": ");
+    solve();
+  }
 }
