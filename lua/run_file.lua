@@ -462,7 +462,7 @@ end
 
 local function run_executable(additional_cmds, extra_args)
     vim.cmd "w" -- save file
-    local output = vim.fn.expand "%:r"
+    local output = vim.fn.expand "%p"
     if not string.match(output, "^[./]") and not string.match(output, "^/") then
         output = "./" .. output
     end
