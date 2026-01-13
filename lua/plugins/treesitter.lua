@@ -24,6 +24,9 @@ return {
       "css",
       "markdown",
       "markdown_inline",
+      "r",
+      "yaml",
+      "rnoweb",
     },
   },
 }
