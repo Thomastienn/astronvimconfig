@@ -48,6 +48,7 @@ require "polish"
 vim.keymap.set("n", "<C-d>", "<C-d>zz", { noremap = true })
 vim.keymap.set("n", "<C-u>", "<C-u>zz", { noremap = true })
 vim.o.scrolloff = 4
+vim.g.maplocalleader = ","
 
 -- Delete
 vim.keymap.del("n", "<leader>h")

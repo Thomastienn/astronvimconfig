@@ -58,8 +58,12 @@ local function compile_c_cpp(callback, filetype)
 end
 
 local function compile_java(callback)
-    vim.cmd "w" -- save file
-    local cmd = "javac -d build $(find . -name '*.java')"
+    vim.cmd "w"
+    local file_dir = vim.fn.expand("%:p:h")              -- /home/thomas/solve/testjava
+    local source_root = vim.fn.fnamemodify(file_dir, ":h")  -- /home/thomas/solve
+    local package_folder = vim.fn.expand("%:p:h:t")         -- testjava
+
+    local cmd = 'cd "' .. source_root .. '" && javac -d build $(find "' .. package_folder .. '" -name "*.java")'
     callback(cmd)
 end
 
@@ -182,21 +186,21 @@ local function run_gradle(additional_cmds, extra_args)
 end
 
 local function run_java(additional_cmds, extra_args, callback)
-    -- Check if it's a gradle project (build.gradle file exists) (bubble up)
-    -- Then run using gradle
     local current_file = vim.fn.expand "%:p"
     local gradle_file = vim.fn.findfile("build.gradle", vim.fn.fnamemodify(current_file, ":h") .. ";")
     if gradle_file ~= "" then
         return run_gradle(additional_cmds, extra_args)
     end
 
-    vim.cmd "w" -- save file
-    local file = vim.fn.expand "%:p"
-    -- local file_escaped = vim.fn.shellescape(file)
-    -- local classname = vim.fn.expand "%:t:r"
-    -- vim.cmd("!javac " .. file_escaped)
-    local compile_cmd = "javac -d build " .. file
-    local run_c = "java -cp build " .. file
+    vim.cmd "w"
+    local file_dir = vim.fn.expand("%:p:h")
+    local source_root = vim.fn.fnamemodify(file_dir, ":h")
+    local package_folder = vim.fn.expand("%:p:h:t")
+    local package_and_class = package_folder .. "." .. vim.fn.expand("%:t:r")  -- testjava.a
+
+    local compile_cmd = 'cd "' .. source_root .. '" && javac -d build $(find "' .. package_folder .. '" -name "*.java")'
+    local run_c = 'java -cp build ' .. package_and_class
+
     local cmd = compile_cmd .. " && " .. run_c
     if additional_cmds ~= nil then
         cmd = additional_cmds .. " && " .. cmd
