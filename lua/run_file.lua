@@ -2,7 +2,7 @@ local python_venv = "~/.virtualenvs/neovim/bin/activate"
 local run = {}
 
 local function run_cmd(cmd, toggleterm_opts)
-    cmd = "bash -c 'time " .. cmd .. "' || true"
+    cmd = "bash -c 'time (" .. cmd .. ")' || true"
     vim.notify("Running: " .. cmd, vim.log.levels.INFO)
 
     local default_opts = {
