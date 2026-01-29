@@ -424,6 +424,17 @@ local function run_asm(additional_cmds, extra_args, opts_params_to_run)
     end)
 end
 
+local function run_go(additional_cmds, extra_args)
+    vim.cmd "w" -- save file
+    local file = vim.fn.expand "%:p"
+    local file_escaped = vim.fn.shellescape(file)
+    local cmd = "go run " .. file_escaped .. " " .. extra_args
+    if additional_cmds ~= nil then
+        cmd = additional_cmds .. " && " .. cmd
+    end
+    run_cmd(cmd)
+end
+
 -- Find project root (example using .git as marker)
 local function find_project_root()
     local dir = vim.fn.getcwd()
@@ -511,6 +522,8 @@ local function actual_run(additional_cmds, extra_args, opts_params_to_run)
             run_bash_sh(additional_cmds, extra_args)
         elseif filetype == "asm" then
             run_asm(additional_cmds, extra_args, opts_params_to_run)
+        elseif filetype == "go" then
+            run_go(additional_cmds, extra_args)
         else
             run_executable(additional_cmds, extra_args)
         end
