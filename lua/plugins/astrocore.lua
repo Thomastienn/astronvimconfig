@@ -109,6 +109,7 @@ return {
         ["<leader>mc"] = { desc = "Multicursor" },
         ["<leader>st"] = { desc = "Spectre" },
         ["<leader>sr"] = { desc = "MiniSurround" },
+        ["<leader>9"] = { desc = "99" },
 
         -- setting a mapping to false will disable it
         -- ["<C-S>"] = false,
