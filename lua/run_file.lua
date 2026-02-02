@@ -185,8 +185,56 @@ local function run_gradle(additional_cmds, extra_args)
     return cmd
 end
 
+local function run_maven_javafx(additional_cmds, extra_args, project_root)
+    vim.cmd "wa"
+    local cmd = "cd " .. vim.fn.shellescape(project_root) .. " && mvn javafx:run"
+    if extra_args ~= nil and extra_args ~= "" then
+        -- Pass arguments via exec.args property
+        cmd = cmd .. " -Dexec.args='" .. extra_args .. "'"
+    end
+    if additional_cmds ~= nil then
+        cmd = additional_cmds .. " && " .. cmd
+    end
+    run_cmd(cmd)
+end
+
+local function is_javafx_maven_project(pom_path)
+    -- Check if pom.xml contains javafx-maven-plugin
+    local file = io.open(pom_path, "r")
+    if not file then
+        return false
+    end
+    local content = file:read("*a")
+    file:close()
+    return content:find("javafx%-maven%-plugin") ~= nil or content:find("org%.openjfx") ~= nil
+end
+
 local function run_java(additional_cmds, extra_args, callback)
     local current_file = vim.fn.expand "%:p"
+
+    -- Check for Maven project with JavaFX (pom.xml)
+    local pom_file = vim.fn.findfile("pom.xml", vim.fn.fnamemodify(current_file, ":h") .. ";")
+    if pom_file ~= "" then
+        local pom_abs = vim.fn.fnamemodify(pom_file, ":p")
+        local pom_dir = vim.fn.fnamemodify(pom_abs, ":h")
+        if is_javafx_maven_project(pom_abs) then
+            run_maven_javafx(additional_cmds, extra_args, pom_dir)
+            return
+        end
+        -- Regular Maven project (non-JavaFX) - use mvn exec:java or mvn compile exec:java
+        vim.cmd "wa"
+        local cmd = "cd " .. vim.fn.shellescape(pom_dir) .. " && mvn compile exec:java"
+        if extra_args ~= nil and extra_args ~= "" then
+            cmd = cmd .. " -Dexec.args='" .. extra_args .. "'"
+        end
+        if additional_cmds ~= nil then
+            cmd = additional_cmds .. " && " .. cmd
+        end
+        run_cmd(cmd)
+        return
+    end
+
+    -- Check for Gradle project
     local gradle_file = vim.fn.findfile("build.gradle", vim.fn.fnamemodify(current_file, ":h") .. ";")
     if gradle_file ~= "" then
         return run_gradle(additional_cmds, extra_args)
