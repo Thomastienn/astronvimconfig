@@ -182,7 +182,7 @@ local function run_gradle(additional_cmds, extra_args)
     if additional_cmds ~= nil then
         cmd = additional_cmds .. " && " .. cmd
     end
-    return cmd
+    run_cmd(cmd)
 end
 
 local function run_maven_javafx(additional_cmds, extra_args, project_root)
@@ -237,7 +237,8 @@ local function run_java(additional_cmds, extra_args, callback)
     -- Check for Gradle project
     local gradle_file = vim.fn.findfile("build.gradle", vim.fn.fnamemodify(current_file, ":h") .. ";")
     if gradle_file ~= "" then
-        return run_gradle(additional_cmds, extra_args)
+        run_gradle(additional_cmds, extra_args)
+        return
     end
 
     vim.cmd "w"
