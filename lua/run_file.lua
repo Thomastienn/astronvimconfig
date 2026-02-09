@@ -69,20 +69,18 @@ end
 
 local function compile_dockerfile(callback)
     vim.cmd "w" -- save file
-    vim.ui.input({ prompt = "Enter Docker image name: " }, function(image_name)
-        if image_name == nil or image_name == "" then
-            vim.notify("Image name cannot be empty", vim.log.levels.ERROR)
-            callback(nil)
-            return
-        end
-        vim.ui.input({ prompt = "Enter extra docker build flags (or leave empty): " }, function(extra_flags)
-            if extra_flags ~= nil and extra_flags ~= "" then
-                image_name = image_name .. " " .. extra_flags
-            end
-            local cmd = "docker build -t " .. image_name .. " ."
-            callback(cmd)
-        end)
-    end)
+    local ok, image_name = pcall(vim.fn.input, { prompt = "Enter Docker image name: " })
+    if not ok or image_name == nil or image_name == "" then
+        vim.notify("Image name cannot be empty", vim.log.levels.ERROR)
+        callback(nil)
+        return
+    end
+    local ok2, extra_flags = pcall(vim.fn.input, { prompt = "Enter extra docker build flags (or leave empty): ", completion = "file" })
+    if ok2 and extra_flags ~= nil and extra_flags ~= "" then
+        image_name = image_name .. " " .. extra_flags
+    end
+    local cmd = "docker build -t " .. image_name .. " ."
+    callback(cmd)
 end
 
 local function compile_asm(callback)
@@ -615,12 +613,11 @@ function run.run_file(additional_cmds, opts_params_to_run)
         vim.ui.select(opts, { prompt = "Select args file:" }, function(choice)
             if choice then
                 if choice == "Enter args manually" then
-                    vim.ui.input({ prompt = "Additional args: " }, function(input)
-                        if input ~= nil then
-                            extra_args = input
-                            actual_run(additional_cmds, input, opts_params_to_run)
-                        end
-                    end)
+                    -- Use vim.fn.input for tab-completion on file paths
+                    local ok, input = pcall(vim.fn.input, { prompt = "Additional args: ", completion = "file" })
+                    if ok and input ~= "" then
+                        actual_run(additional_cmds, input, opts_params_to_run)
+                    end
                     return
                 end
                 extra_args = vim.fn.trim(vim.fn.join(vim.fn.readfile(choice), " "))
@@ -628,13 +625,12 @@ function run.run_file(additional_cmds, opts_params_to_run)
             end
         end)
     else
-        -- Ask for additional args
-        vim.ui.input({ prompt = "Additional args: " }, function(input)
-            if input ~= nil then
-                extra_args = input
-                actual_run(additional_cmds, extra_args, opts_params_to_run)
-            end
-        end)
+        -- Ask for additional args (with file path tab-completion)
+        local ok, input = pcall(vim.fn.input, { prompt = "Additional args: ", completion = "file" })
+        if ok and input ~= nil then
+            extra_args = input
+            actual_run(additional_cmds, extra_args, opts_params_to_run)
+        end
     end
 end
 
