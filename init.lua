@@ -378,3 +378,10 @@ end
 vim.opt.undofile = true
 vim.opt.undodir = undodir
 vim.opt.undolevels = 10000
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "proto",
+  callback = function()
+    vim.lsp.stop_client(vim.lsp.get_clients({ name = "clangd" }))
+  end,
+})
