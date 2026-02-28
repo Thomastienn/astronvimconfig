@@ -379,9 +379,14 @@ vim.opt.undofile = true
 vim.opt.undodir = undodir
 vim.opt.undolevels = 10000
 
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = "proto",
-  callback = function()
-    vim.lsp.stop_client(vim.lsp.get_clients({ name = "clangd" }))
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function(args)
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    if client and client.name == "clangd" then
+      local bufname = vim.api.nvim_buf_get_name(args.buf)
+      if bufname:match("%.proto$") then
+        vim.lsp.stop_client(client.id)
+      end
+    end
   end,
 })
