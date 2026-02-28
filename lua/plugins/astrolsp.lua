@@ -61,7 +61,7 @@ return {
               useLibraryCodeForTypes = true,
 
               -- index your own `.py` at the project root
-              extraPaths = { "./" },
+              extraPaths = { vim.fn.getcwd() },
             },
             exclude = {
               "**/_pycache__",
