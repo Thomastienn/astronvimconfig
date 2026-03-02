@@ -390,3 +390,5 @@ vim.api.nvim_create_autocmd("LspAttach", {
     end
   end,
 })
+
+vim.keymap.set("n", "<leader>fT", "<cmd>TodoTelescope<CR>", { desc = "Find TODOs" })
