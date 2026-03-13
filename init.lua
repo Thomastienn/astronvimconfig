@@ -262,7 +262,7 @@ vim.keymap.set("n", "<leader>hn", function() harpoon:list():next() end, { desc =
 vim.keymap.set("n", "<leader>hp", function() harpoon:list():prev() end, { desc = "Harpoon previous file" })
 
 -- Function to preview image with viu in floating terminal
--- local Terminal = require("toggleterm.terminal").Terminal
+local Terminal = require("toggleterm.terminal").Terminal
 -- local image_term = nil
 -- vim.api.nvim_set_keymap('t', 'jj', [[<C-\><C-n>]], {noremap = true, silent = true})
 
@@ -274,7 +274,7 @@ local function preview_image_with_viu(path)
 
     local cmd = "viu " .. vim.fn.shellescape(path)
 
-    image_term = Terminal:new {
+    local image_term = Terminal:new {
         cmd = cmd,
         direction = "float",
         close_on_exit = false,

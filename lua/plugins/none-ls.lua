@@ -21,6 +21,13 @@ return {
           "true",
         },
       },
+      -- Configure clang_format to use 4-space indentation
+      null_ls.builtins.formatting.clang_format.with {
+        extra_args = {
+          "--style",
+          "file:" .. vim.fn.expand("~/thomas_config/lsp/.clang-format"),
+        },
+      },
     })
   end,
 }

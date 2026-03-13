@@ -44,6 +44,18 @@ return {
     -- customize language server configuration options passed to `lspconfig`
     ---@diagnostic disable: missing-fields
     config = {
+        jdtls = {
+          settings = {
+              java = {
+                  format = {
+                      settings = {
+                          url = vim.fn.expand("~/thomas_config/lsp/jdtls.xml"),
+                          profile = "Custom",
+                      },
+                  },
+              },
+          },
+      },
       pyright = {
         -- Must be the real language‑server binary
         -- cmd = { "pyright-langserver", "--stdio" },
