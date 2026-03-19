@@ -17,6 +17,10 @@ local function run_cmd(cmd, toggleterm_opts)
     :toggle()
 end
 
+function run.run_custom_cmd(cmd)
+    run_cmd(cmd)
+end
+
 local function get_exec_path()
     local filepath = vim.fn.expand "%:p"
     local parent = vim.fn.fnamemodify(filepath, ":h")

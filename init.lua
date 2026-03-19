@@ -392,3 +392,11 @@ vim.api.nvim_create_autocmd("LspAttach", {
 })
 
 vim.keymap.set("n", "<leader>fT", "<cmd>TodoTelescope<CR>", { desc = "Find TODOs" })
+
+vim.keymap.set("n", "<leader>te", function()
+    local ok, input = pcall(vim.fn.input, { prompt = "Run terminal command", completion = "file" })
+    if not ok then
+        return
+    end
+    require("run_file").run_custom_cmd(input)
+end, { desc = "Run commands on toggleterm" })
