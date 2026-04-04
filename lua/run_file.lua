@@ -192,7 +192,7 @@ local function run_maven_javafx(additional_cmds, extra_args, project_root)
     local cmd = "cd " .. vim.fn.shellescape(project_root) .. " && mvn javafx:run"
     if extra_args ~= nil and extra_args ~= "" then
         -- Pass arguments via exec.args property
-        cmd = cmd .. " -Dexec.args='" .. extra_args .. "'"
+        cmd = cmd .. " -Djavafx.args='" .. extra_args .. "'"
     end
     if additional_cmds ~= nil then
         cmd = additional_cmds .. " && " .. cmd
