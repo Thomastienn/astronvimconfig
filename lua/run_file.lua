@@ -42,15 +42,23 @@ local function full_screen_opt()
 end
 
 local function compile_c_cpp(callback, filetype)
-    vim.cmd "w" -- save current file
+    vim.cmd "w"
 
-    local src = vim.fn.expand "%:p"                  -- absolute path of current file
-    local root = vim.fn.getcwd()                     -- project root
-    local rel_dir = vim.fn.fnamemodify(src, ":.:h") -- relative folder of source
-    local basename = vim.fn.fnamemodify(src, ":t:r") -- filename without extension
+    local src = vim.fn.expand "%:p"
+
+    -- CMake projects handle their own compilation
+    local cmake_file = vim.fn.findfile("CMakeLists.txt", vim.fn.fnamemodify(src, ":h") .. ";")
+    if cmake_file ~= "" then
+        callback(nil)
+        return
+    end
+
+    local root = vim.fn.getcwd()
+    local rel_dir = vim.fn.fnamemodify(src, ":.:h")
+    local basename = vim.fn.fnamemodify(src, ":t:r")
 
     local out_dir = root .. "/build/" .. rel_dir
-    vim.fn.mkdir(out_dir, "p")                      -- make dirs if needed
+    vim.fn.mkdir(out_dir, "p")
 
     local output = out_dir .. "/" .. basename
     local flags = filetype == "cpp" and
@@ -316,15 +324,10 @@ end
 local function run_cpp_cmake(additional_cmds, extra_args)
     local current_file = vim.fn.expand "%:p"
     local cmake_file = vim.fn.findfile("CMakeLists.txt", vim.fn.fnamemodify(current_file, ":h") .. ";")
-    -- project root (directory containing CMakeLists.txt)
-    local project_root = vim.fn.fnamemodify(cmake_file, ":h")
+    local project_root = vim.fn.fnamemodify(cmake_file, ":p:h")
 
-    -- save all buffers
     vim.cmd "wa"
 
-    -- Make vim.select for multiple project names
-    -- Get project name from CMakeLists.txt
-    -- Pattern add_executable(<name> ...
     local project_names = {}
     for line in io.lines(cmake_file) do
         local name = line:match("add_executable%s*%(%s*([%w_]+)")
@@ -341,23 +344,49 @@ local function run_cpp_cmake(additional_cmds, extra_args)
     vim.ui.select(project_names, { prompt = "Select executable target:" }, function(choice)
         if choice then
             local project_name = choice
-            -- build + run command using project root/build
+            local threads = tostring(#vim.uv.cpu_info())
+            local build_dir = project_root .. "/build"
+            local cache_file = build_dir .. "/CMakeCache.txt"
+            local has_ninja = vim.fn.executable("ninja") == 1
+            local gen = ""
+
+            if vim.fn.filereadable(cache_file) == 0 then
+                if has_ninja then gen = " -G Ninja" end
+            else
+                local cache = io.open(cache_file, "r")
+                if cache then
+                    local content = cache:read("*a")
+                    cache:close()
+                    local current_gen = content:match("CMAKE_GENERATOR:INTERNAL=(.-)\n")
+                    if has_ninja and current_gen and current_gen ~= "Ninja" then
+                        vim.notify(
+                            "Ninja is available but build/ uses " .. current_gen
+                            .. ". Delete build/ to switch to Ninja.",
+                            vim.log.levels.WARN
+                        )
+                    end
+                end
+            end
+
             local commands = {
                 "cd " .. vim.fn.shellescape(project_root),
-                "cmake -B build -D CMAKE_BUILD_TYPE=Debug",
-                "cmake --build build",
+                "cmake -B build" .. gen .. " -D CMAKE_BUILD_TYPE=Debug",
+                "cmake --build build --parallel " .. threads .. " --target " .. project_name,
                 "export ASAN_OPTIONS=symbolize=1:print_stacktrace=1:halt_on_error=1:abort_on_error=1",
                 "cd build",
                 "./" .. vim.fn.shellescape(project_name) .. " " .. extra_args,
             }
+
             local cmd = table.concat(commands, " && ")
+            if additional_cmds then
+                cmd = additional_cmds .. " && " .. cmd
+            end
             run_cmd(cmd)
         end
     end)
 end
 
 local function run_cpp(additional_cmds, extra_args)
-    -- Build + run CMake project (searches upward for CMakeLists.txt)
     local current_file = vim.fn.expand "%:p"
     local cmake_file = vim.fn.findfile("CMakeLists.txt", vim.fn.fnamemodify(current_file, ":h") .. ";")
 
@@ -542,14 +571,11 @@ end
 
 
 local function actual_run(additional_cmds, extra_args, opts_params_to_run)
-    -- Check if run.sh exists in the current directory
-    -- If it exists, use it to run the file
-
     local cmd = ""
     local script_name = "run.sh"
     local run_path = find_script_dir(script_name)
     if run_path then
-        vim.cmd "w" -- save file
+        vim.cmd "w"
         cmd = "cd " .. run_path .. " && bash " .. script_name .. " " .. extra_args
         if additional_cmds ~= nil then
             cmd = additional_cmds .. " && " .. cmd
@@ -579,7 +605,6 @@ local function actual_run(additional_cmds, extra_args, opts_params_to_run)
             run_executable(additional_cmds, extra_args)
         end
     end
-
 end
 
 local function debug_asm(extra_cmd)
@@ -607,17 +632,14 @@ function run.run_file(additional_cmds, opts_params_to_run)
     local args_files = vim.fn.glob("*.args", false, true)
     local extra_args = ""
     if #args_files > 0 then
-        -- Find all .args file and use telescope to select one
         local opts = {}
         for _, file in ipairs(args_files) do
             table.insert(opts, file)
         end
         table.insert(opts, "Enter args manually")
-        -- Add an option to enter args manually
         vim.ui.select(opts, { prompt = "Select args file:" }, function(choice)
             if choice then
                 if choice == "Enter args manually" then
-                    -- Use vim.fn.input for tab-completion on file paths
                     local ok, input = pcall(vim.fn.input, { prompt = "Additional args: ", completion = "file" })
                     if ok and input ~= "" then
                         actual_run(additional_cmds, input, opts_params_to_run)
@@ -629,7 +651,6 @@ function run.run_file(additional_cmds, opts_params_to_run)
             end
         end)
     else
-        -- Ask for additional args (with file path tab-completion)
         local ok, input = pcall(vim.fn.input, { prompt = "Additional args: ", completion = "file" })
         if ok and input ~= nil then
             extra_args = input
