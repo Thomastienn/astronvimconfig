@@ -188,22 +188,47 @@ local function setup_competitest()
 	require("competitest").setup(competitest_config())
 end
 
-local function disable_help()
-	local group = vim.api.nvim_create_augroup("CompetiTestDisableHelp", {
+local function is_competitest_solution(bufnr)
+	local path = vim.api.nvim_buf_get_name(bufnr)
+	if path == "" then
+		return false
+	end
+
+	if not languages[vim.fn.fnamemodify(path, ":e")] then
+		return false
+	end
+
+	local directory = vim.fn.fnamemodify(path, ":h")
+	local filename = vim.fn.fnamemodify(path, ":t:r")
+
+	return vim.fn.filereadable(directory .. "/" .. filename .. ".testcases") == 1
+end
+
+local function apply_competitest_buffer_options(bufnr)
+	if is_competitest_solution(bufnr) then
+		vim.b[bufnr].copilot_enabled = false
+		vim.b[bufnr].competitest_copilot_disabled = true
+
+		if vim.lsp.inlay_hint then
+			vim.lsp.inlay_hint.enable(false, {
+				bufnr = bufnr,
+			})
+		end
+	elseif vim.b[bufnr].competitest_copilot_disabled then
+		vim.b[bufnr].copilot_enabled = nil
+		vim.b[bufnr].competitest_copilot_disabled = nil
+	end
+end
+
+local function setup_competitest_buffer_options()
+	local group = vim.api.nvim_create_augroup("CompetiTestBufferOptions", {
 		clear = true,
 	})
 
-	vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
+	vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter", "BufWritePost" }, {
 		group = group,
-		pattern = "*.cpp",
 		callback = function(args)
-			if vim.lsp.inlay_hint then
-				vim.lsp.inlay_hint.enable(false, {
-					bufnr = args.buf,
-				})
-			end
-
-			vim.cmd("silent! Copilot disable")
+			apply_competitest_buffer_options(args.buf)
 		end,
 	})
 end
@@ -216,6 +241,7 @@ return {
 
 	config = function()
 		setup_competitest()
+		setup_competitest_buffer_options()
 
 		vim.keymap.set("n", "<leader>rtl", function()
 			vim.ui.select({
@@ -276,14 +302,12 @@ return {
 
 		vim.keymap.set("n", "<leader>rtp", function()
 			vim.cmd("CompetiTest receive problem")
-			disable_help()
 		end, {
 			desc = "Receive problem",
 		})
 
 		vim.keymap.set("n", "<leader>rtn", function()
 			vim.cmd("CompetiTest receive contest")
-			disable_help()
 		end, {
 			desc = "Receive contest",
 		})
