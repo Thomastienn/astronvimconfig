@@ -1,6 +1,151 @@
 -- @diagnostic disable
 
+local languages = {
+	cpp = {
+		name = "C++",
+		template = "~/.config/nvim/snippets/cpp/cp.cpp",
+	},
+	py = {
+		name = "Python",
+		template = "~/.config/nvim/snippets/python/cp.py",
+	},
+	rs = {
+		name = "Rust",
+		template = "~/.config/nvim/snippets/rust/cp.rs",
+	},
+}
+
 local lang = "py"
+
+local language_aliases = {
+	["c++"] = "cpp",
+	cc = "cpp",
+	cpp = "cpp",
+	cxx = "cpp",
+	py = "py",
+	python = "py",
+	python3 = "py",
+	rs = "rs",
+	rust = "rs",
+}
+
+local competitest_receive_modifiers = {
+	[""] = true,
+	CONTEST = true,
+	CWD = true,
+	DATE = true,
+	FEXT = true,
+	GROUP = true,
+	HOME = true,
+	JAVA_MAIN_CLASS = true,
+	JAVA_TASK_CLASS = true,
+	JUDGE = true,
+	MEMLIM = true,
+	PROBLEM = true,
+	TIMELIM = true,
+	URL = true,
+}
+
+local function read_file(path)
+	local f = io.open(path, "r")
+	if not f then
+		return nil
+	end
+
+	local content = f:read("*a")
+	f:close()
+
+	return content
+end
+
+local function write_file(path, content)
+	local f = io.open(path, "w")
+	if not f then
+		return false
+	end
+
+	f:write(content)
+	f:close()
+
+	return true
+end
+
+local function escape_literal_dollars(content)
+	local escaped = {}
+	local i = 1
+
+	while i <= #content do
+		local char = content:sub(i, i)
+		if char ~= "$" then
+			table.insert(escaped, char)
+			i = i + 1
+		else
+			local next_char = content:sub(i + 1, i + 1)
+			local close = next_char == "(" and content:find(")", i + 2, true)
+
+			if close then
+				local modifier = content:sub(i + 2, close - 1)
+				if competitest_receive_modifiers[modifier] then
+					table.insert(escaped, content:sub(i, close))
+					i = close + 1
+				else
+					table.insert(escaped, "$()")
+					i = i + 1
+				end
+			else
+				table.insert(escaped, "$()")
+				i = i + 1
+			end
+		end
+	end
+
+	return table.concat(escaped)
+end
+
+local function selected_lang()
+	local lang_name = tostring(lang):lower()
+	local normalized = language_aliases[lang_name] or lang_name
+	if languages[normalized] then
+		lang = normalized
+		return normalized
+	end
+
+	vim.notify("Unknown CompetiTest language '" .. lang_name .. "', falling back to .py", vim.log.levels.WARN)
+	lang = "py"
+	return lang
+end
+
+local function cached_template_path(ext, template_path)
+	local source_path = vim.fn.expand(template_path)
+	local content = read_file(source_path)
+	if not content then
+		vim.notify("Missing CompetiTest template: " .. source_path, vim.log.levels.WARN)
+		return template_path
+	end
+
+	local cache_dir = vim.fn.stdpath("cache") .. "/competitest/templates"
+	vim.fn.mkdir(cache_dir, "p")
+
+	local target_path = cache_dir .. "/cp." .. ext
+	local escaped_content = escape_literal_dollars(content)
+
+	if read_file(target_path) ~= escaped_content and not write_file(target_path, escaped_content) then
+		vim.notify("Could not write CompetiTest template cache: " .. target_path, vim.log.levels.WARN)
+		return template_path
+	end
+
+	return target_path
+end
+
+local function template_files()
+	local templates = {}
+
+	for ext, language in pairs(languages) do
+		templates[ext] = cached_template_path(ext, language.template)
+	end
+
+	return templates
+end
 
 local function competitest_config()
 	return {
@@ -8,13 +153,9 @@ local function competitest_config()
 			interface = "popup", -- "popup" | "split"
 		},
 
-		received_files_extension = lang,
+		received_files_extension = selected_lang(),
 
-		template_file = {
-			cpp = "~/.config/nvim/snippets/cpp/cp.cpp",
-			py = "~/.config/nvim/snippets/python/cp.py",
-			rs = "~/.config/nvim/snippets/rust/cp.rs",
-		},
+		template_file = template_files(),
 
 		received_problems_path = "$(CWD)/$(JAVA_TASK_CLASS)/$(JAVA_TASK_CLASS).$(FEXT)",
 		received_contests_directory = "$(CWD)/$(CONTEST)",
@@ -78,9 +219,9 @@ return {
 
 		vim.keymap.set("n", "<leader>rtl", function()
 			vim.ui.select({
-				{ name = "Rust", ext = "rs" },
-				{ name = "C++", ext = "cpp" },
-				{ name = "Python", ext = "py" },
+				{ name = languages.rs.name, ext = "rs" },
+				{ name = languages.cpp.name, ext = "cpp" },
+				{ name = languages.py.name, ext = "py" },
 			}, {
 				prompt = "Choose CompetiTest language:",
 				format_item = function(item)
@@ -160,30 +301,6 @@ return {
 			local template_dir = vim.fn.expand("~/.config/nvim/snippets/")
 			local bash_template = template_dir .. "bash/diff.sh"
 			local gen_template = template_dir .. "python/brute/gen.py"
-
-			local function read_file(path)
-				local f = io.open(path, "r")
-				if not f then
-					return nil
-				end
-
-				local content = f:read("*a")
-				f:close()
-
-				return content
-			end
-
-			local function write_file(path, content)
-				local f = io.open(path, "w")
-				if not f then
-					return false
-				end
-
-				f:write(content)
-				f:close()
-
-				return true
-			end
 
 			os.execute("cp " .. vim.fn.shellescape(main_file) .. " " .. vim.fn.shellescape(brute_filename))
 
