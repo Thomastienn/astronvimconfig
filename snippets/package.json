@@ -28,6 +28,10 @@
             {
                 "language": "bash",
                 "path": "./bash.json"
+            },
+            {
+                "language": "rust",
+                "path": "./rust.json"
             }
         ]
     }

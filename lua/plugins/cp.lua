@@ -8,10 +8,11 @@ return {
 	        runner_ui = {
 	            interface = "popup" -- "popup" | "split"
 	        },
-	        received_files_extension = "cpp",
+	        received_files_extension = "rs",
 	        template_file = {
 	        	cpp = "~/.config/nvim/snippets/cpp/cp.cpp",
  				py = "~/.config/nvim/snippets/python/cp.py",
+ 				rs = "~/.config/nvim/snippets/rust/cp.rs",
 	        },
 	        received_problems_path = "$(CWD)/$(JAVA_TASK_CLASS)/$(JAVA_TASK_CLASS).$(FEXT)",
 	        received_contests_directory = "$(CWD)/$(CONTEST)",
