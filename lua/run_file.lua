@@ -1,4 +1,5 @@
 local python_venv = "~/.virtualenvs/neovim/bin/activate"
+local config_registry = require "run_config_registry"
 local run = {}
 
 local function run_cmd(cmd, toggleterm_opts)
@@ -61,12 +62,19 @@ local function compile_c_cpp(callback, filetype)
     vim.fn.mkdir(out_dir, "p")
 
     local output = out_dir .. "/" .. basename
-    local flags = filetype == "cpp" and
-                "g++ -DLOCAL -std=c++23 -O2 -Wall -Wextra -Wshadow" or
-                "gcc -std=c99"
+    local function compile(flags)
+        local cmd = string.format("%s %s -o %s", flags, src, output)
+        callback(cmd)
+    end
 
-    local cmd = string.format("%s %s -o %s", flags, src, output)
-    callback(cmd)
+    if filetype == "cpp" then
+        compile("g++ -DLOCAL -std=c++23 -O2 -Wall -Wextra -Wshadow")
+        return
+    end
+
+    require("run_config").resolve(src, filetype, config_registry[filetype], function(config)
+        compile(config.compiler .. " -std=" .. config.standard)
+    end)
 end
 
 local function compile_java(callback)
