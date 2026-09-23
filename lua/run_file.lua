@@ -23,11 +23,7 @@ function run.run_custom_cmd(cmd)
 end
 
 local function get_exec_path()
-    local filepath = vim.fn.expand "%:p"
-    local parent = vim.fn.fnamemodify(filepath, ":h")
-    local filename = vim.fn.expand "%:t:r"
-    local exe_path = parent .. "/build/" .. filename
-    return exe_path
+    return vim.fn.getcwd() .. "/build/" .. vim.fn.expand("%:t:r")
 end
 
 local function full_screen_opt()
@@ -54,14 +50,7 @@ local function compile_c_cpp(callback, filetype)
         return
     end
 
-    local root = vim.fn.getcwd()
-    local rel_dir = vim.fn.fnamemodify(src, ":.:h")
-    local basename = vim.fn.fnamemodify(src, ":t:r")
-
-    local out_dir = root .. "/build/" .. rel_dir
-    vim.fn.mkdir(out_dir, "p")
-
-    local output = out_dir .. "/" .. basename
+    local output = get_exec_path()
     local function compile(flags)
         local cmd = string.format("%s %s -o %s", flags, src, output)
         callback(cmd)
@@ -404,10 +393,7 @@ local function run_cpp(additional_cmds, extra_args)
     end
 
     vim.cmd "w" -- Save the file just in case
-    local output = vim.fn.expand "%:r"
-    local parent = vim.fn.fnamemodify(output, ":h")
-    local base = vim.fn.fnamemodify(output, ":t")
-    output = parent .. "/build/" .. base
+    local output = get_exec_path()
 
     if additional_cmds ~= nil then
         output = additional_cmds .. " && " .. output
@@ -418,13 +404,7 @@ end
 
 local function run_c(additional_cmds, extra_args)
     vim.cmd "w" -- Save the file just in case
-    -- local file_with_ext = vim.fn.expand "%:t"
-    -- local file_name = file_with_ext:gsub("%.c$", "")
-    -- local output = "./" .. file_name
-    local output = vim.fn.expand "%:r"
-    local parent = vim.fn.fnamemodify(output, ":h")
-    local base = vim.fn.fnamemodify(output, ":t")
-    output = parent .. "/build/" .. base
+    local output = get_exec_path()
 
     if additional_cmds ~= nil then
         output = additional_cmds .. " && " .. output
