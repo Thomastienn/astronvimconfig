@@ -2,7 +2,7 @@ from collections import deque
 
 class Dinic:
     """
-    Max flow
+    Maximum flow / min cut (Dinic)
     add_edge(u, v, cap) returns edge id e, flow on it = cap - self.cap[e]
     max_flow(s, t); afterwards level[u] != -1 <=> u on source side of min cut
     Time: O(V^2 E), O(E sqrt V) on unit capacity
